@@ -1,5 +1,5 @@
 {
-  "name": "xyz-portal",
+  "name": "xyz-hrportal",
   "private": true,
   "version": "0.1.0",
   "description": "A Strapi application",
@@ -7,15 +7,17 @@
     "develop": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
-    "strapi": "strapi"
+    "strapi": "strapi",
+    "postinstall": "patch-package"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@strapi/strapi": "4.24.4",
-    "@strapi/plugin-users-permissions": "4.24.4",
-    "@strapi/plugin-i18n": "4.24.4",
     "@strapi/plugin-cloud": "4.24.4",
-    "better-sqlite3": "8.6.0",
+    "@strapi/plugin-documentation": "^4.24.4",
+    "@strapi/plugin-i18n": "4.24.4",
+    "@strapi/plugin-users-permissions": "4.24.4",
+    "@strapi/strapi": "4.24.4",
+    "patch-package": "^8.0.0",
+    "pg": "8.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
@@ -25,7 +27,7 @@
     "name": "A Strapi developer"
   },
   "strapi": {
-    "uuid": "f3be4611-43aa-418e-8235-19994726ad80"
+    "uuid": "73d0d218-458e-4bbd-96ce-4658bcf9b40c"
   },
   "engines": {
     "node": ">=18.0.0 <=20.x.x",

@@ -4,7 +4,8 @@
     "info": {
         "singularName": "emp-detail",
         "pluralName": "emp-details",
-        "displayName": "EmpDetail"
+        "displayName": "EmpDetail",
+        "description": ""
     },
     "options": {
         "draftAndPublish": true
@@ -25,6 +26,19 @@
         },
         "email": {
             "type": "email"
+        },
+        "joiningDate": {
+            "type": "date"
+        },
+        "Photo": {
+            "allowedTypes": [
+                "images",
+                "files",
+                "videos",
+                "audios"
+            ],
+            "type": "media",
+            "multiple": true
         }
     }
 }

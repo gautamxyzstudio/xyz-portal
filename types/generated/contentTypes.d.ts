@@ -382,6 +382,7 @@ export interface ApiDailyAttendanceDailyAttendance
       'oneToMany',
       'api::emp-detail.emp-detail'
     >;
+    Date: Attribute.Date;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -406,6 +407,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     singularName: 'emp-detail';
     pluralName: 'emp-details';
     displayName: 'EmpDetail';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -416,6 +418,8 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     empCode: Attribute.String;
     phoneNumber: Attribute.String;
     email: Attribute.Email;
+    joiningDate: Attribute.Date;
+    Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

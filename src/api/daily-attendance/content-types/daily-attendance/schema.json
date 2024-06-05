@@ -22,6 +22,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::emp-detail.emp-detail"
+    },
+    "Date": {
+      "type": "date"
     }
   }
 }

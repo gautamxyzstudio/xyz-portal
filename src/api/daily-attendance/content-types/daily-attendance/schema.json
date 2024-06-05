@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_attendances",
+  "info": {
+    "singularName": "daily-attendance",
+    "pluralName": "daily-attendances",
+    "displayName": "dailyAttendance",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "in": {
+      "type": "time"
+    },
+    "out": {
+      "type": "time"
+    },
+    "emp_details": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::emp-detail.emp-detail"
+    }
+  }
+}

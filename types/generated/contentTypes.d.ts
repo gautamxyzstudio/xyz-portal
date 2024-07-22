@@ -377,12 +377,12 @@ export interface ApiDailyAttendanceDailyAttendance
   attributes: {
     in: Attribute.Time;
     out: Attribute.Time;
-    emp_details: Attribute.Relation<
+    Date: Attribute.Date;
+    emp_detail: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
-      'oneToMany',
+      'oneToOne',
       'api::emp-detail.emp-detail'
     >;
-    Date: Attribute.Date;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -420,6 +420,11 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     email: Attribute.Email;
     joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
+    daily_attendance: Attribute.Relation<
+      'api::emp-detail.emp-detail',
+      'oneToOne',
+      'api::daily-attendance.daily-attendance'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

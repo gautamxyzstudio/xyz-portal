@@ -18,13 +18,14 @@
         "out": {
             "type": "time"
         },
-        "emp_details": {
-            "type": "relation",
-            "relation": "oneToMany",
-            "target": "api::emp-detail.emp-detail"
-        },
         "Date": {
             "type": "date"
+        },
+        "emp_detail": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::emp-detail.emp-detail",
+            "inversedBy": "daily_attendance"
         }
     }
 }

@@ -1,3 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = () => ({});
+module.exports = ({ env }) => ({
+    upload: {
+        provider: 'local',
+        providerOptions: {
+            sizeLimit: 1000000,
+        },
+    },
+});

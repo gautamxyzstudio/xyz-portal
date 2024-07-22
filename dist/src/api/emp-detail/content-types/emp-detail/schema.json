@@ -39,6 +39,12 @@
             ],
             "type": "media",
             "multiple": true
+        },
+        "daily_attendance": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::daily-attendance.daily-attendance",
+            "mappedBy": "emp_detail"
         }
     }
 }

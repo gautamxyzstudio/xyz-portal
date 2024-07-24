@@ -425,6 +425,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'oneToOne',
       'api::daily-attendance.daily-attendance'
     >;
+    status: Attribute.Enumeration<['active', 'deactivate']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

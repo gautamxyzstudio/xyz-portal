@@ -40,7 +40,8 @@
                 "videos",
                 "audios"
             ]
-        }, "daily_attendance": {
+        },
+        "daily_attendance": {
             "type": "relation",
             "relation": "oneToOne",
             "target": "api::daily-attendance.daily-attendance",
@@ -52,6 +53,16 @@
                 "active",
                 "deactivate"
             ]
+        },
+        "leave_status": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::leave-status.leave-status",
+            "mappedBy": "emp_detail"
+        },
+        "leave_balance": {
+            "type": "integer",
+            "required": true
         }
     }
 }

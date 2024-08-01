@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "leave_statuses",
+  "info": {
+    "singularName": "leave-status",
+    "pluralName": "leave-statuses",
+    "displayName": "leaveStatus"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "start_date": {
+      "type": "date"
+    },
+    "end_date": {
+      "type": "date"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "approved",
+        "pending",
+        "declined"
+      ]
+    },
+    "emp_detail": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::emp-detail.emp-detail",
+      "inversedBy": "leave_status"
+    }
+  }
+}

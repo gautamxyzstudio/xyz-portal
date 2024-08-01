@@ -426,6 +426,12 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'api::daily-attendance.daily-attendance'
     >;
     status: Attribute.Enumeration<['active', 'deactivate']>;
+    leave_status: Attribute.Relation<
+      'api::emp-detail.emp-detail',
+      'oneToOne',
+      'api::leave-status.leave-status'
+    >;
+    leave_balance: Attribute.Integer & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -437,6 +443,75 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::emp-detail.emp-detail',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiHolidayListHolidayList extends Schema.CollectionType {
+  collectionName: 'holiday_lists';
+  info: {
+    singularName: 'holiday-list';
+    pluralName: 'holiday-lists';
+    displayName: 'Holiday_list';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Name: Attribute.String;
+    date: Attribute.Date;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::holiday-list.holiday-list',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::holiday-list.holiday-list',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
+  collectionName: 'leave_statuses';
+  info: {
+    singularName: 'leave-status';
+    pluralName: 'leave-statuses';
+    displayName: 'leaveStatus';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    start_date: Attribute.Date;
+    end_date: Attribute.Date;
+    reason: Attribute.String;
+    status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
+    emp_detail: Attribute.Relation<
+      'api::leave-status.leave-status',
+      'oneToOne',
+      'api::emp-detail.emp-detail'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::leave-status.leave-status',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::leave-status.leave-status',
       'oneToOne',
       'admin::user'
     > &
@@ -824,7 +899,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     username: Attribute.String &
@@ -882,6 +956,8 @@ declare module '@strapi/types' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
+      'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
+      'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;

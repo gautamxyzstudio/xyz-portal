@@ -380,7 +380,7 @@ export interface ApiDailyAttendanceDailyAttendance
     Date: Attribute.Date;
     emp_detail: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
-      'oneToOne',
+      'manyToOne',
       'api::emp-detail.emp-detail'
     >;
     createdAt: Attribute.DateTime;
@@ -420,11 +420,6 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     email: Attribute.Email;
     joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
-    daily_attendance: Attribute.Relation<
-      'api::emp-detail.emp-detail',
-      'oneToOne',
-      'api::daily-attendance.daily-attendance'
-    >;
     status: Attribute.Enumeration<['active', 'deactivate']>;
     leave_status: Attribute.Relation<
       'api::emp-detail.emp-detail',
@@ -432,6 +427,11 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'api::leave-status.leave-status'
     >;
     leave_balance: Attribute.Integer & Attribute.Required;
+    daily_attendances: Attribute.Relation<
+      'api::emp-detail.emp-detail',
+      'oneToMany',
+      'api::daily-attendance.daily-attendance'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

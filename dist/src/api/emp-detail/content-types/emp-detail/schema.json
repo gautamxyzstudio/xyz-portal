@@ -41,12 +41,6 @@
                 "audios"
             ]
         },
-        "daily_attendance": {
-            "type": "relation",
-            "relation": "oneToOne",
-            "target": "api::daily-attendance.daily-attendance",
-            "mappedBy": "emp_detail"
-        },
         "status": {
             "type": "enumeration",
             "enum": [
@@ -63,6 +57,12 @@
         "leave_balance": {
             "type": "integer",
             "required": true
+        },
+        "daily_attendances": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::daily-attendance.daily-attendance",
+            "mappedBy": "emp_detail"
         }
     }
 }

@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2024-08-01T06:14:56.207Z"
+    "x-generation-date": "2024-08-02T06:10:45.932Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -844,101 +844,6 @@
                           }
                         }
                       },
-                      "daily_attendance": {
-                        "type": "object",
-                        "properties": {
-                          "data": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "number"
-                              },
-                              "attributes": {
-                                "type": "object",
-                                "properties": {
-                                  "in": {
-                                    "type": "string",
-                                    "format": "time",
-                                    "example": "12:54.000"
-                                  },
-                                  "out": {
-                                    "type": "string",
-                                    "format": "time",
-                                    "example": "12:54.000"
-                                  },
-                                  "Date": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  "emp_detail": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "createdAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "updatedAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "publishedAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "createdBy": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "updatedBy": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
                       "status": {
                         "type": "string",
                         "enum": [
@@ -1048,6 +953,104 @@
                       },
                       "leave_balance": {
                         "type": "integer"
+                      },
+                      "daily_attendances": {
+                        "type": "object",
+                        "properties": {
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "number"
+                                },
+                                "attributes": {
+                                  "type": "object",
+                                  "properties": {
+                                    "in": {
+                                      "type": "string",
+                                      "format": "time",
+                                      "example": "12:54.000"
+                                    },
+                                    "out": {
+                                      "type": "string",
+                                      "format": "time",
+                                      "example": "12:54.000"
+                                    },
+                                    "Date": {
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "emp_detail": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "createdAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "updatedAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "publishedAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "createdBy": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "updatedBy": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       },
                       "createdAt": {
                         "type": "string",
@@ -1217,17 +1220,6 @@
                   "example": "string or id"
                 }
               },
-              "daily_attendance": {
-                "oneOf": [
-                  {
-                    "type": "integer"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ],
-                "example": "string or id"
-              },
               "status": {
                 "type": "string",
                 "enum": [
@@ -1248,6 +1240,20 @@
               },
               "leave_balance": {
                 "type": "integer"
+              },
+              "daily_attendances": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "example": "string or id"
+                }
               }
             }
           }
@@ -1950,7 +1956,14 @@
               }
             }
           },
-          "daily_attendance": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "deactivate"
+            ]
+          },
+          "leave_status": {
             "type": "object",
             "properties": {
               "data": {
@@ -1962,19 +1975,24 @@
                   "attributes": {
                     "type": "object",
                     "properties": {
-                      "in": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "12:54.000"
-                      },
-                      "out": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "12:54.000"
-                      },
-                      "Date": {
+                      "start_date": {
                         "type": "string",
                         "format": "date"
+                      },
+                      "end_date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "approved",
+                          "pending",
+                          "declined"
+                        ]
                       },
                       "emp_detail": {
                         "type": "object",
@@ -2150,23 +2168,6 @@
                                       }
                                     }
                                   },
-                                  "daily_attendance": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },
                                   "status": {
                                     "type": "string",
                                     "enum": [
@@ -2185,84 +2186,102 @@
                                           },
                                           "attributes": {
                                             "type": "object",
-                                            "properties": {
-                                              "start_date": {
-                                                "type": "string",
-                                                "format": "date"
-                                              },
-                                              "end_date": {
-                                                "type": "string",
-                                                "format": "date"
-                                              },
-                                              "reason": {
-                                                "type": "string"
-                                              },
-                                              "status": {
-                                                "type": "string",
-                                                "enum": [
-                                                  "approved",
-                                                  "pending",
-                                                  "declined"
-                                                ]
-                                              },
-                                              "emp_detail": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "data": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "id": {
-                                                        "type": "number"
-                                                      },
-                                                      "attributes": {
-                                                        "type": "object",
-                                                        "properties": {}
+                                            "properties": {}
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "leave_balance": {
+                                    "type": "integer"
+                                  },
+                                  "daily_attendances": {
+                                    "type": "object",
+                                    "properties": {
+                                      "data": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {
+                                                "in": {
+                                                  "type": "string",
+                                                  "format": "time",
+                                                  "example": "12:54.000"
+                                                },
+                                                "out": {
+                                                  "type": "string",
+                                                  "format": "time",
+                                                  "example": "12:54.000"
+                                                },
+                                                "Date": {
+                                                  "type": "string",
+                                                  "format": "date"
+                                                },
+                                                "emp_detail": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "data": {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "id": {
+                                                          "type": "number"
+                                                        },
+                                                        "attributes": {
+                                                          "type": "object",
+                                                          "properties": {}
+                                                        }
                                                       }
                                                     }
                                                   }
-                                                }
-                                              },
-                                              "createdAt": {
-                                                "type": "string",
-                                                "format": "date-time"
-                                              },
-                                              "updatedAt": {
-                                                "type": "string",
-                                                "format": "date-time"
-                                              },
-                                              "publishedAt": {
-                                                "type": "string",
-                                                "format": "date-time"
-                                              },
-                                              "createdBy": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "data": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "id": {
-                                                        "type": "number"
-                                                      },
-                                                      "attributes": {
-                                                        "type": "object",
-                                                        "properties": {}
+                                                },
+                                                "createdAt": {
+                                                  "type": "string",
+                                                  "format": "date-time"
+                                                },
+                                                "updatedAt": {
+                                                  "type": "string",
+                                                  "format": "date-time"
+                                                },
+                                                "publishedAt": {
+                                                  "type": "string",
+                                                  "format": "date-time"
+                                                },
+                                                "createdBy": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "data": {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "id": {
+                                                          "type": "number"
+                                                        },
+                                                        "attributes": {
+                                                          "type": "object",
+                                                          "properties": {}
+                                                        }
                                                       }
                                                     }
                                                   }
-                                                }
-                                              },
-                                              "updatedBy": {
-                                                "type": "object",
-                                                "properties": {
-                                                  "data": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "id": {
-                                                        "type": "number"
-                                                      },
-                                                      "attributes": {
-                                                        "type": "object",
-                                                        "properties": {}
+                                                },
+                                                "updatedBy": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "data": {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "id": {
+                                                          "type": "number"
+                                                        },
+                                                        "attributes": {
+                                                          "type": "object",
+                                                          "properties": {}
+                                                        }
                                                       }
                                                     }
                                                   }
@@ -2273,9 +2292,6 @@
                                         }
                                       }
                                     }
-                                  },
-                                  "leave_balance": {
-                                    "type": "integer"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -2381,32 +2397,28 @@
               }
             }
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "deactivate"
-            ]
+          "leave_balance": {
+            "type": "integer"
           },
-          "leave_status": {
+          "daily_attendances": {
             "type": "object",
             "properties": {
               "data": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "number"
-                  },
-                  "attributes": {
-                    "type": "object",
-                    "properties": {}
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {}
+                    }
                   }
                 }
               }
             }
-          },
-          "leave_balance": {
-            "type": "integer"
           },
           "createdAt": {
             "type": "string",
@@ -3644,101 +3656,6 @@
                           }
                         }
                       },
-                      "daily_attendance": {
-                        "type": "object",
-                        "properties": {
-                          "data": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "number"
-                              },
-                              "attributes": {
-                                "type": "object",
-                                "properties": {
-                                  "in": {
-                                    "type": "string",
-                                    "format": "time",
-                                    "example": "12:54.000"
-                                  },
-                                  "out": {
-                                    "type": "string",
-                                    "format": "time",
-                                    "example": "12:54.000"
-                                  },
-                                  "Date": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
-                                  "emp_detail": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "createdAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "updatedAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "publishedAt": {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  "createdBy": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  },
-                                  "updatedBy": {
-                                    "type": "object",
-                                    "properties": {
-                                      "data": {
-                                        "type": "object",
-                                        "properties": {
-                                          "id": {
-                                            "type": "number"
-                                          },
-                                          "attributes": {
-                                            "type": "object",
-                                            "properties": {}
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
                       "status": {
                         "type": "string",
                         "enum": [
@@ -3848,6 +3765,104 @@
                       },
                       "leave_balance": {
                         "type": "integer"
+                      },
+                      "daily_attendances": {
+                        "type": "object",
+                        "properties": {
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "number"
+                                },
+                                "attributes": {
+                                  "type": "object",
+                                  "properties": {
+                                    "in": {
+                                      "type": "string",
+                                      "format": "time",
+                                      "example": "12:54.000"
+                                    },
+                                    "out": {
+                                      "type": "string",
+                                      "format": "time",
+                                      "example": "12:54.000"
+                                    },
+                                    "Date": {
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "emp_detail": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "createdAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "updatedAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "publishedAt": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "createdBy": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "updatedBy": {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "number"
+                                            },
+                                            "attributes": {
+                                              "type": "object",
+                                              "properties": {}
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       },
                       "createdAt": {
                         "type": "string",

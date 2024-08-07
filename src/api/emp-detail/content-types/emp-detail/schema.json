@@ -1,10 +1,10 @@
 {
   "kind": "collectionType",
-  "collectionName": "daily_attendances",
+  "collectionName": "emp_details",
   "info": {
-    "singularName": "daily-attendance",
-    "pluralName": "daily-attendances",
-    "displayName": "DailyAttendance",
+    "singularName": "emp-detail",
+    "pluralName": "emp-details",
+    "displayName": "EmpDetail",
     "description": ""
   },
   "options": {
@@ -12,22 +12,57 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "date": {
+    "name": {
+      "type": "string"
+    },
+    "designation": {
+      "type": "string"
+    },
+    "empCode": {
+      "type": "string"
+    },
+    "phoneNumber": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "joiningDate": {
       "type": "date"
+    },
+    "Photo": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
     },
     "status": {
       "type": "enumeration",
       "enum": [
-        "present",
-        "absent",
-        "leave"
+        "active",
+        "deactivate"
       ]
     },
-    "emp_details": {
+    "leave_status": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::leave-status.leave-status",
+      "mappedBy": "emp_detail"
+    },
+    "leave_balance": {
+      "type": "integer",
+      "required": true
+    },
+    "daily_attendances": {
       "type": "relation",
       "relation": "manyToMany",
-      "target": "api::emp-detail.emp-detail",
-      "mappedBy": "daily_attendances"
+      "target": "api::daily-attendance.daily-attendance",
+      "inversedBy": "emp_details"
     }
   }
 }

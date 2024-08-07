@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = ({ env }) => ({
     upload: {
         provider: 'local',
@@ -6,7 +7,8 @@ module.exports = ({ env }) => ({
         },
         actionOptions: {
             upload: {
-                folder: env('UPLOAD_PATH'),
+                // Set the path to the mounted volume directory
+                path: path.join('/data/uploads'),
             },
         },
     },

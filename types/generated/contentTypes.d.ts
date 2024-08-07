@@ -804,9 +804,9 @@ export interface ApiDailyAttendanceDailyAttendance
     in: Attribute.Time;
     out: Attribute.Time;
     Date: Attribute.Date;
-    emp_detail: Attribute.Relation<
+    emp_details: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
-      'manyToOne',
+      'manyToMany',
       'api::emp-detail.emp-detail'
     >;
     createdAt: Attribute.DateTime;
@@ -855,7 +855,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     leave_balance: Attribute.Integer & Attribute.Required;
     daily_attendances: Attribute.Relation<
       'api::emp-detail.emp-detail',
-      'oneToMany',
+      'manyToMany',
       'api::daily-attendance.daily-attendance'
     >;
     createdAt: Attribute.DateTime;

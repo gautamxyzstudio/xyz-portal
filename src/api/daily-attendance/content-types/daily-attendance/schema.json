@@ -21,9 +21,9 @@
     "Date": {
       "type": "date"
     },
-    "emp_detail": {
+    "emp_details": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "manyToMany",
       "target": "api::emp-detail.emp-detail",
       "inversedBy": "daily_attendances"
     }

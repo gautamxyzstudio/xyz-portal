@@ -1,44 +1,40 @@
 "use strict";
 /**
- * emp-detail controller
+ * daily-attendance controller
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const strapi_1 = require("@strapi/strapi");
-exports.default = strapi_1.factories.createCoreController('api::emp-detail.emp-detail', ({ strapi }) => ({
+exports.default = strapi_1.factories.createCoreController('api::daily-attendance.daily-attendance', ({ strapi }) => ({
     async find(ctx) {
-        // Populate Photo and daily_attendances relations
         ctx.query.populate = {
-            Photo: true,
-            daily_attendances: true,
-        };
-        // Call the default core action
-        const { data, meta } = await super.find(ctx);
-        // Log the result for debugging
-        console.log('find result:', data);
-        // Check if daily_attendances is populated
-        data.forEach(entry => {
-            if (!entry.daily_attendances) {
-                console.warn('daily_attendances not populated for entry:', entry.id);
+            emp_details: {
+                populate: {
+                    Photo: true
+                }
             }
-        });
-        // Return the response
+        };
+        const { data, meta } = await super.find(ctx);
         return { data, meta };
     },
     async findOne(ctx) {
-        // Populate Photo and daily_attendances relations
         ctx.query.populate = {
-            Photo: true,
-            daily_attendances: true,
+            emp_details: {
+                populate: {
+                    Photo: true
+                }
+            }
         };
-        // Call the default core action
         const { data, meta } = await super.findOne(ctx);
-        // Log the result for debugging
-        console.log('findOne result:', data);
-        // Check if daily_attendances is populated
-        if (!data.daily_attendances) {
-            console.warn('daily_attendances not populated for entry:', data.id);
-        }
-        // Return the response
         return { data, meta };
     },
+    async create(ctx) {
+        const response = await super.create(ctx);
+        const entity = await strapi.entityService.findOne('api::daily-attendance.daily-attendance', response.data.id, { populate: { emp_details: { populate: { Photo: true } } } });
+        return { data: entity };
+    },
+    async update(ctx) {
+        const response = await super.update(ctx);
+        const entity = await strapi.entityService.findOne('api::daily-attendance.daily-attendance', response.data.id, { populate: { emp_details: { populate: { Photo: true } } } });
+        return { data: entity };
+    }
 }));

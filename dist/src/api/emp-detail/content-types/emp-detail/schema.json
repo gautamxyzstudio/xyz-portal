@@ -60,9 +60,9 @@
         },
         "daily_attendances": {
             "type": "relation",
-            "relation": "manyToMany",
+            "relation": "oneToMany",
             "target": "api::daily-attendance.daily-attendance",
-            "inversedBy": "emp_details"
+            "mappedBy": "emp_detail"
         }
     }
 }

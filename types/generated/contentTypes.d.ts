@@ -855,7 +855,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     leave_balance: Attribute.Integer & Attribute.Required;
     daily_attendances: Attribute.Relation<
       'api::emp-detail.emp-detail',
-      'manyToMany',
+      'oneToMany',
       'api::daily-attendance.daily-attendance'
     >;
     createdAt: Attribute.DateTime;

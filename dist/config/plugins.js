@@ -3,7 +3,7 @@ module.exports = ({ env }) => ({
     upload: {
         provider: 'local',
         providerOptions: {
-            sizeLimit: 1000000, // optional, default is 1MB
+            sizeLimit: 10000000, // optional, default is 10MB
         },
         actionOptions: {
             upload: {

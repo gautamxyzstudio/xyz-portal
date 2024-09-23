@@ -7,8 +7,8 @@ module.exports = ({ env }) => ({
         },
         actionOptions: {
             upload: {
-                // Set the path to the mounted volume directory
-                path: path.join('/data/uploads'),
+                // Set the path using an environment variable
+                path: env('UPLOAD_PATH', path.join('/data/uploads')),
             },
         },
     },

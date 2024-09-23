@@ -788,6 +788,36 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiAddBlogAddBlog extends Schema.CollectionType {
+  collectionName: 'add_blogs';
+  info: {
+    singularName: 'add-blog';
+    pluralName: 'add-blogs';
+    displayName: 'AddBlog';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    blogData: Attribute.Text;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::add-blog.add-blog',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::add-blog.add-blog',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiDailyAttendanceDailyAttendance
   extends Schema.CollectionType {
   collectionName: 'daily_attendances';
@@ -1000,6 +1030,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::add-blog.add-blog': ApiAddBlogAddBlog;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;

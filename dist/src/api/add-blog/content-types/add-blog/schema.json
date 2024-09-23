@@ -1,0 +1,18 @@
+{
+    "kind": "collectionType",
+    "collectionName": "add_blogs",
+    "info": {
+        "singularName": "add-blog",
+        "pluralName": "add-blogs",
+        "displayName": "AddBlog"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "blogData": {
+            "type": "text"
+        }
+    }
+}

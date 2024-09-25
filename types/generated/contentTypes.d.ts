@@ -794,12 +794,14 @@ export interface ApiAddBlogAddBlog extends Schema.CollectionType {
     singularName: 'add-blog';
     pluralName: 'add-blogs';
     displayName: 'AddBlog';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
     blogData: Attribute.Text;
+    banner: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

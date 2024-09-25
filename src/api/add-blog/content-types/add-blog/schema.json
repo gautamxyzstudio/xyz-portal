@@ -4,7 +4,8 @@
   "info": {
     "singularName": "add-blog",
     "pluralName": "add-blogs",
-    "displayName": "AddBlog"
+    "displayName": "AddBlog",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -13,6 +14,16 @@
   "attributes": {
     "blogData": {
       "type": "text"
+    },
+    "banner": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

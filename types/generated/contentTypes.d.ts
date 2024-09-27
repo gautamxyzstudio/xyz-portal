@@ -802,6 +802,8 @@ export interface ApiAddBlogAddBlog extends Schema.CollectionType {
   attributes: {
     blogData: Attribute.Text;
     banner: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    title: Attribute.String;
+    shortDesc: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

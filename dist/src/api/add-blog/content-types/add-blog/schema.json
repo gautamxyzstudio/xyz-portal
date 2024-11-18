@@ -31,6 +31,15 @@
         },
         "shortDesc": {
             "type": "text"
+        },
+        "metaDescr": {
+            "type": "text"
+        },
+        "metaTitle": {
+            "type": "string"
+        },
+        "BlogDate": {
+            "type": "datetime"
         }
     }
 }

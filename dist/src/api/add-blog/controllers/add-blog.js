@@ -61,6 +61,7 @@ exports.default = strapi_1.factories.createCoreController("api::add-blog.add-blo
             }
             const blog = await strapi.db.query("api::add-blog.add-blog").findOne({
                 where: { title },
+                populate: { banner: true }, // Populate banner image
             });
             if (!blog) {
                 return ctx.notFound("Blog not found");

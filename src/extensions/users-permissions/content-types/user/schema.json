@@ -69,7 +69,9 @@
       "type": "enumeration",
       "enum": [
         "Admin",
-        "Employee"
+        "Employee",
+        "Hr",
+        "Seo"
       ]
     }
   }

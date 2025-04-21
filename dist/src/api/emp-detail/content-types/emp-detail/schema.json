@@ -4,7 +4,7 @@
     "info": {
         "singularName": "emp-detail",
         "pluralName": "emp-details",
-        "displayName": "EmpDetail",
+        "displayName": "userDetials",
         "description": ""
     },
     "options": {
@@ -24,9 +24,6 @@
         "phoneNumber": {
             "type": "string"
         },
-        "email": {
-            "type": "email"
-        },
         "joiningDate": {
             "type": "date"
         },
@@ -45,7 +42,7 @@
             "type": "enumeration",
             "enum": [
                 "active",
-                "deactivate"
+                "deactive"
             ]
         },
         "leave_status": {
@@ -63,6 +60,12 @@
             "relation": "oneToMany",
             "target": "api::daily-attendance.daily-attendance",
             "mappedBy": "emp_detail"
+        },
+        "user_detail": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "user_detial"
         }
     }
 }

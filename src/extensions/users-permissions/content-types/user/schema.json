@@ -71,8 +71,21 @@
         "Admin",
         "Employee",
         "Hr",
-        "Seo"
+        "Seo",
+        "Manager"
       ]
+    },
+    "user_detial": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::emp-detail.emp-detail",
+      "mappedBy": "user_detail"
+    },
+    "approval_requests": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::leave-status.leave-status",
+      "inversedBy": "leave_approvers"
     }
   }
 }

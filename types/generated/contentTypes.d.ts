@@ -770,7 +770,19 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    user_type: Attribute.Enumeration<['Admin', 'Employee', 'Hr', 'Seo']>;
+    user_type: Attribute.Enumeration<
+      ['Admin', 'Employee', 'Hr', 'Seo', 'Manager']
+    >;
+    user_detial: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::emp-detail.emp-detail'
+    >;
+    approval_requests: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'api::leave-status.leave-status'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -846,6 +858,11 @@ export interface ApiDailyAttendanceDailyAttendance
       'manyToMany',
       'api::emp-detail.emp-detail'
     >;
+    emp_detail: Attribute.Relation<
+      'api::daily-attendance.daily-attendance',
+      'manyToOne',
+      'api::emp-detail.emp-detail'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -869,7 +886,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
   info: {
     singularName: 'emp-detail';
     pluralName: 'emp-details';
-    displayName: 'EmpDetail';
+    displayName: 'userDetials';
     description: '';
   };
   options: {
@@ -880,10 +897,9 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     designation: Attribute.String;
     empCode: Attribute.String;
     phoneNumber: Attribute.String;
-    email: Attribute.Email;
     joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
-    status: Attribute.Enumeration<['active', 'deactivate']>;
+    status: Attribute.Enumeration<['active', 'deactive']>;
     leave_status: Attribute.Relation<
       'api::emp-detail.emp-detail',
       'oneToOne',
@@ -894,6 +910,11 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'api::emp-detail.emp-detail',
       'oneToMany',
       'api::daily-attendance.daily-attendance'
+    >;
+    user_detail: Attribute.Relation<
+      'api::emp-detail.emp-detail',
+      'oneToOne',
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -949,7 +970,8 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   info: {
     singularName: 'leave-status';
     pluralName: 'leave-statuses';
-    displayName: 'leaveStatus';
+    displayName: 'leaveRequest';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -957,13 +979,23 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   attributes: {
     start_date: Attribute.Date;
     end_date: Attribute.Date;
-    reason: Attribute.String;
+    description: Attribute.String;
     status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
     emp_detail: Attribute.Relation<
       'api::leave-status.leave-status',
       'oneToOne',
       'api::emp-detail.emp-detail'
     >;
+    decline_reason: Attribute.Text;
+    title: Attribute.String & Attribute.Required;
+    leave_approvers: Attribute.Relation<
+      'api::leave-status.leave-status',
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
+    leave_type: Attribute.Enumeration<['short_leave', 'half_day', 'full_day']>;
+    is_paid: Attribute.Boolean;
+    is_first_half: Attribute.Boolean;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

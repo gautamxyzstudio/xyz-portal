@@ -26,6 +26,12 @@
             "relation": "manyToMany",
             "target": "api::emp-detail.emp-detail",
             "inversedBy": "daily_attendances"
+        },
+        "emp_detail": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::emp-detail.emp-detail",
+            "inversedBy": "daily_attendances"
         }
     }
 }

@@ -81,11 +81,11 @@
             "target": "api::emp-detail.emp-detail",
             "mappedBy": "user_detail"
         },
-        "approval_requests": {
+        "daily_attendances": {
             "type": "relation",
-            "relation": "manyToOne",
-            "target": "api::leave-status.leave-status",
-            "inversedBy": "leave_approvers"
+            "relation": "oneToMany",
+            "target": "api::daily-attendance.daily-attendance",
+            "mappedBy": "user"
         }
     }
 }

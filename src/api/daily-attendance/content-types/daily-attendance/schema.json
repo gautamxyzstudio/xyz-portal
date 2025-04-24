@@ -21,16 +21,10 @@
     "Date": {
       "type": "date"
     },
-    "emp_details": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::emp-detail.emp-detail",
-      "inversedBy": "daily_attendances"
-    },
-    "emp_detail": {
+    "user": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::emp-detail.emp-detail",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "daily_attendances"
     }
   }

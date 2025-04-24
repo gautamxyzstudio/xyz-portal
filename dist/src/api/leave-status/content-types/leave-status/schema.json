@@ -42,12 +42,6 @@
             "type": "string",
             "required": true
         },
-        "leave_approvers": {
-            "type": "relation",
-            "relation": "oneToMany",
-            "target": "plugin::users-permissions.user",
-            "mappedBy": "approval_requests"
-        },
         "leave_type": {
             "type": "enumeration",
             "enum": [

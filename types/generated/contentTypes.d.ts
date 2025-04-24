@@ -778,10 +778,10 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToOne',
       'api::emp-detail.emp-detail'
     >;
-    approval_requests: Attribute.Relation<
+    daily_attendances: Attribute.Relation<
       'plugin::users-permissions.user',
-      'manyToOne',
-      'api::leave-status.leave-status'
+      'oneToMany',
+      'api::daily-attendance.daily-attendance'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -853,15 +853,10 @@ export interface ApiDailyAttendanceDailyAttendance
     in: Attribute.Time;
     out: Attribute.Time;
     Date: Attribute.Date;
-    emp_details: Attribute.Relation<
-      'api::daily-attendance.daily-attendance',
-      'manyToMany',
-      'api::emp-detail.emp-detail'
-    >;
-    emp_detail: Attribute.Relation<
+    user: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
       'manyToOne',
-      'api::emp-detail.emp-detail'
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -906,11 +901,6 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'api::leave-status.leave-status'
     >;
     leave_balance: Attribute.Integer & Attribute.Required;
-    daily_attendances: Attribute.Relation<
-      'api::emp-detail.emp-detail',
-      'oneToMany',
-      'api::daily-attendance.daily-attendance'
-    >;
     user_detail: Attribute.Relation<
       'api::emp-detail.emp-detail',
       'oneToOne',
@@ -988,11 +978,6 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     >;
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
-    leave_approvers: Attribute.Relation<
-      'api::leave-status.leave-status',
-      'oneToMany',
-      'plugin::users-permissions.user'
-    >;
     leave_type: Attribute.Enumeration<['short_leave', 'half_day', 'full_day']>;
     is_paid: Attribute.Boolean;
     is_first_half: Attribute.Boolean;

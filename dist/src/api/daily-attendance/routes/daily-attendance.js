@@ -1,7 +1,29 @@
-"use strict";
-/**
- * daily-attendance router
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-const strapi_1 = require("@strapi/strapi");
-exports.default = strapi_1.factories.createCoreRouter('api::daily-attendance.daily-attendance');
+module.exports = {
+    routes: [
+        {
+            method: 'GET',
+            path: '/daily-attendance/all',
+            handler: 'daily-attendance.findAll',
+        },
+        {
+            method: 'GET',
+            path: '/daily-attendance/:id',
+            handler: 'daily-attendance.find',
+        },
+        {
+            method: 'GET',
+            path: '/daily-attendance/today/:id',
+            handler: 'daily-attendance.findToday',
+        },
+        {
+            method: 'POST',
+            path: '/daily-attendance/check-in',
+            handler: 'daily-attendance.checkIn',
+        },
+        {
+            method: 'POST',
+            path: '/daily-attendance/check-out',
+            handler: 'daily-attendance.checkOut',
+        },
+    ],
+};

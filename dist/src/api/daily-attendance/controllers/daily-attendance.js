@@ -78,4 +78,12 @@ exports.default = {
         ctx.body = attendance;
         return attendance;
     },
+    async updateAttendance(ctx) {
+        const { id, out: outTime, in: inTime } = ctx.request.body.data;
+        const attendance = await strapi.entityService.update('api::daily-attendance.daily-attendance', id, {
+            data: { out: outTime, in: inTime },
+        });
+        ctx.body = attendance;
+        return attendance;
+    },
 };

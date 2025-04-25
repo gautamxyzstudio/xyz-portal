@@ -25,5 +25,10 @@ module.exports = {
       path: '/daily-attendance/check-out',
       handler: 'daily-attendance.checkOut',
     },
+    {
+      method: 'PUT',
+      path: '/daily-attendance/update-attendance',
+      handler: 'daily-attendance.updateAttendance',
+    },
   ],
 };

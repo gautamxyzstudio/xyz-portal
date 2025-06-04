@@ -38,28 +38,15 @@
                 "audios"
             ]
         },
-        "status": {
-            "type": "enumeration",
-            "enum": [
-                "active",
-                "deactive"
-            ]
-        },
-        "leave_status": {
-            "type": "relation",
-            "relation": "oneToOne",
-            "target": "api::leave-status.leave-status",
-            "mappedBy": "emp_detail"
-        },
-        "leave_balance": {
-            "type": "integer",
-            "required": true
-        },
         "user_detail": {
             "type": "relation",
             "relation": "oneToOne",
             "target": "plugin::users-permissions.user",
             "inversedBy": "user_detial"
+        },
+        "status": {
+            "type": "boolean",
+            "default": true
         }
     }
 }

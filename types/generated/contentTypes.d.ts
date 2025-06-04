@@ -783,6 +783,13 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::daily-attendance.daily-attendance'
     >;
+    leave_requests: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::leave-status.leave-status'
+    >;
+    leave_balance: Attribute.Integer;
+    unpaid_leave_balance: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -894,18 +901,12 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     phoneNumber: Attribute.String;
     joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
-    status: Attribute.Enumeration<['active', 'deactive']>;
-    leave_status: Attribute.Relation<
-      'api::emp-detail.emp-detail',
-      'oneToOne',
-      'api::leave-status.leave-status'
-    >;
-    leave_balance: Attribute.Integer & Attribute.Required;
     user_detail: Attribute.Relation<
       'api::emp-detail.emp-detail',
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    status: Attribute.Boolean & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -971,16 +972,17 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     end_date: Attribute.Date;
     description: Attribute.String;
     status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
-    emp_detail: Attribute.Relation<
-      'api::leave-status.leave-status',
-      'oneToOne',
-      'api::emp-detail.emp-detail'
-    >;
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
     leave_type: Attribute.Enumeration<['short_leave', 'half_day', 'full_day']>;
     is_paid: Attribute.Boolean;
     is_first_half: Attribute.Boolean;
+    user: Attribute.Relation<
+      'api::leave-status.leave-status',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    start_time: Attribute.Time;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1036,6 +1038,36 @@ export interface ApiProductProduct extends Schema.CollectionType {
   };
 }
 
+export interface ApiTestLeaveTestLeave extends Schema.CollectionType {
+  collectionName: 'test_leaves';
+  info: {
+    singularName: 'test-leave';
+    pluralName: 'test-leaves';
+    displayName: 'testLeave';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::test-leave.test-leave',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::test-leave.test-leave',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1060,6 +1092,7 @@ declare module '@strapi/types' {
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
       'api::product.product': ApiProductProduct;
+      'api::test-leave.test-leave': ApiTestLeaveTestLeave;
     }
   }
 }

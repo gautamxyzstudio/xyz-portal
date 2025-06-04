@@ -29,12 +29,6 @@
                 "declined"
             ]
         },
-        "emp_detail": {
-            "type": "relation",
-            "relation": "oneToOne",
-            "target": "api::emp-detail.emp-detail",
-            "inversedBy": "leave_status"
-        },
         "decline_reason": {
             "type": "text"
         },
@@ -55,6 +49,15 @@
         },
         "is_first_half": {
             "type": "boolean"
+        },
+        "user": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "leave_requests"
+        },
+        "start_time": {
+            "type": "time"
         }
     }
 }

@@ -16,5 +16,13 @@ module.exports = {
                 policies: [],
             },
         },
+        {
+            method: 'PUT',
+            path: '/user/:id/leave-balance',
+            handler: 'user.updateLeaveBalance',
+            config: {
+                policies: [],
+            },
+        },
     ],
 };

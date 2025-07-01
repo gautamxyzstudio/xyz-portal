@@ -22,6 +22,18 @@ exports.default = {
         });
         ctx.body = user;
     },
+    async updateLeaveBalance(ctx) {
+        const { id } = ctx.params;
+        const { leave_balance, unpaid_leave_balance } = ctx.request.body;
+        await strapi.entityService.update('plugin::users-permissions.user', id, {
+            data: { leave_balance, unpaid_leave_balance },
+        });
+        ctx.body = {
+            message: 'Leave balance updated successfully',
+            leave_balance,
+            unpaid_leave_balance,
+        };
+    },
     async findSingleUser(ctx) {
         const { id } = ctx.params; // get authenticated user's id from token
         if (!id) {

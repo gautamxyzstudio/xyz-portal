@@ -98,6 +98,12 @@
         },
         "unpaid_leave_balance": {
             "type": "integer"
+        },
+        "user_documents": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::user-documents.user-documents",
+            "mappedBy": "user"
         }
     }
 }

@@ -790,6 +790,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     leave_balance: Attribute.Integer;
     unpaid_leave_balance: Attribute.Integer;
+    user_documents: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::user-documents.user-documents'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1068,6 +1073,42 @@ export interface ApiTestLeaveTestLeave extends Schema.CollectionType {
   };
 }
 
+export interface ApiUserDocumentsUserDocuments extends Schema.CollectionType {
+  collectionName: 'documents';
+  info: {
+    singularName: 'user-documents';
+    pluralName: 'documents';
+    displayName: 'UserDocuments';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    documentName: Attribute.String;
+    document: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    user: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1093,6 +1134,7 @@ declare module '@strapi/types' {
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
       'api::product.product': ApiProductProduct;
       'api::test-leave.test-leave': ApiTestLeaveTestLeave;
+      'api::user-documents.user-documents': ApiUserDocumentsUserDocuments;
     }
   }
 }

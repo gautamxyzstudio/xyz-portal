@@ -70,16 +70,48 @@ export default {
     const { user, date, in: inTime } = ctx.request.body.data;
     console.log('Incoming data request:', ctx.request.body);
 
-    const attendance = await strapi.entityService.create(
+    // First check if attendance entry exists for today
+    const today = date || new Date().toISOString().split('T')[0];
+    const existingEntry = await strapi.entityService.findMany(
       'api::daily-attendance.daily-attendance',
       {
-        data: {
+        filters: {
           user: user,
-          Date: date,
-          in: inTime,
+          Date: today,
         },
       }
     );
+
+    let attendance;
+    if (existingEntry.length > 0) {
+      // Update existing entry
+      attendance = await strapi.entityService.update(
+        'api::daily-attendance.daily-attendance',
+        existingEntry[0].id,
+        {
+          data: {
+            in: inTime,
+            status: 'present',
+            notes: 'User checked in successfully',
+          },
+        }
+      );
+    } else {
+      // Create new entry
+      attendance = await strapi.entityService.create(
+        'api::daily-attendance.daily-attendance',
+        {
+          data: {
+            user: user,
+            Date: today,
+            in: inTime,
+            status: 'present',
+            notes: 'User checked in successfully',
+          },
+        }
+      );
+    }
+
     console.log('Attendance Response:', attendance);
 
     ctx.body = attendance;
@@ -96,7 +128,10 @@ export default {
       'api::daily-attendance.daily-attendance',
       id,
       {
-        data: { out },
+        data: {
+          out,
+          notes: 'User checked out successfully',
+        },
       }
     );
 
@@ -104,15 +139,109 @@ export default {
     return attendance;
   },
   async updateAttendance(ctx) {
-    const { id, out: outTime, in: inTime } = ctx.request.body.data;
+    const {
+      id,
+      out: outTime,
+      in: inTime,
+      status,
+      notes,
+    } = ctx.request.body.data;
     const attendance = await strapi.entityService.update(
       'api::daily-attendance.daily-attendance',
       id,
       {
-        data: { out: outTime, in: inTime },
+        data: {
+          out: outTime,
+          in: inTime,
+          status: status,
+          notes: notes,
+        },
       }
     );
     ctx.body = attendance;
     return attendance;
+  },
+
+  // Cron job endpoints
+  async createDailyEntries(ctx) {
+    try {
+      const result = await strapi
+        .service('api::daily-attendance.daily-attendance')
+        .createDailyAttendanceEntries();
+      ctx.body = result;
+      return result;
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+  },
+
+  async markAbsentUsers(ctx) {
+    try {
+      const result = await strapi
+        .service('api::daily-attendance.daily-attendance')
+        .markAbsentUsers();
+      ctx.body = result;
+      return result;
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+  },
+
+  async getAttendanceStats(ctx) {
+    try {
+      const { startDate, endDate } = ctx.query;
+
+      if (!startDate || !endDate) {
+        return ctx.badRequest(
+          'Missing required parameters: startDate and endDate'
+        );
+      }
+
+      const result = await strapi
+        .service('api::daily-attendance.daily-attendance')
+        .getAttendanceStats(startDate, endDate);
+      ctx.body = result;
+      return result;
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+  },
+
+  // Manual trigger for testing
+  async triggerDailyCron(ctx) {
+    try {
+      // Create daily entries
+      const createResult = await strapi
+        .service('api::daily-attendance.daily-attendance')
+        .createDailyAttendanceEntries();
+
+      ctx.body = {
+        message: 'Daily cron job triggered successfully',
+        createEntries: createResult,
+        timestamp: new Date().toISOString(),
+      };
+      return ctx.body;
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+  },
+
+  // Manual trigger for end of day processing
+  async triggerEndOfDayCron(ctx) {
+    try {
+      // Mark absent users
+      const markAbsentResult = await strapi
+        .service('api::daily-attendance.daily-attendance')
+        .markAbsentUsers();
+
+      ctx.body = {
+        message: 'End of day cron job triggered successfully',
+        markAbsent: markAbsentResult,
+        timestamp: new Date().toISOString(),
+      };
+      return ctx.body;
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
   },
 };

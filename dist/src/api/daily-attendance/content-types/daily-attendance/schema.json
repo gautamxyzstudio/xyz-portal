@@ -21,6 +21,20 @@
         "Date": {
             "type": "date"
         },
+        "status": {
+            "type": "enumeration",
+            "enum": [
+                "present",
+                "absent",
+                "late",
+                "half-day",
+                "leave"
+            ],
+            "default": "absent"
+        },
+        "notes": {
+            "type": "text"
+        },
         "user": {
             "type": "relation",
             "relation": "manyToOne",

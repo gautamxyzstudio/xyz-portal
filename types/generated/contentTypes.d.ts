@@ -865,6 +865,11 @@ export interface ApiDailyAttendanceDailyAttendance
     in: Attribute.Time;
     out: Attribute.Time;
     Date: Attribute.Date;
+    status: Attribute.Enumeration<
+      ['present', 'absent', 'late', 'half-day', 'leave']
+    > &
+      Attribute.DefaultTo<'absent'>;
+    notes: Attribute.Text;
     user: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
       'manyToOne',

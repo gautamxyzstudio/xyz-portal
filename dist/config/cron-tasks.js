@@ -26,16 +26,6 @@ module.exports = {
             tz: 'Asia/Kolkata',
         },
     },
-    // 🚨 TEST - Every 1 minute
-    testEveryMinute: {
-        task: async ({ strapi }) => {
-            strapi.log.info('🚨 TEST CRON: Running every minute...');
-        },
-        options: {
-            rule: '*/1 * * * *',
-            tz: 'Asia/Kolkata',
-        },
-    },
     // 🕙 Mark absent users - 10:00 PM every day
     markAbsentUsers: {
         task: async ({ strapi }) => {

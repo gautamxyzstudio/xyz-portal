@@ -22,10 +22,23 @@ The attendance system now includes status tracking:
 - **`half-day`** - User worked half day
 - **`leave`** - User was on leave
 
+## 👥 Role-Based Attendance Tracking
+
+### Included Roles
+- **Employee** - Full attendance tracking
+- **Manager** - Full attendance tracking
+- **Seo** - Full attendance tracking
+
+### Excluded Roles
+- **Admin** - No attendance tracking (exempt from daily entries and check-ins)
+- **Hr** - No attendance tracking (exempt from daily entries and check-ins)
+
+*Note: Admin and Hr users cannot manually check in and will receive an error message if they attempt to do so.*
+
 ## 🔧 How It Works
 
 ### 1. Daily Entry Creation (6:00 AM)
-- Automatically creates attendance entries for all active users
+- Automatically creates attendance entries for all active users (excluding Admin and Hr roles)
 - Sets default status as `absent`
 - Adds note: "Auto-generated entry - awaiting check-in"
 
@@ -110,10 +123,11 @@ Check your Strapi console for real-time logs when cron jobs run.
 
 ## 🚨 Important Notes
 
-1. **User Filtering**: Only active (non-blocked, confirmed) users get attendance entries
-2. **Duplicate Prevention**: System checks for existing entries before creating new ones
-3. **Error Handling**: Failed operations are logged but don't stop the process
-4. **Timezone**: Ensure your server timezone matches the configured timezone
+1. **User Filtering**: Only active (non-blocked, confirmed) users with roles other than Admin and Hr get attendance entries
+2. **Role Restrictions**: Admin and Hr users are excluded from attendance tracking
+3. **Duplicate Prevention**: System checks for existing entries before creating new ones
+4. **Error Handling**: Failed operations are logged but don't stop the process
+5. **Timezone**: Ensure your server timezone matches the configured timezone
 
 ## 🔄 Migration
 

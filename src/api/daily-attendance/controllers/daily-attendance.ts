@@ -70,6 +70,17 @@ export default {
     const { user, date, in: inTime } = ctx.request.body.data;
     console.log('Incoming data request:', ctx.request.body);
 
+    // Check if user is Admin or Hr (should not have attendance tracking)
+    const userDetails = await strapi.entityService.findOne(
+      'plugin::users-permissions.user',
+      user
+    );
+    if (userDetails.user_type === 'Admin' || userDetails.user_type === 'Hr') {
+      return ctx.badRequest(
+        'Attendance tracking is not required for Admin and Hr users'
+      );
+    }
+
     // First check if attendance entry exists for today
     const today = date || new Date().toISOString().split('T')[0];
     const existingEntry = await strapi.entityService.findMany(

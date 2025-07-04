@@ -12,13 +12,16 @@ export default factories.createCoreService(
       try {
         const today = new Date().toISOString().split('T')[0];
 
-        // Get all active users (not blocked)
+        // Get all active users (not blocked) excluding Admin and Hr roles
         const users = await strapi.entityService.findMany(
           'plugin::users-permissions.user',
           {
             filters: {
               blocked: false,
               confirmed: true,
+              user_type: {
+                $notIn: ['Admin', 'Hr'],
+              },
             },
             populate: {
               user_detial: true,

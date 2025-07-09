@@ -4,7 +4,8 @@
     "info": {
         "singularName": "leave-status",
         "pluralName": "leave-statuses",
-        "displayName": "leaveStatus"
+        "displayName": "leaveRequest",
+        "description": ""
     },
     "options": {
         "draftAndPublish": true
@@ -17,7 +18,7 @@
         "end_date": {
             "type": "date"
         },
-        "reason": {
+        "description": {
             "type": "string"
         },
         "status": {
@@ -28,11 +29,35 @@
                 "declined"
             ]
         },
-        "emp_detail": {
+        "decline_reason": {
+            "type": "text"
+        },
+        "title": {
+            "type": "string",
+            "required": true
+        },
+        "leave_type": {
+            "type": "enumeration",
+            "enum": [
+                "short_leave",
+                "half_day",
+                "full_day"
+            ]
+        },
+        "is_paid": {
+            "type": "boolean"
+        },
+        "is_first_half": {
+            "type": "boolean"
+        },
+        "user": {
             "type": "relation",
-            "relation": "oneToOne",
-            "target": "api::emp-detail.emp-detail",
-            "inversedBy": "leave_status"
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "leave_requests"
+        },
+        "start_time": {
+            "type": "time"
         }
     }
 }

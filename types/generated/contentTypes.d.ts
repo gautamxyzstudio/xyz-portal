@@ -770,7 +770,31 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    user_type: Attribute.Enumeration<['Admin', 'Employee', 'Hr', 'Seo']>;
+    user_type: Attribute.Enumeration<
+      ['Admin', 'Employee', 'Hr', 'Seo', 'Manager']
+    >;
+    user_detial: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::emp-detail.emp-detail'
+    >;
+    daily_attendances: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::daily-attendance.daily-attendance'
+    >;
+    leave_requests: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::leave-status.leave-status'
+    >;
+    leave_balance: Attribute.Integer;
+    unpaid_leave_balance: Attribute.Integer;
+    user_documents: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::user-documents.user-documents'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -841,10 +865,15 @@ export interface ApiDailyAttendanceDailyAttendance
     in: Attribute.Time;
     out: Attribute.Time;
     Date: Attribute.Date;
-    emp_details: Attribute.Relation<
+    status: Attribute.Enumeration<
+      ['present', 'absent', 'late', 'half-day', 'leave']
+    > &
+      Attribute.DefaultTo<'absent'>;
+    notes: Attribute.Text;
+    user: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
-      'manyToMany',
-      'api::emp-detail.emp-detail'
+      'manyToOne',
+      'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -869,7 +898,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
   info: {
     singularName: 'emp-detail';
     pluralName: 'emp-details';
-    displayName: 'EmpDetail';
+    displayName: 'userDetials';
     description: '';
   };
   options: {
@@ -880,21 +909,14 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     designation: Attribute.String;
     empCode: Attribute.String;
     phoneNumber: Attribute.String;
-    email: Attribute.Email;
     joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
-    status: Attribute.Enumeration<['active', 'deactivate']>;
-    leave_status: Attribute.Relation<
+    user_detail: Attribute.Relation<
       'api::emp-detail.emp-detail',
       'oneToOne',
-      'api::leave-status.leave-status'
+      'plugin::users-permissions.user'
     >;
-    leave_balance: Attribute.Integer & Attribute.Required;
-    daily_attendances: Attribute.Relation<
-      'api::emp-detail.emp-detail',
-      'oneToMany',
-      'api::daily-attendance.daily-attendance'
-    >;
+    status: Attribute.Boolean & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -949,7 +971,8 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   info: {
     singularName: 'leave-status';
     pluralName: 'leave-statuses';
-    displayName: 'leaveStatus';
+    displayName: 'leaveRequest';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -957,13 +980,19 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   attributes: {
     start_date: Attribute.Date;
     end_date: Attribute.Date;
-    reason: Attribute.String;
+    description: Attribute.String;
     status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
-    emp_detail: Attribute.Relation<
+    decline_reason: Attribute.Text;
+    title: Attribute.String & Attribute.Required;
+    leave_type: Attribute.Enumeration<['short_leave', 'half_day', 'full_day']>;
+    is_paid: Attribute.Boolean;
+    is_first_half: Attribute.Boolean;
+    user: Attribute.Relation<
       'api::leave-status.leave-status',
-      'oneToOne',
-      'api::emp-detail.emp-detail'
+      'manyToOne',
+      'plugin::users-permissions.user'
     >;
+    start_time: Attribute.Time;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1019,6 +1048,72 @@ export interface ApiProductProduct extends Schema.CollectionType {
   };
 }
 
+export interface ApiTestLeaveTestLeave extends Schema.CollectionType {
+  collectionName: 'test_leaves';
+  info: {
+    singularName: 'test-leave';
+    pluralName: 'test-leaves';
+    displayName: 'testLeave';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::test-leave.test-leave',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::test-leave.test-leave',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiUserDocumentsUserDocuments extends Schema.CollectionType {
+  collectionName: 'documents';
+  info: {
+    singularName: 'user-documents';
+    pluralName: 'documents';
+    displayName: 'UserDocuments';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    documentName: Attribute.String;
+    document: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    user: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::user-documents.user-documents',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1043,6 +1138,8 @@ declare module '@strapi/types' {
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
       'api::product.product': ApiProductProduct;
+      'api::test-leave.test-leave': ApiTestLeaveTestLeave;
+      'api::user-documents.user-documents': ApiUserDocumentsUserDocuments;
     }
   }
 }

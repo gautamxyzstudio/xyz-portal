@@ -1,5 +1,76 @@
 {
-    "/daily-attendances": {
+    "/daily-attendance/all": {
+        "get": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "get/daily-attendance/all"
+        }
+    },
+    "/daily-attendance/{id}": {
         "get": {
             "responses": {
                 "200": {
@@ -167,91 +238,22 @@
                     "schema": {
                         "type": "string"
                     }
+                },
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "",
+                    "deprecated": false,
+                    "required": true,
+                    "schema": {
+                        "type": "number"
+                    }
                 }
             ],
-            "operationId": "get/daily-attendances"
-        },
-        "post": {
-            "responses": {
-                "200": {
-                    "description": "OK",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/DailyAttendanceResponse"
-                            }
-                        }
-                    }
-                },
-                "400": {
-                    "description": "Bad Request",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            }
-                        }
-                    }
-                },
-                "401": {
-                    "description": "Unauthorized",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            }
-                        }
-                    }
-                },
-                "403": {
-                    "description": "Forbidden",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            }
-                        }
-                    }
-                },
-                "404": {
-                    "description": "Not Found",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            }
-                        }
-                    }
-                },
-                "500": {
-                    "description": "Internal Server Error",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            }
-                        }
-                    }
-                }
-            },
-            "tags": [
-                "Daily-attendance"
-            ],
-            "parameters": [],
-            "operationId": "post/daily-attendances",
-            "requestBody": {
-                "required": true,
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/DailyAttendanceRequest"
-                        }
-                    }
-                }
-            }
+            "operationId": "get/daily-attendance/{id}"
         }
     },
-    "/daily-attendances/{id}": {
+    "/daily-attendance/today/{id}": {
         "get": {
             "responses": {
                 "200": {
@@ -330,8 +332,172 @@
                     }
                 }
             ],
-            "operationId": "get/daily-attendances/{id}"
-        },
+            "operationId": "get/daily-attendance/today/{id}"
+        }
+    },
+    "/daily-attendance/check-in": {
+        "post": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "post/daily-attendance/check-in",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/daily-attendance/check-out": {
+        "post": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "post/daily-attendance/check-out",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/daily-attendance/update-attendance": {
         "put": {
             "responses": {
                 "200": {
@@ -398,19 +564,8 @@
             "tags": [
                 "Daily-attendance"
             ],
-            "parameters": [
-                {
-                    "name": "id",
-                    "in": "path",
-                    "description": "",
-                    "deprecated": false,
-                    "required": true,
-                    "schema": {
-                        "type": "number"
-                    }
-                }
-            ],
-            "operationId": "put/daily-attendances/{id}",
+            "parameters": [],
+            "operationId": "put/daily-attendance/update-attendance",
             "requestBody": {
                 "required": true,
                 "content": {
@@ -421,16 +576,17 @@
                     }
                 }
             }
-        },
-        "delete": {
+        }
+    },
+    "/daily-attendance/cron/create-daily-entries": {
+        "post": {
             "responses": {
                 "200": {
                     "description": "OK",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "integer",
-                                "format": "int64"
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
                             }
                         }
                     }
@@ -489,19 +645,332 @@
             "tags": [
                 "Daily-attendance"
             ],
-            "parameters": [
-                {
-                    "name": "id",
-                    "in": "path",
-                    "description": "",
-                    "deprecated": false,
-                    "required": true,
-                    "schema": {
-                        "type": "number"
+            "parameters": [],
+            "operationId": "post/daily-attendance/cron/create-daily-entries",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
                     }
                 }
+            }
+        }
+    },
+    "/daily-attendance/cron/mark-absent-users": {
+        "post": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
             ],
-            "operationId": "delete/daily-attendances/{id}"
+            "parameters": [],
+            "operationId": "post/daily-attendance/cron/mark-absent-users",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/daily-attendance/stats": {
+        "get": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "get/daily-attendance/stats"
+        }
+    },
+    "/daily-attendance/cron/trigger-daily": {
+        "post": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "post/daily-attendance/cron/trigger-daily",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/daily-attendance/cron/trigger-end-of-day": {
+        "post": {
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyAttendanceResponse"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Not Found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            }
+                        }
+                    }
+                }
+            },
+            "tags": [
+                "Daily-attendance"
+            ],
+            "parameters": [],
+            "operationId": "post/daily-attendance/cron/trigger-end-of-day",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DailyAttendanceRequest"
+                        }
+                    }
+                }
+            }
         }
     }
 }

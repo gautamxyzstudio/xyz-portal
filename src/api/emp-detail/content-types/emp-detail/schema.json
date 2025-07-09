@@ -4,7 +4,7 @@
   "info": {
     "singularName": "emp-detail",
     "pluralName": "emp-details",
-    "displayName": "EmpDetail",
+    "displayName": "userDetials",
     "description": ""
   },
   "options": {
@@ -24,9 +24,6 @@
     "phoneNumber": {
       "type": "string"
     },
-    "email": {
-      "type": "email"
-    },
     "joiningDate": {
       "type": "date"
     },
@@ -41,28 +38,15 @@
         "audios"
       ]
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "active",
-        "deactivate"
-      ]
-    },
-    "leave_status": {
+    "user_detail": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::leave-status.leave-status",
-      "mappedBy": "emp_detail"
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_detial"
     },
-    "leave_balance": {
-      "type": "integer",
-      "required": true
-    },
-    "daily_attendances": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::daily-attendance.daily-attendance",
-      "mappedBy": "emp_detail"
+    "status": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

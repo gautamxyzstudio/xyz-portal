@@ -21,10 +21,24 @@
     "Date": {
       "type": "date"
     },
-    "emp_details": {
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "present",
+        "absent",
+        "late",
+        "half-day",
+        "leave"
+      ],
+      "default": "absent"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "user": {
       "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::emp-detail.emp-detail",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
       "inversedBy": "daily_attendances"
     }
   }

@@ -71,8 +71,39 @@
         "Admin",
         "Employee",
         "Hr",
-        "Seo"
+        "Seo",
+        "Manager"
       ]
+    },
+    "user_detial": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::emp-detail.emp-detail",
+      "mappedBy": "user_detail"
+    },
+    "daily_attendances": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::daily-attendance.daily-attendance",
+      "mappedBy": "user"
+    },
+    "leave_requests": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::leave-status.leave-status",
+      "mappedBy": "user"
+    },
+    "leave_balance": {
+      "type": "integer"
+    },
+    "unpaid_leave_balance": {
+      "type": "integer"
+    },
+    "user_documents": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-documents.user-documents",
+      "mappedBy": "user"
     }
   }
 }

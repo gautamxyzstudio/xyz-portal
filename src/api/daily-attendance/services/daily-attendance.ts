@@ -10,7 +10,19 @@ export default factories.createCoreService(
     // Create attendance entries for all active users at start of day
     async createDailyAttendanceEntries() {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+
+        // Check if today is a weekend (Saturday = 6, Sunday = 0)
+        const dayOfWeek = today.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          return {
+            success: true,
+            message: 'No attendance entries created - weekend detected',
+            date: todayString,
+            dayOfWeek: dayOfWeek === 0 ? 'Sunday' : 'Saturday',
+          };
+        }
 
         // Get all active users (not blocked) excluding Admin and Hr roles
         const users = await strapi.entityService.findMany(
@@ -42,7 +54,7 @@ export default factories.createCoreService(
                   user: {
                     id: user.id,
                   },
-                  Date: today,
+                  Date: todayString,
                 },
               }
             );
@@ -54,7 +66,7 @@ export default factories.createCoreService(
                 {
                   data: {
                     user: user.id,
-                    Date: today,
+                    Date: todayString,
                     status: 'absent',
                     notes: 'Auto-generated entry - awaiting check-in',
                   },
@@ -81,7 +93,7 @@ export default factories.createCoreService(
           createdEntries,
           errors,
           totalUsers: users.length,
-          date: today,
+          date: todayString,
         };
       } catch (error) {
         return {

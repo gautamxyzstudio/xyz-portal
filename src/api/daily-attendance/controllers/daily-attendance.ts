@@ -1,28 +1,89 @@
 export default {
   async findAll(ctx) {
-    const { page = 1, pageSize = 10 } = ctx.query;
+    const { page = 1, pageSize = 10, startDate, endDate, search } = ctx.query;
 
-    const attendance = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
-      {
-        start: (page - 1) * pageSize,
-        limit: pageSize,
+    // Build filters object
+    const filters: any = {};
+
+    // Add date range filter if startDate and/or endDate are provided
+    if (startDate || endDate) {
+      filters.Date = {};
+      if (startDate) {
+        filters.Date.$gte = startDate;
+      }
+      if (endDate) {
+        filters.Date.$lte = endDate;
+      }
+    }
+
+    // Build populate object with search functionality
+    const populate: any = {
+      user: {
         populate: {
-          user: {
+          user_detial: {
             populate: {
-              user_detial: {
-                populate: {
-                  Photo: true,
-                },
+              Photo: true,
+            },
+          },
+        },
+      },
+    };
+
+    // Add search filter if search term is provided
+    if (search) {
+      filters.$or = [
+        {
+          user: {
+            user_detial: {
+              empCode: {
+                $containsi: search,
               },
             },
           },
         },
+        {
+          user: {
+            user_detial: {
+              firstName: {
+                $containsi: search,
+              },
+            },
+          },
+        },
+        {
+          user: {
+            user_detial: {
+              lastName: {
+                $containsi: search,
+              },
+            },
+          },
+        },
+        {
+          user: {
+            username: {
+              $containsi: search,
+            },
+          },
+        },
+      ];
+    }
+
+    const attendance = await strapi.entityService.findMany(
+      'api::daily-attendance.daily-attendance',
+      {
+        filters,
+        start: (page - 1) * pageSize,
+        limit: pageSize,
+        populate,
       }
     );
 
     const total = await strapi.entityService.count(
-      'api::daily-attendance.daily-attendance'
+      'api::daily-attendance.daily-attendance',
+      {
+        filters,
+      }
     );
 
     ctx.body = {
@@ -150,23 +211,15 @@ export default {
     return attendance;
   },
   async updateAttendance(ctx) {
-    const {
-      id,
-      out: outTime,
-      in: inTime,
-      status,
-      notes,
-    } = ctx.request.body.data;
+    const { id, out, in: inTime } = ctx.request.body.data;
+    if (!id || !out || !inTime) {
+      return ctx.badRequest('Missing required fields: id, out, or in');
+    }
     const attendance = await strapi.entityService.update(
       'api::daily-attendance.daily-attendance',
       id,
       {
-        data: {
-          out: outTime,
-          in: inTime,
-          status: status,
-          notes: notes,
-        },
+        data: { out, in: inTime },
       }
     );
     ctx.body = attendance;
@@ -253,6 +306,59 @@ export default {
       return ctx.body;
     } catch (error) {
       ctx.throw(500, error.message);
+    }
+  },
+
+  // Debug endpoint to check table structure
+  async debugTable(ctx) {
+    try {
+      // Try to get a single record to see the structure
+      const records = await strapi.entityService.findMany(
+        'api::daily-attendance.daily-attendance',
+        {
+          limit: 1,
+        }
+      );
+
+      ctx.body = {
+        success: true,
+        recordCount: records.length,
+        sampleRecord: records[0] || null,
+        tableInfo: 'Daily attendance table structure check',
+      };
+    } catch (error) {
+      console.error('Debug table error:', error);
+      ctx.body = {
+        success: false,
+        error: error.message,
+        stack: error.stack,
+      };
+    }
+  },
+
+  // Method to check and potentially fix table structure
+  async checkTableStructure(ctx) {
+    try {
+      // Try to get table info using raw query
+      const result = await strapi.db.connection.raw(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'daily_attendances' 
+        ORDER BY ordinal_position;
+      `);
+
+      ctx.body = {
+        success: true,
+        tableStructure: result.rows || result,
+        message: 'Table structure retrieved successfully',
+      };
+    } catch (error) {
+      console.error('Error checking table structure:', error);
+      ctx.body = {
+        success: false,
+        error: error.message,
+        message: 'Failed to retrieve table structure',
+      };
     }
   },
 };

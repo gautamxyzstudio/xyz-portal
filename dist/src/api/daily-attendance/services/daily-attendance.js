@@ -8,7 +8,18 @@ exports.default = strapi_1.factories.createCoreService('api::daily-attendance.da
     // Create attendance entries for all active users at start of day
     async createDailyAttendanceEntries() {
         try {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            // Check if today is a weekend (Saturday = 6, Sunday = 0)
+            const dayOfWeek = today.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return {
+                    success: true,
+                    message: 'No attendance entries created - weekend detected',
+                    date: todayString,
+                    dayOfWeek: dayOfWeek === 0 ? 'Sunday' : 'Saturday',
+                };
+            }
             // Get all active users (not blocked) excluding Admin and Hr roles
             const users = await strapi.entityService.findMany('plugin::users-permissions.user', {
                 filters: {
@@ -32,7 +43,7 @@ exports.default = strapi_1.factories.createCoreService('api::daily-attendance.da
                             user: {
                                 id: user.id,
                             },
-                            Date: today,
+                            Date: todayString,
                         },
                     });
                     if (existingEntry.length === 0) {
@@ -40,7 +51,7 @@ exports.default = strapi_1.factories.createCoreService('api::daily-attendance.da
                         const attendanceEntry = await strapi.entityService.create('api::daily-attendance.daily-attendance', {
                             data: {
                                 user: user.id,
-                                Date: today,
+                                Date: todayString,
                                 status: 'absent',
                                 notes: 'Auto-generated entry - awaiting check-in',
                             },
@@ -65,7 +76,7 @@ exports.default = strapi_1.factories.createCoreService('api::daily-attendance.da
                 createdEntries,
                 errors,
                 totalUsers: users.length,
-                date: today,
+                date: todayString,
             };
         }
         catch (error) {

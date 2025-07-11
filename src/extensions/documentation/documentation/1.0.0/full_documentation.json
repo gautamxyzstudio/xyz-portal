@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-07-09T08:30:44.771Z"
+    "x-generation-date": "2025-07-11T12:47:29.564Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1480,8 +1480,7 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Seo",
-                          "Manager"
+                          "Seo"
                         ]
                       },
                       "user_detial": {
@@ -3505,8 +3504,7 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Seo",
-                          "Manager"
+                          "Seo"
                         ]
                       },
                       "user_detial": {
@@ -5367,8 +5365,7 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Seo",
-                          "Manager"
+                          "Seo"
                         ]
                       },
                       "user_detial": {
@@ -8541,8 +8538,7 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Seo",
-                          "Manager"
+                          "Seo"
                         ]
                       },
                       "user_detial": {

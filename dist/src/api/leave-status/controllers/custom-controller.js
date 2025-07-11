@@ -158,4 +158,115 @@ module.exports = createCoreController(moduleUid, ({ strapi }) => ({
             });
         }
     },
+    // Get all leave requests with pagination, filtering, and search
+    async all(ctx) {
+        const { page = 1, pageSize = 10, startDate, endDate, search, leave_type, } = ctx.query;
+        // Build filters object
+        const filters = {};
+        // Add leave type filter if provided
+        if (leave_type) {
+            filters.leave_type = leave_type;
+        }
+        // Add date range filter if startDate and/or endDate are provided
+        if (startDate || endDate) {
+            filters.$or = [
+                {
+                    start_date: {
+                        $gte: startDate,
+                        $lte: endDate,
+                    },
+                },
+                {
+                    end_date: {
+                        $gte: startDate,
+                        $lte: endDate,
+                    },
+                },
+            ];
+        }
+        // Build populate object with search functionality
+        const populate = {
+            user: {
+                populate: {
+                    user_detial: {
+                        populate: {
+                            Photo: true,
+                        },
+                    },
+                },
+            },
+        };
+        // Add search filter if search term is provided
+        if (search) {
+            filters.$or = [
+                ...(filters.$or || []),
+                {
+                    user: {
+                        user_detial: {
+                            empCode: {
+                                $containsi: search,
+                            },
+                        },
+                    },
+                },
+                {
+                    user: {
+                        user_detial: {
+                            firstName: {
+                                $containsi: search,
+                            },
+                        },
+                    },
+                },
+                {
+                    user: {
+                        user_detial: {
+                            lastName: {
+                                $containsi: search,
+                            },
+                        },
+                    },
+                },
+                {
+                    user: {
+                        username: {
+                            $containsi: search,
+                        },
+                    },
+                },
+                {
+                    title: {
+                        $containsi: search,
+                    },
+                },
+                {
+                    description: {
+                        $containsi: search,
+                    },
+                },
+            ];
+        }
+        const leaveRequests = await strapi.entityService.findMany('api::leave-status.leave-status', {
+            filters,
+            start: (page - 1) * pageSize,
+            limit: pageSize,
+            populate,
+            sort: { createdAt: 'desc' },
+        });
+        const total = await strapi.entityService.count('api::leave-status.leave-status', {
+            filters,
+        });
+        ctx.body = {
+            data: leaveRequests,
+            meta: {
+                pagination: {
+                    page: Number(page),
+                    pageSize: Number(pageSize),
+                    pageCount: Math.ceil(total / pageSize),
+                    total,
+                },
+            },
+        };
+        return ctx.body;
+    },
 }));

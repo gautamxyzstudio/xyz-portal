@@ -10,5 +10,10 @@ module.exports = {
       path: '/leave-status/:id/reject',
       handler: 'custom-controller.reject',
     },
+    {
+      method: 'GET',
+      path: '/leave-status/all',
+      handler: 'custom-controller.all',
+    },
   ],
 };

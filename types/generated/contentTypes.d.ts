@@ -982,8 +982,7 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
-    leave_type: Attribute.Enumeration<['short_leave', 'half_day', 'full_day']>;
-    is_paid: Attribute.Boolean;
+    leave_type: Attribute.Enumeration<['Casual', 'UnPaid']>;
     is_first_half: Attribute.Boolean;
     user: Attribute.Relation<
       'api::leave-status.leave-status',

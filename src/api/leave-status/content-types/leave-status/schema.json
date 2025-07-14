@@ -39,13 +39,9 @@
     "leave_type": {
       "type": "enumeration",
       "enum": [
-        "short_leave",
-        "half_day",
-        "full_day"
+        "Casual",
+        "UnPaid"
       ]
-    },
-    "is_paid": {
-      "type": "boolean"
     },
     "is_first_half": {
       "type": "boolean"

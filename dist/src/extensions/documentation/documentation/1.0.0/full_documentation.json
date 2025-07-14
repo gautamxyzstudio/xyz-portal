@@ -14,7 +14,7 @@
             "name": "Apache 2.0",
             "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "x-generation-date": "2025-07-11T12:47:29.564Z"
+        "x-generation-date": "2025-07-14T08:07:37.689Z"
     },
     "x-strapi-config": {
         "path": "/documentation",
@@ -2109,13 +2109,9 @@
                                                                         "leave_type": {
                                                                             "type": "string",
                                                                             "enum": [
-                                                                                "short_leave",
-                                                                                "half_day",
-                                                                                "full_day"
+                                                                                "Casual",
+                                                                                "UnPaid"
                                                                             ]
-                                                                        },
-                                                                        "is_paid": {
-                                                                            "type": "boolean"
                                                                         },
                                                                         "is_first_half": {
                                                                             "type": "boolean"
@@ -3902,13 +3898,9 @@
                                                                         "leave_type": {
                                                                             "type": "string",
                                                                             "enum": [
-                                                                                "short_leave",
-                                                                                "half_day",
-                                                                                "full_day"
+                                                                                "Casual",
+                                                                                "UnPaid"
                                                                             ]
-                                                                        },
-                                                                        "is_paid": {
-                                                                            "type": "boolean"
                                                                         },
                                                                         "is_first_half": {
                                                                             "type": "boolean"
@@ -4779,13 +4771,9 @@
                             "leave_type": {
                                 "type": "string",
                                 "enum": [
-                                    "short_leave",
-                                    "half_day",
-                                    "full_day"
+                                    "Casual",
+                                    "UnPaid"
                                 ]
-                            },
-                            "is_paid": {
-                                "type": "boolean"
                             },
                             "is_first_half": {
                                 "type": "boolean"
@@ -4890,13 +4878,9 @@
                     "leave_type": {
                         "type": "string",
                         "enum": [
-                            "short_leave",
-                            "half_day",
-                            "full_day"
+                            "Casual",
+                            "UnPaid"
                         ]
-                    },
-                    "is_paid": {
-                        "type": "boolean"
                     },
                     "is_first_half": {
                         "type": "boolean"
@@ -5994,13 +5978,9 @@
                                                                         "leave_type": {
                                                                             "type": "string",
                                                                             "enum": [
-                                                                                "short_leave",
-                                                                                "half_day",
-                                                                                "full_day"
+                                                                                "Casual",
+                                                                                "UnPaid"
                                                                             ]
-                                                                        },
-                                                                        "is_paid": {
-                                                                            "type": "boolean"
                                                                         },
                                                                         "is_first_half": {
                                                                             "type": "boolean"
@@ -8936,13 +8916,9 @@
                                                                         "leave_type": {
                                                                             "type": "string",
                                                                             "enum": [
-                                                                                "short_leave",
-                                                                                "half_day",
-                                                                                "full_day"
+                                                                                "Casual",
+                                                                                "UnPaid"
                                                                             ]
-                                                                        },
-                                                                        "is_paid": {
-                                                                            "type": "boolean"
                                                                         },
                                                                         "is_first_half": {
                                                                             "type": "boolean"

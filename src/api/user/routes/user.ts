@@ -24,5 +24,13 @@ module.exports = {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/user/:id/leave-balance',
+      handler: 'user.getLeaveBalance',
+      config: {
+        policies: [],
+      },
+    },
   ],
 };

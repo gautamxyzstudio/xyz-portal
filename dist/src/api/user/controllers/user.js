@@ -34,6 +34,14 @@ exports.default = {
             unpaid_leave_balance,
         };
     },
+    async getLeaveBalance(ctx) {
+        const { id } = ctx.params;
+        const user = await strapi.entityService.findOne('plugin::users-permissions.user', id);
+        ctx.body = {
+            leave_balance: user.leave_balance,
+            unpaid_leave_balance: user.unpaid_leave_balance,
+        };
+    },
     async findSingleUser(ctx) {
         const { id } = ctx.params; // get authenticated user's id from token
         if (!id) {

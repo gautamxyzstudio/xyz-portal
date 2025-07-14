@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-07-14T09:32:35.846Z"
+    "x-generation-date": "2025-07-14T10:22:39.486Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -2138,6 +2138,14 @@
                                       "format": "time",
                                       "example": "12:54.000"
                                     },
+                                    "leave_duration": {
+                                      "type": "string",
+                                      "enum": [
+                                        "short_leave",
+                                        "full_day",
+                                        "half_day"
+                                      ]
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -2192,10 +2200,12 @@
                         }
                       },
                       "leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "unpaid_leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "user_documents": {
                         "type": "object",
@@ -3927,6 +3937,14 @@
                                       "format": "time",
                                       "example": "12:54.000"
                                     },
+                                    "leave_duration": {
+                                      "type": "string",
+                                      "enum": [
+                                        "short_leave",
+                                        "full_day",
+                                        "half_day"
+                                      ]
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -3981,10 +3999,12 @@
                         }
                       },
                       "leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "unpaid_leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "user_documents": {
                         "type": "object",
@@ -4793,6 +4813,14 @@
                 "type": "string",
                 "format": "time",
                 "example": "12:54.000"
+              },
+              "leave_duration": {
+                "type": "string",
+                "enum": [
+                  "short_leave",
+                  "full_day",
+                  "half_day"
+                ]
               }
             }
           }
@@ -6007,6 +6035,14 @@
                                       "format": "time",
                                       "example": "12:54.000"
                                     },
+                                    "leave_duration": {
+                                      "type": "string",
+                                      "enum": [
+                                        "short_leave",
+                                        "full_day",
+                                        "half_day"
+                                      ]
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -6061,10 +6097,12 @@
                         }
                       },
                       "leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "unpaid_leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "user_documents": {
                         "type": "object",
@@ -6344,6 +6382,14 @@
             "type": "string",
             "format": "time",
             "example": "12:54.000"
+          },
+          "leave_duration": {
+            "type": "string",
+            "enum": [
+              "short_leave",
+              "full_day",
+              "half_day"
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -8945,6 +8991,14 @@
                                       "format": "time",
                                       "example": "12:54.000"
                                     },
+                                    "leave_duration": {
+                                      "type": "string",
+                                      "enum": [
+                                        "short_leave",
+                                        "full_day",
+                                        "half_day"
+                                      ]
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -8999,10 +9053,12 @@
                         }
                       },
                       "leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "unpaid_leave_balance": {
-                        "type": "integer"
+                        "type": "number",
+                        "format": "float"
                       },
                       "user_documents": {
                         "type": "object",

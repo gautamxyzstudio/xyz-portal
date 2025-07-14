@@ -54,6 +54,14 @@
         },
         "start_time": {
             "type": "time"
+        },
+        "leave_duration": {
+            "type": "enumeration",
+            "enum": [
+                "short_leave",
+                "full_day",
+                "half_day"
+            ]
         }
     }
 }

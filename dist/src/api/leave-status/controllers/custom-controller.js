@@ -34,26 +34,65 @@ module.exports = createCoreController(moduleUid, ({ strapi }) => ({
     async approve(ctx) {
         try {
             const { id } = ctx.params;
-            console.log('🔔 Approve controller triggered with ID:', id);
-            // 1. Fetch leave request with user relation
             const leaveRequest = await strapi.entityService.findOne('api::leave-status.leave-status', id, { populate: ['user'] });
             if (!leaveRequest)
-                return ctx.notFound('❌ Leave request not found');
+                return ctx.notFound('Leave request not found');
             if (!leaveRequest.user)
-                return ctx.badRequest('❌ Leave request has no associated user');
+                return ctx.badRequest('Leave request has no associated user');
             if (leaveRequest.status === 'approved') {
-                return ctx.badRequest('⚠️ Leave request is already approved');
+                return ctx.badRequest('Leave request is already approved');
             }
-            // 2. Calculate leave days
-            const leaveDays = calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date, leaveRequest.is_first_half);
-            console.log('🧮 Calculated leave days:', leaveDays);
-            // 3. Fetch user leave balances
             const userId = leaveRequest.user.id;
-            const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId, { fields: ['leave_balance', 'unpaid_leave_balance'] });
+            const leaveDuration = leaveRequest.leave_duration || 'full_day';
+            const leaveType = leaveRequest.leave_type || 'Casual';
+            // 1. Calculate leave days
+            let leaveDays = 1;
+            if (leaveDuration === 'short_leave')
+                leaveDays = 0.25;
+            else if (leaveDuration === 'half_day')
+                leaveDays = 0.5;
+            else {
+                leaveDays = calculateLeaveDays(leaveRequest.start_date, leaveRequest.end_date, leaveRequest.is_first_half);
+            }
+            // 2. Count approved short_leaves in current year
+            let shortLeavesUsed = 0;
+            if (leaveDuration === 'short_leave') {
+                const currentYear = new Date().getFullYear();
+                const approvedShortLeaves = await strapi.entityService.findMany('api::leave-status.leave-status', {
+                    filters: {
+                        user: userId,
+                        status: 'approved',
+                        leave_duration: 'short_leave',
+                        start_date: {
+                            $gte: `${currentYear}-01-01`,
+                            $lte: `${currentYear}-12-31`,
+                        },
+                    },
+                    fields: ['id'],
+                });
+                shortLeavesUsed = approvedShortLeaves.length;
+            }
+            // 3. Fetch user leave balances
+            const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
+                fields: ['leave_balance', 'unpaid_leave_balance'],
+            });
             let newLeaveBalance = user.leave_balance || 0;
             let newUnpaidBalance = user.unpaid_leave_balance || 0;
-            // 4. Update balances based on leave type
-            if (leaveRequest.leave_type === 'Casual') {
+            // 4. Apply leave deduction rules
+            if (leaveDuration === 'short_leave') {
+                if (shortLeavesUsed >= 1) {
+                    if (newLeaveBalance >= 0.25) {
+                        newLeaveBalance -= 0.25;
+                    }
+                    else {
+                        newUnpaidBalance += 0.25;
+                    }
+                }
+                else {
+                    console.log('✅ First short_leave this year — free');
+                }
+            }
+            else if (leaveType === 'Casual') {
                 if (newLeaveBalance >= leaveDays) {
                     newLeaveBalance -= leaveDays;
                 }
@@ -63,36 +102,29 @@ module.exports = createCoreController(moduleUid, ({ strapi }) => ({
                     newUnpaidBalance += unpaidPortion;
                 }
             }
-            else if (leaveRequest.leave_type === 'UnPaid') {
+            else if (leaveType === 'UnPaid') {
                 newUnpaidBalance += leaveDays;
             }
-            console.log('📝 Updating balances for user:', {
-                userId,
-                leaveType: leaveRequest.leave_type,
-                leaveDays,
-                oldLeaveBalance: user.leave_balance,
-                oldUnpaidLeaveBalance: user.unpaid_leave_balance,
-                newLeaveBalance,
-                newUnpaidBalance,
-            });
-            // 5. Update user balances
+            // 5. Update user leave balances
             await strapi.entityService.update('plugin::users-permissions.user', userId, {
                 data: {
                     leave_balance: newLeaveBalance,
                     unpaid_leave_balance: newUnpaidBalance,
                 },
             });
-            // 6. Mark leave as approved and published (if draftAndPublish is used)
+            // 6. Approve and publish the leave
             const updatedLeave = await strapi.entityService.update('api::leave-status.leave-status', id, {
                 data: {
                     status: 'approved',
-                    publishedAt: new Date(), // publish the leave if it's in draft mode
+                    publishedAt: new Date(), // in case draftAndPublish is enabled
                 },
             });
             ctx.body = {
                 message: '✅ Leave approved and balances updated',
-                leaveType: leaveRequest.leave_type,
+                leaveType,
+                leaveDuration,
                 leaveDays,
+                shortLeavesUsed,
                 new_leave_balance: newLeaveBalance,
                 new_unpaid_leave_balance: newUnpaidBalance,
             };

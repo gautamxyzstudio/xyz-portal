@@ -93,10 +93,10 @@
       "mappedBy": "user"
     },
     "leave_balance": {
-      "type": "integer"
+      "type": "decimal"
     },
     "unpaid_leave_balance": {
-      "type": "integer"
+      "type": "decimal"
     },
     "user_documents": {
       "type": "relation",

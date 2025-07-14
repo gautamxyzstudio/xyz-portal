@@ -786,8 +786,8 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::leave-status.leave-status'
     >;
-    leave_balance: Attribute.Integer;
-    unpaid_leave_balance: Attribute.Integer;
+    leave_balance: Attribute.Decimal;
+    unpaid_leave_balance: Attribute.Decimal;
     user_documents: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
@@ -990,6 +990,9 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     start_time: Attribute.Time;
+    leave_duration: Attribute.Enumeration<
+      ['short_leave', 'full_day', 'half_day']
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

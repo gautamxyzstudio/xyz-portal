@@ -45,80 +45,97 @@ async approve(ctx) {
   try {
     const { id } = ctx.params;
 
-    // 1. Get leave request
+    console.log('🔔 Approve controller triggered with ID:', id);
+
+    // 1. Fetch leave request with user relation
     const leaveRequest = await strapi.entityService.findOne(
       'api::leave-status.leave-status',
       id,
       { populate: ['user'] }
     );
 
-    if (!leaveRequest) {
-      return ctx.notFound('Leave request not found');
+    if (!leaveRequest) return ctx.notFound('❌ Leave request not found');
+    if (!leaveRequest.user) return ctx.badRequest('❌ Leave request has no associated user');
+    if (leaveRequest.status === 'approved') {
+      return ctx.badRequest('⚠️ Leave request is already approved');
     }
 
-    const user = leaveRequest.user;
-    if (!user) {
-      return ctx.badRequest('Leave request has no associated user');
-    }
-
-    // 2. Update leave status to approved
-    const updatedLeave = await strapi.entityService.update(
-      'api::leave-status.leave-status',
-      id,
-      { data: { status: 'approved' } }
-    );
-
-    // 3. Calculate number of leave days
+    // 2. Calculate leave days
     const leaveDays = calculateLeaveDays(
       leaveRequest.start_date,
       leaveRequest.end_date,
       leaveRequest.is_first_half
     );
 
-    console.log('Debug - Calculated leave days:', leaveDays);
+    console.log('🧮 Calculated leave days:', leaveDays);
 
-    // 4. Update user balances based on leave type
-    const userId = user.id;
-    const currentUser = await strapi.entityService.findOne(
+    // 3. Fetch user leave balances
+    const userId = leaveRequest.user.id;
+    const user = await strapi.entityService.findOne(
       'plugin::users-permissions.user',
       userId,
       { fields: ['leave_balance', 'unpaid_leave_balance'] }
     );
 
-    let newBalance = currentUser.leave_balance || 0;
-    let newUnpaidBalance = currentUser.unpaid_leave_balance || 0;
+    let newLeaveBalance = user.leave_balance || 0;
+    let newUnpaidBalance = user.unpaid_leave_balance || 0;
 
+    // 4. Update balances based on leave type
     if (leaveRequest.leave_type === 'Casual') {
-      newBalance = Math.max(0, newBalance - leaveDays);
+      if (newLeaveBalance >= leaveDays) {
+        newLeaveBalance -= leaveDays;
+      } else {
+        const unpaidPortion = leaveDays - newLeaveBalance;
+        newLeaveBalance = 0;
+        newUnpaidBalance += unpaidPortion;
+      }
     } else if (leaveRequest.leave_type === 'UnPaid') {
       newUnpaidBalance += leaveDays;
-    } else {
-      console.log('Debug - Leave type not affecting balance:', leaveRequest.leave_type);
     }
 
-    // 5. Update user record
+    console.log('📝 Updating balances for user:', {
+      userId,
+      leaveType: leaveRequest.leave_type,
+      leaveDays,
+      oldLeaveBalance: user.leave_balance,
+      oldUnpaidLeaveBalance: user.unpaid_leave_balance,
+      newLeaveBalance,
+      newUnpaidBalance,
+    });
+
+    // 5. Update user balances
     await strapi.entityService.update('plugin::users-permissions.user', userId, {
       data: {
-        leave_balance: newBalance,
+        leave_balance: newLeaveBalance,
         unpaid_leave_balance: newUnpaidBalance,
       },
     });
 
-    return ctx.send({
-      message: 'Leave request approved successfully',
-      data: updatedLeave,
-      leaveDaysDeducted: leaveDays,
+    // 6. Mark leave as approved and published (if draftAndPublish is used)
+    const updatedLeave = await strapi.entityService.update(
+      'api::leave-status.leave-status',
+      id,
+      {
+        data: {
+          status: 'approved',
+          publishedAt: new Date(), // publish the leave if it's in draft mode
+        },
+      }
+    );
+
+    ctx.body = {
+      message: '✅ Leave approved and balances updated',
       leaveType: leaveRequest.leave_type,
-    });
-
+      leaveDays,
+      new_leave_balance: newLeaveBalance,
+      new_unpaid_leave_balance: newUnpaidBalance,
+    };
   } catch (error) {
-    console.error('❌ Error in approve function:', error);
-    return ctx.badRequest('Error approving leave request', {
-      error: error.message,
-    });
+    console.error('❌ Error approving leave:', error);
+    return ctx.badRequest('Error approving leave request', { error: error.message });
   }
-},
-
+}
+,
   // Reject leave request
   async reject(ctx) {
     try {

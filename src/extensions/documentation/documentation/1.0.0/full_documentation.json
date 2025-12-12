@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-07-14T10:27:49.743Z"
+    "x-generation-date": "2025-12-12T05:54:25.713Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1901,7 +1901,7 @@
                                       }
                                     }
                                   },
-                                  "status": {
+                                  "isActive": {
                                     "type": "boolean"
                                   },
                                   "createdAt": {
@@ -2601,7 +2601,7 @@
                 ],
                 "example": "string or id"
               },
-              "status": {
+              "isActive": {
                 "type": "boolean"
               }
             }
@@ -3700,7 +3700,7 @@
                                       }
                                     }
                                   },
-                                  "status": {
+                                  "isActive": {
                                     "type": "boolean"
                                   },
                                   "createdAt": {
@@ -4280,7 +4280,7 @@
               }
             }
           },
-          "status": {
+          "isActive": {
             "type": "boolean"
           },
           "createdAt": {
@@ -5798,7 +5798,7 @@
                                       }
                                     }
                                   },
-                                  "status": {
+                                  "isActive": {
                                     "type": "boolean"
                                   },
                                   "createdAt": {
@@ -8754,7 +8754,7 @@
                                       }
                                     }
                                   },
-                                  "status": {
+                                  "isActive": {
                                     "type": "boolean"
                                   },
                                   "createdAt": {
@@ -9767,7 +9767,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -10425,7 +10426,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -11328,7 +11330,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -11833,7 +11836,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -12338,7 +12342,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -12843,7 +12848,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -13348,7 +13354,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },
@@ -13853,7 +13860,8 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": true
             },
             "style": "deepObject"
           },

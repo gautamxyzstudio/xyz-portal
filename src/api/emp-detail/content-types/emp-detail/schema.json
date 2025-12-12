@@ -44,7 +44,7 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "user_detial"
     },
-    "status": {
+    "isActive": {
       "type": "boolean",
       "default": true
     }

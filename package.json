@@ -11,6 +11,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.18.0",
     "@strapi/plugin-cloud": "4.24.4",
     "@strapi/plugin-documentation": "^4.24.4",
     "@strapi/plugin-i18n": "4.24.4",
@@ -23,6 +24,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
+    "sharp": "^0.34.5",
     "styled-components": "5.3.3"
   },
   "author": {

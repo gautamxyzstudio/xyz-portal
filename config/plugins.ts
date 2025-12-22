@@ -1,19 +1,30 @@
 const path = require('path');
 
 module.exports = ({ env }) => ({
-  upload: {
-    provider: 'local',
+    upload: {
+  config: {
+    provider: path.resolve(
+      process.cwd(),
+      "src/providers/upload-google-cloud-storage"
+    ),
     providerOptions: {
-      sizeLimit: 10000000,
+      baseUrl: env("MEDIA_BASE_URL"),
+      projectId: env("GCS_PROJECT_ID"),
+      bucket: env("GCS_BUCKET_NAME"),
+      keyFilename: path.resolve(
+        process.cwd(),
+        "config/Keys/gcs-key.json"
+      ),
     },
-    actionOptions: {
-      upload: {
-        path: env('UPLOAD_PATH', path.join('/data/uploads')),
-      },
-    },
-  },
 
-  email: {
+    // 🔴 FULLY disable Sharp & thumbnails (Windows fix)
+    breakpoints: null,
+    responsiveDimensions: false,
+  },
+},
+
+
+    email: {
     config: {
       provider: "nodemailer",   // ✔ Official Strapi SMTP provider
       providerOptions: {

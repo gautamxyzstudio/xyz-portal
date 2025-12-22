@@ -1,6 +1,6 @@
-/**
- * leave-status controller
- */
+
+//  * leave-status controller
+ 
 
 import { factories } from '@strapi/strapi';
 
@@ -16,9 +16,7 @@ export default factories.createCoreController(
         const leaveRequest = await strapi.entityService.findOne(
           'api::leave-status.leave-status',
           id,
-          {
-            populate: ['user'],
-          }
+          { populate: ['user'] }
         );
 
         if (!leaveRequest) {
@@ -29,12 +27,18 @@ export default factories.createCoreController(
         const updatedLeave = await strapi.entityService.update(
           'api::leave-status.leave-status',
           id,
-          {
-            data: {
-              status: 'approved',
-            },
-          }
+          { data: { status: 'approved' } }
         );
+
+        // Send email to the employee
+        if (leaveRequest.user?.email) {
+          await strapi.plugin('email').service('email').send({
+            to: leaveRequest.user.email,
+            subject: 'Your leave request has been approved',
+            text: `Your leave "${leaveRequest.title}" has been approved.`,
+            html: `<p>Your leave "<strong>${leaveRequest.title}</strong>" has been approved.</p>`,
+          });
+        }
 
         return ctx.send({
           message: 'Leave request approved successfully',
@@ -61,9 +65,7 @@ export default factories.createCoreController(
         const leaveRequest = await strapi.entityService.findOne(
           'api::leave-status.leave-status',
           id,
-          {
-            populate: ['user'],
-          }
+          { populate: ['user'] }
         );
 
         if (!leaveRequest) {
@@ -74,13 +76,18 @@ export default factories.createCoreController(
         const updatedLeave = await strapi.entityService.update(
           'api::leave-status.leave-status',
           id,
-          {
-            data: {
-              status: 'declined',
-              decline_reason,
-            },
-          }
+          { data: { status: 'declined', decline_reason } }
         );
+
+        // Send email to the employee
+        if (leaveRequest.user?.email) {
+          await strapi.plugin('email').service('email').send({
+            to: leaveRequest.user.email,
+            subject: 'Your leave request has been declined',
+            text: `Your leave "${leaveRequest.title}" has been declined. Reason: ${decline_reason}`,
+            html: `<p>Your leave "<strong>${leaveRequest.title}</strong>" has been declined.<br/>Reason: ${decline_reason}</p>`,
+          });
+        }
 
         return ctx.send({
           message: 'Leave request rejected successfully',

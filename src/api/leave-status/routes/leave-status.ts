@@ -1,6 +1,4 @@
-/**
- * leave-status router
- */
+
 
 import { factories } from '@strapi/strapi';
 

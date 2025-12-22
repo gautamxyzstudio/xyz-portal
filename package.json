@@ -16,6 +16,7 @@
     "@strapi/plugin-documentation": "^4.24.4",
     "@strapi/plugin-i18n": "4.24.4",
     "@strapi/plugin-users-permissions": "4.24.4",
+    "@strapi/provider-email-nodemailer": "^5.33.0",
     "@strapi/strapi": "4.24.4",
     "@types/node-cron": "^3.0.11",
     "node-cron": "^4.2.0",

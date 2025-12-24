@@ -103,6 +103,12 @@
       "relation": "oneToMany",
       "target": "api::user-documents.user-documents",
       "mappedBy": "user"
+    },
+    "leave_balances": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::leave-balance.leave-balance",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

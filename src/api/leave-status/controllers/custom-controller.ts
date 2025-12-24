@@ -37,93 +37,80 @@ function calculateLeaveDays(
 }
 
 module.exports = createCoreController(moduleUid, ({ strapi }) => ({
-  async create(ctx) {
-    try {
-      const data = ctx.request.body.data || {};
+ async create(ctx) {
+  try {
+    const data = ctx.request.body.data || {};
 
-      // 1️⃣ Get logged-in user
-      const userId = ctx.state.user?.id;
-      if (!userId) {
-        return ctx.unauthorized("You must be logged in to apply for leave");
+    // 1️⃣ Get logged-in user
+    const userId = ctx.state.user?.id;
+    if (!userId) {
+      return ctx.unauthorized("You must be logged in to apply for leave");
+    }
+
+    // 2️⃣ Attach user
+    data.user = userId;
+
+    // 3️⃣ ✅ Publish immediately
+    data.publishedAt = new Date();
+
+    // 4️⃣ Create leave request
+    const leave = await strapi.entityService.create(
+      "api::leave-status.leave-status",
+      {
+        data,
+        populate: ["user"],
       }
+    );
 
-      // 2️⃣ Attach user to leave request
-      data.user = userId;
+    // 5️⃣ Fetch HR role
+    const hrRole = await strapi.db
+      .query("plugin::users-permissions.role")
+      .findOne({ where: { name: "Hr" } });
 
-      // 3️⃣ Create leave request and populate user relation
-      const leave = await strapi.entityService.create(
-        "api::leave-status.leave-status",
-        {
-          data,
-          populate: ["user"],
-        }
-      );
-
-      // 4️⃣ Fetch Strapi internal HR role
-      const hrRole = await strapi.db
-        .query("plugin::users-permissions.role")
-        .findOne({ where: { name: "Hr" } });
-
-      if (!hrRole) {
-        console.warn("❌ HR role 'Hr' not found. No emails sent.");
-        return ctx.send({
-          message: "Leave created but HR role missing",
-          leave,
-        });
-      }
-
-      // 5️⃣ Fetch all HR users using correct Strapi v4 syntax
-      const hrUsers = await strapi.db
-        .query("plugin::users-permissions.user")
-        .findMany({
-          where: { role: { id: hrRole.id } }, // FIXED HERE
-          select: ["email", "username"],
-        });
-
-      if (!hrUsers.length) {
-        console.warn("❌ No users assigned to HR role. No email sent.");
-      }
-
-      // 6️⃣ Send emails to all HR users
-      for (const hr of hrUsers) {
-        if (!hr.email) continue;
-
-        try {
-          await strapi
-            .plugin("email")
-            .service("email")
-            .send({
-              to: hr.email,
-              subject: `New Leave Request from ${leave.user.username}`,
-              html: `
-            <p>Hello ${hr.username},</p>
-            <p>A new leave request has been submitted:</p>
-            <ul>
-              <li><strong>Employee:</strong> ${leave.user.username}</li>
-              <li><strong>Title:</strong> ${leave.title}</li>
-              <li><strong>Leave Type:</strong> ${leave.leave_type}</li>
-              <li><strong>Start Date:</strong> ${leave.start_date}</li>
-              <li><strong>End Date:</strong> ${leave.end_date}</li>
-              <li><strong>Description:</strong> ${leave.description}</li>
-            </ul>
-          `,
-            });
-        } catch (err) {
-          console.error(
-            `❌ Failed to send email to HR (${hr.email}):`,
-            err.message
-          );
-        }
-      }
-
-      return ctx.send({ message: "Leave request created successfully", leave });
-    } catch (err) {
-      console.error("💥 Error creating leave request:", err);
-      return ctx.badRequest("Error creating leave request", {
-        error: err.message,
+    if (!hrRole) {
+      return ctx.send({
+        message: "Leave created but HR role missing",
+        leave,
       });
     }
-  },
+
+    // 6️⃣ Fetch HR users
+    const hrUsers = await strapi.db
+      .query("plugin::users-permissions.user")
+      .findMany({
+        where: { role: { id: hrRole.id } },
+        select: ["email", "username"],
+      });
+
+    // 7️⃣ Send emails
+    for (const hr of hrUsers) {
+      if (!hr.email) continue;
+
+      await strapi.plugin("email").service("email").send({
+        to: hr.email,
+        subject: `New Leave Request from ${leave.user.username}`,
+        html: `
+          <p>Hello ${hr.username},</p>
+          <p>A new leave request has been submitted:</p>
+          <ul>
+            <li><strong>Employee:</strong> ${leave.user.username}</li>
+            <li><strong>Title:</strong> ${leave.title}</li>
+            <li><strong>Leave Type:</strong> ${leave.leave_type}</li>
+            <li><strong>Start Date:</strong> ${leave.start_date}</li>
+            <li><strong>End Date:</strong> ${leave.end_date}</li>
+            <li><strong>Description:</strong> ${leave.description}</li>
+          </ul>
+        `,
+      });
+    }
+
+    return ctx.send({ message: "Leave request created successfully", leave });
+  } catch (err) {
+    return ctx.badRequest("Error creating leave request", {
+      error: err.message,
+    });
+  }
+},
    async findAll(ctx) {
     try {
       const data = await strapi.entityService.findMany("api::leave-status.leave-status", {

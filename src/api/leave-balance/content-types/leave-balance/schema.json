@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "leave_balances",
+  "info": {
+    "singularName": "leave-balance",
+    "pluralName": "leave-balances",
+    "displayName": "leave-balance"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sl_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "el_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "cl_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "unpaid_balance": {
+      "type": "integer",
+      "default": 0
+    },
+    "year": {
+      "type": "integer"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "leave_balances"
+    }
+  }
+}

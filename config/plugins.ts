@@ -18,12 +18,14 @@ module.exports = ({ env }) => ({
     },
 
     // 🔴 FULLY disable Sharp & thumbnails (Windows fix)
-    breakpoints: null,
+    breakpoints:{},
     responsiveDimensions: false,
   },
 },
 
-
+// ==========================
+  // EMAIL
+  // ==========================
     email: {
     config: {
       provider: "nodemailer",   // ✔ Official Strapi SMTP provider
@@ -41,5 +43,13 @@ module.exports = ({ env }) => ({
         defaultReplyTo: env("SMTP_REPLYTO_EMAIL"),
       },
     },
+  },
+
+  
+  // ==========================
+  // 🚫 DISABLE DOCUMENTATION
+  // ==========================
+  documentation: {
+    enabled: false,
   },
 });

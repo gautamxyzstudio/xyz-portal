@@ -2,11 +2,13 @@ export default {
   routes: [
     {
       method: 'GET',
-      path: '/leave-balances/me',
+      path: '/leave-balance/me',
       handler: 'leave-balance.myBalance',
-      config: {
-        policies: [],
-      },
+    },
+    {
+      method: 'GET',
+      path: '/leave-balance/all',
+      handler: 'leave-balance.allBalances',
     },
   ],
 };

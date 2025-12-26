@@ -92,9 +92,6 @@
       "target": "api::leave-status.leave-status",
       "mappedBy": "user"
     },
-    "leave_balance": {
-      "type": "decimal"
-    },
     "unpaid_leave_balance": {
       "type": "decimal"
     },
@@ -104,11 +101,11 @@
       "target": "api::user-documents.user-documents",
       "mappedBy": "user"
     },
-    "leave_balances": {
+    "leave_bal": {
       "type": "relation",
-      "relation": "oneToMany",
+      "relation": "oneToOne",
       "target": "api::leave-balance.leave-balance",
-      "mappedBy": "users_permissions_user"
+      "mappedBy": "User_detail"
     }
   }
 }

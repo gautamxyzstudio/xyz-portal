@@ -4,12 +4,12 @@
   "info": {
     "singularName": "leave-balance",
     "pluralName": "leave-balances",
-    "displayName": "leave-balance"
+    "displayName": "Leave Balance",
+    "description": "Yearly leave balance per user"
   },
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
   "attributes": {
     "sl_balance": {
       "type": "integer",
@@ -28,13 +28,13 @@
       "default": 0
     },
     "year": {
-      "type": "integer"
+      "type": "integer",
+      "required": true
     },
-    "users_permissions_user": {
+    "user": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "leave_balances"
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

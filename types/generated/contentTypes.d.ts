@@ -786,16 +786,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::leave-status.leave-status'
     >;
-    leave_balance: Attribute.Decimal;
     unpaid_leave_balance: Attribute.Decimal;
     user_documents: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
       'api::user-documents.user-documents'
     >;
-    leave_balances: Attribute.Relation<
+    leave_bal: Attribute.Relation<
       'plugin::users-permissions.user',
-      'oneToMany',
+      'oneToOne',
       'api::leave-balance.leave-balance'
     >;
     createdAt: Attribute.DateTime;
@@ -974,7 +973,8 @@ export interface ApiLeaveBalanceLeaveBalance extends Schema.CollectionType {
   info: {
     singularName: 'leave-balance';
     pluralName: 'leave-balances';
-    displayName: 'leave-balance';
+    displayName: 'Leave Balance';
+    description: 'Yearly leave balance per user';
   };
   options: {
     draftAndPublish: true;
@@ -984,10 +984,10 @@ export interface ApiLeaveBalanceLeaveBalance extends Schema.CollectionType {
     el_balance: Attribute.Integer & Attribute.DefaultTo<4>;
     cl_balance: Attribute.Integer & Attribute.DefaultTo<4>;
     unpaid_balance: Attribute.Integer & Attribute.DefaultTo<0>;
-    year: Attribute.Integer;
-    users_permissions_user: Attribute.Relation<
+    year: Attribute.Integer & Attribute.Required;
+    user: Attribute.Relation<
       'api::leave-balance.leave-balance',
-      'manyToOne',
+      'oneToOne',
       'plugin::users-permissions.user'
     >;
     createdAt: Attribute.DateTime;

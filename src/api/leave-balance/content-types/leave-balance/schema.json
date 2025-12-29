@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "leave_balances",
+  "info": {
+    "singularName": "leave-balance",
+    "pluralName": "leave-balances",
+    "displayName": "Leave Balance",
+    "description": "Yearly leave balance per user"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "sl_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "el_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "cl_balance": {
+      "type": "integer",
+      "default": 4
+    },
+    "unpaid_balance": {
+      "type": "integer",
+      "default": 0
+    },
+    "year": {
+      "type": "integer",
+      "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

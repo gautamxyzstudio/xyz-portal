@@ -46,7 +46,7 @@ export default {
       id
     );
     ctx.body = {
-      leave_balance: user.leave_balance,
+      leave_balance: user.unpaid_leave_balance,
       unpaid_leave_balance: user.unpaid_leave_balance,
     };
   },

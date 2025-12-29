@@ -8,10 +8,14 @@ module.exports = ({ env }) => ({
       user: env('DATABASE_USERNAME', 'strapi'),
       password: env('DATABASE_PASSWORD', 'strapi'),
       pool: {
-        min: 2, // minimum number of connections
-        max: 10, // maximum number of connections
+        min: 2,
+        max: 20,           // ✅ SAFE VALUE
+        idleTimeoutMillis: 30000,
+        acquireTimeoutMillis: 60000,
       },
     },
     debug: false,
   },
 });
+
+

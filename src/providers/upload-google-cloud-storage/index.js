@@ -216,7 +216,7 @@ module.exports = {
             : null;
 
           // 🔥 CRITICAL FOR STRAPI v4 MEDIA LIBRARY
-          file.folder = 2;        // google-cloud folder ID
+          file.folder = 1;        // google-cloud folder ID
           file.folderPath = "/1"; // numeric path REQUIRED
 
           // Optional metadata

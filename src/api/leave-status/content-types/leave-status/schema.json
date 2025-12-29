@@ -39,8 +39,10 @@
     "leave_type": {
       "type": "enumeration",
       "enum": [
-        "Casual",
-        "UnPaid"
+        "SL",
+        "CL",
+        "EL",
+        "un-paid"
       ]
     },
     "is_first_half": {
@@ -58,9 +60,16 @@
     "leave_duration": {
       "type": "enumeration",
       "enum": [
-        "short_leave",
+        "half_day",
         "full_day",
-        "half_day"
+        "short_leave"
+      ]
+    },
+    "half_day_type": {
+      "type": "enumeration",
+      "enum": [
+        "first_half",
+        "second_half"
       ]
     }
   }

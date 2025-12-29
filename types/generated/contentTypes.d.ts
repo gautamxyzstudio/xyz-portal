@@ -786,12 +786,16 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::leave-status.leave-status'
     >;
-    leave_balance: Attribute.Decimal;
     unpaid_leave_balance: Attribute.Decimal;
     user_documents: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
       'api::user-documents.user-documents'
+    >;
+    leave_bal: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::leave-balance.leave-balance'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -964,6 +968,46 @@ export interface ApiHolidayListHolidayList extends Schema.CollectionType {
   };
 }
 
+export interface ApiLeaveBalanceLeaveBalance extends Schema.CollectionType {
+  collectionName: 'leave_balances';
+  info: {
+    singularName: 'leave-balance';
+    pluralName: 'leave-balances';
+    displayName: 'Leave Balance';
+    description: 'Yearly leave balance per user';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    sl_balance: Attribute.Integer & Attribute.DefaultTo<4>;
+    el_balance: Attribute.Integer & Attribute.DefaultTo<4>;
+    cl_balance: Attribute.Integer & Attribute.DefaultTo<4>;
+    unpaid_balance: Attribute.Integer & Attribute.DefaultTo<0>;
+    year: Attribute.Integer & Attribute.Required;
+    user: Attribute.Relation<
+      'api::leave-balance.leave-balance',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::leave-balance.leave-balance',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::leave-balance.leave-balance',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   collectionName: 'leave_statuses';
   info: {
@@ -982,7 +1026,7 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     status: Attribute.Enumeration<['approved', 'pending', 'declined']>;
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
-    leave_type: Attribute.Enumeration<['Casual', 'UnPaid']>;
+    leave_type: Attribute.Enumeration<['SL', 'CL', 'EL', 'un-paid']>;
     is_first_half: Attribute.Boolean;
     user: Attribute.Relation<
       'api::leave-status.leave-status',
@@ -991,8 +1035,9 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     >;
     start_time: Attribute.Time;
     leave_duration: Attribute.Enumeration<
-      ['short_leave', 'full_day', 'half_day']
+      ['half_day', 'full_day', 'short_leave']
     >;
+    half_day_type: Attribute.Enumeration<['first_half', 'second_half']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1136,6 +1181,7 @@ declare module '@strapi/types' {
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
+      'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
       'api::product.product': ApiProductProduct;
       'api::test-leave.test-leave': ApiTestLeaveTestLeave;

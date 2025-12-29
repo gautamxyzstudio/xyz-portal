@@ -1,5 +1,5 @@
 const path = require('path');
-
+ 
 module.exports = ({ env }) => ({
   upload: {
     config: {
@@ -44,4 +44,14 @@ module.exports = ({ env }) => ({
       },
     },
   },
+ 
+  
+  // ==========================
+  // 🚫 DISABLE DOCUMENTATION
+  // ==========================
+  documentation: {
+    enabled: true,
+  },
 });
+ 
+ 

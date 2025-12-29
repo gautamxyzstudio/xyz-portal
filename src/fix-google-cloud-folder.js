@@ -34,7 +34,7 @@ module.exports = async (strapi) => {
       await strapi.query('plugin::upload.file').update({
         where: { id: file.id },
         data: {
-          folder: 2,        // 🔥 MUST MATCH
+          folder: 1,        // 🔥 MUST MATCH
           folderPath: '/1', // 🔥 MUST MATCH
         },
       });

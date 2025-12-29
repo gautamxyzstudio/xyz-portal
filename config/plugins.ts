@@ -7,7 +7,7 @@ module.exports = ({ env }) => ({
         process.cwd(),
         'src/providers/upload-google-cloud-storage'
       ),
- 
+
       providerOptions: {
         baseUrl: env('MEDIA_BASE_URL'),
         projectId: env('GCS_PROJECT_ID'),
@@ -17,7 +17,7 @@ module.exports = ({ env }) => ({
           'config/Keys/gcs-key.json'
         ),
       },
- 
+
       // ✅ PROPER way to disable image processing
       image: {
         responsiveDimensions: false,
@@ -25,7 +25,7 @@ module.exports = ({ env }) => ({
       },
     },
   },
- 
+
   email: {
     config: {
       provider: 'nodemailer',

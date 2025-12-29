@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-12-26T11:58:37.382Z"
+    "x-generation-date": "2025-12-29T12:27:28.454Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -2155,6 +2155,7 @@
                                         "second_half"
                                       ]
                                     },
+                                    "days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -2451,19 +2452,24 @@
                                 "type": "object",
                                 "properties": {
                                   "sl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "el_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "cl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "unpaid_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "year": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "user": {
                                     "type": "object",
@@ -4055,6 +4061,7 @@
                                         "second_half"
                                       ]
                                     },
+                                    "days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -4351,19 +4358,24 @@
                                 "type": "object",
                                 "properties": {
                                   "sl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "el_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "cl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "unpaid_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "year": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "user": {
                                     "type": "object",
@@ -4966,19 +4978,24 @@
             "type": "object",
             "properties": {
               "sl_balance": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "el_balance": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "cl_balance": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "unpaid_balance": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "year": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "user": {
                 "oneOf": [
@@ -5048,19 +5065,24 @@
         ],
         "properties": {
           "sl_balance": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "el_balance": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "cl_balance": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "unpaid_balance": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "year": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "user": {
             "type": "object",
@@ -6201,6 +6223,7 @@
                                         "second_half"
                                       ]
                                     },
+                                    "days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -6497,19 +6520,24 @@
                                 "type": "object",
                                 "properties": {
                                   "sl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "el_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "cl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "unpaid_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "year": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "user": {
                                     "type": "object",
@@ -6777,7 +6805,8 @@
                   "first_half",
                   "second_half"
                 ]
-              }
+              },
+              "days": {}
             }
           }
         }
@@ -8010,6 +8039,7 @@
                                         "second_half"
                                       ]
                                     },
+                                    "days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -8306,19 +8336,24 @@
                                 "type": "object",
                                 "properties": {
                                   "sl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "el_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "cl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "unpaid_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "year": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "user": {
                                     "type": "object",
@@ -8457,6 +8492,7 @@
               "second_half"
             ]
           },
+          "days": {},
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11074,6 +11110,7 @@
                                         "second_half"
                                       ]
                                     },
+                                    "days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -11370,19 +11407,24 @@
                                 "type": "object",
                                 "properties": {
                                   "sl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "el_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "cl_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "unpaid_balance": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "year": {
-                                    "type": "integer"
+                                    "type": "number",
+                                    "format": "float"
                                   },
                                   "user": {
                                     "type": "object",
@@ -12592,8 +12634,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -13094,117 +13135,15 @@
         "tags": [
           "Daily-attendance"
         ],
-        "parameters": [
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Sort by attributes ascending (asc) or descending (desc)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pagination[withCount]",
-            "in": "query",
-            "description": "Return page/pageSize (default: true)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "pagination[page]",
-            "in": "query",
-            "description": "Page number (default: 0)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "pagination[pageSize]",
-            "in": "query",
-            "description": "Page size (default: 25)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "pagination[start]",
-            "in": "query",
-            "description": "Offset value (default: 0)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "pagination[limit]",
-            "in": "query",
-            "description": "Number of entities to return (default: 25)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "fields",
-            "in": "query",
-            "description": "Fields to return (ex: title,author)",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "populate",
-            "in": "query",
-            "description": "Relations to return",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filters",
-            "in": "query",
-            "description": "Filters to apply",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "style": "deepObject"
-          },
-          {
-            "name": "locale",
-            "in": "query",
-            "description": "Locale to apply",
-            "deprecated": false,
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "",
-            "deprecated": false,
-            "required": true,
-            "schema": {
-              "type": "number"
+        "parameters": [],
+        "operationId": "post/daily-attendance/cron/mark-absent-users",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DailyAttendanceRequest"
+              }
             }
           }
         }
@@ -14103,8 +14042,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -14609,8 +14547,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -15115,8 +15052,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -15621,8 +15557,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -16127,8 +16062,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },
@@ -16633,8 +16567,7 @@
             "deprecated": false,
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             },
             "style": "deepObject"
           },

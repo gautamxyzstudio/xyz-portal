@@ -71,6 +71,9 @@
         "first_half",
         "second_half"
       ]
+    },
+    "days": {
+      "type": "json"
     }
   }
 }

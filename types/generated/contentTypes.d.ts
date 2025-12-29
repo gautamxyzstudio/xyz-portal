@@ -980,11 +980,11 @@ export interface ApiLeaveBalanceLeaveBalance extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    sl_balance: Attribute.Integer & Attribute.DefaultTo<4>;
-    el_balance: Attribute.Integer & Attribute.DefaultTo<4>;
-    cl_balance: Attribute.Integer & Attribute.DefaultTo<4>;
-    unpaid_balance: Attribute.Integer & Attribute.DefaultTo<0>;
-    year: Attribute.Integer & Attribute.Required;
+    sl_balance: Attribute.Decimal & Attribute.DefaultTo<4>;
+    el_balance: Attribute.Decimal & Attribute.DefaultTo<4>;
+    cl_balance: Attribute.Decimal & Attribute.DefaultTo<4>;
+    unpaid_balance: Attribute.Decimal & Attribute.DefaultTo<0>;
+    year: Attribute.Decimal & Attribute.Required;
     user: Attribute.Relation<
       'api::leave-balance.leave-balance',
       'oneToOne',
@@ -1038,6 +1038,7 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
       ['half_day', 'full_day', 'short_leave']
     >;
     half_day_type: Attribute.Enumeration<['first_half', 'second_half']>;
+    days: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

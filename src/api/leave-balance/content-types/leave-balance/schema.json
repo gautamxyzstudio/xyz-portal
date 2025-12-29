@@ -12,23 +12,23 @@
   },
   "attributes": {
     "sl_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "el_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "cl_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "unpaid_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 0
     },
     "year": {
-      "type": "integer",
+      "type": "decimal",
       "required": true
     },
     "user": {

@@ -786,7 +786,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::leave-status.leave-status'
     >;
-    unpaid_leave_balance: Attribute.Decimal;
     user_documents: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
@@ -797,6 +796,10 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToOne',
       'api::leave-balance.leave-balance'
     >;
+    date_of_birth: Attribute.Date;
+    joining_date: Attribute.Date;
+    active_blogs: Attribute.Boolean;
+    joining_announced: Attribute.Boolean & Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -844,6 +847,38 @@ export interface ApiAddBlogAddBlog extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::add-blog.add-blog',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiAnnouncementAnnouncement extends Schema.CollectionType {
+  collectionName: 'announcements';
+  info: {
+    singularName: 'announcement';
+    pluralName: 'announcements';
+    displayName: 'Announcements';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Date: Attribute.Date;
+    Title: Attribute.String;
+    Description: Attribute.Text;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::announcement.announcement',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::announcement.announcement',
       'oneToOne',
       'admin::user'
     > &
@@ -990,6 +1025,11 @@ export interface ApiLeaveBalanceLeaveBalance extends Schema.CollectionType {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    User_detail: Attribute.Relation<
+      'api::leave-balance.leave-balance',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1057,73 +1097,6 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
   };
 }
 
-export interface ApiProductProduct extends Schema.CollectionType {
-  collectionName: 'products';
-  info: {
-    singularName: 'product';
-    pluralName: 'products';
-    displayName: 'Product ';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    name: Attribute.String;
-    price: Attribute.Integer;
-    description: Attribute.Text;
-    product_image: Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::product.product',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::product.product',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiTestLeaveTestLeave extends Schema.CollectionType {
-  collectionName: 'test_leaves';
-  info: {
-    singularName: 'test-leave';
-    pluralName: 'test-leaves';
-    displayName: 'testLeave';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    title: Attribute.String;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::test-leave.test-leave',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::test-leave.test-leave',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 export interface ApiUserDocumentsUserDocuments extends Schema.CollectionType {
   collectionName: 'documents';
   info: {
@@ -1179,13 +1152,12 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::add-blog.add-blog': ApiAddBlogAddBlog;
+      'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
-      'api::product.product': ApiProductProduct;
-      'api::test-leave.test-leave': ApiTestLeaveTestLeave;
       'api::user-documents.user-documents': ApiUserDocumentsUserDocuments;
     }
   }

@@ -92,9 +92,6 @@
       "target": "api::leave-status.leave-status",
       "mappedBy": "user"
     },
-    "unpaid_leave_balance": {
-      "type": "decimal"
-    },
     "user_documents": {
       "type": "relation",
       "relation": "oneToMany",
@@ -106,6 +103,20 @@
       "relation": "oneToOne",
       "target": "api::leave-balance.leave-balance",
       "mappedBy": "User_detail"
+    },
+    "date_of_birth": {
+      "type": "date"
+    },
+    "joining_date": {
+      "type": "date"
+    },
+    "active_blogs": {
+      "type": "boolean"
+    },
+    "joining_announced": {
+      "type": "boolean",
+      "default": false,
+      "required": false
     }
   }
 }

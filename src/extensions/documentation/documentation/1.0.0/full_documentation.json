@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-12-30T12:15:01.305Z"
+    "x-generation-date": "2025-12-31T08:50:11.223Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1323,7 +1323,8 @@
                   "absent",
                   "late",
                   "half-day",
-                  "leave"
+                  "leave",
+                  "short-leave"
                 ]
               },
               "notes": {
@@ -1339,6 +1340,10 @@
                   }
                 ],
                 "example": "string or id"
+              },
+              "last_checkout_reminder": {
+                "type": "string",
+                "format": "date-time"
               }
             }
           }
@@ -1414,7 +1419,8 @@
               "absent",
               "late",
               "half-day",
-              "leave"
+              "leave",
+              "short-leave"
             ]
           },
           "notes": {
@@ -2395,7 +2401,8 @@
                                         "absent",
                                         "late",
                                         "half-day",
-                                        "leave"
+                                        "leave",
+                                        "short-leave"
                                       ]
                                     },
                                     "notes": {
@@ -2417,6 +2424,10 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -3018,6 +3029,10 @@
                 }
               }
             }
+          },
+          "last_checkout_reminder": {
+            "type": "string",
+            "format": "date-time"
           },
           "createdAt": {
             "type": "string",
@@ -4328,7 +4343,8 @@
                                         "absent",
                                         "late",
                                         "half-day",
-                                        "leave"
+                                        "leave",
+                                        "short-leave"
                                       ]
                                     },
                                     "notes": {
@@ -4350,6 +4366,10 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -6528,7 +6548,8 @@
                                         "absent",
                                         "late",
                                         "half-day",
-                                        "leave"
+                                        "leave",
+                                        "short-leave"
                                       ]
                                     },
                                     "notes": {
@@ -6550,6 +6571,10 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -8388,7 +8413,8 @@
                                         "absent",
                                         "late",
                                         "half-day",
-                                        "leave"
+                                        "leave",
+                                        "short-leave"
                                       ]
                                     },
                                     "notes": {
@@ -8410,6 +8436,10 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -10307,7 +10337,8 @@
                                         "absent",
                                         "late",
                                         "half-day",
-                                        "leave"
+                                        "leave",
+                                        "short-leave"
                                       ]
                                     },
                                     "notes": {
@@ -10329,6 +10360,10 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
                                     },
                                     "createdAt": {
                                       "type": "string",

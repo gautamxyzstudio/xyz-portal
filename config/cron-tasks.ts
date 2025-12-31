@@ -1,6 +1,6 @@
 module.exports = {
   /* =========================================================
-     🕕 DAILY ATTENDANCE (UNCHANGED)
+     🕕 DAILY ATTENDANCE 
   ========================================================= */
 
   createDailyAttendance: {
@@ -64,6 +64,234 @@ module.exports = {
       tz: 'Asia/Kolkata',
     },
   },
+
+  /* =========================================================
+      CHECKOUT REMINDER
+  ========================================================= */
+//   missingCheckoutReminder: {
+//   task: async ({ strapi }) => {
+//     try {
+//       const now = new Date();
+
+//       // 🕡 Only after 6:30 PM IST
+//       const grace = new Date();
+//       grace.setHours(13, 57, 0, 0);
+//       if (now < grace) return;
+
+//       const today = now.toISOString().split('T')[0];
+
+//       const records = await strapi.entityService.findMany(
+//         'api::daily-attendance.daily-attendance',
+//         {
+//           filters: {
+//             Date: today,
+//             in: { $notNull: true },
+//             out: { $null: true },
+//             status: 'present',
+//           },
+//           populate: { user: true },
+//         }
+//       );
+
+//       if (!records.length) return;
+
+//       // 👥 HR emails
+//       const hrRole = await strapi.db
+//         .query('plugin::users-permissions.role')
+//         .findOne({ where: { name: 'Hr' } });
+
+//       const hrUsers = hrRole
+//         ? await strapi.db
+//             .query('plugin::users-permissions.user')
+//             .findMany({ where: { role: hrRole.id } })
+//         : [];
+
+//       const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
+
+//       for (const record of records) {
+//         const user = record.user;
+//         if (!user?.email) continue;
+
+//         // ⛔ 30-min throttle
+//         if (
+//           record.last_checkout_reminder &&
+//           now.getTime() -
+//             new Date(record.last_checkout_reminder).getTime() <
+//             30 * 60 * 1000
+//         ) {
+//           continue;
+//         }
+
+//         // 📧 SEND EMAIL
+//         await strapi.plugin('email').service('email').send({
+//           to: user.email,
+//           cc: hrEmails,
+//           subject: '⚠️ Checkout Pending Reminder',
+//           html: `
+//             <p>Hello <b>${user.username}</b>,</p>
+//             <p>You have not checked out today.</p>
+//             <p><b>Office time:</b> 9:00 AM – 6:00 PM</p>
+//             <p>Please checkout immediately.</p>
+//             <br/>
+//             <p style="font-size:12px;color:gray;">
+//               Automated reminder every 30 minutes until checkout.
+//             </p>
+//           `,
+//         });
+
+//         // 📝 Update timestamp
+//         await strapi.entityService.update(
+//           'api::daily-attendance.daily-attendance',
+//           record.id,
+//           {
+//             data: {
+//               last_checkout_reminder: now,
+//             },
+//           }
+//         );
+//       }
+//     } catch (error) {
+//       strapi.log.error('❌ Missing checkout cron failed:', error);
+//     }
+//   },
+//   options: {
+//     rule: '*/1 * * * *',
+//     tz: 'Asia/Kolkata',
+//   },
+// },
+
+
+missingCheckoutReminder: {
+  task: async ({ strapi }) => {
+    try {
+      const now = new Date();
+      strapi.log.info(
+        `🔥 missingCheckoutReminder STARTED at ${now.toISOString()}`
+      );
+
+      // 🕡 Grace time check
+      const grace = new Date();
+      grace.setHours(1, 57, 0, 0);
+
+      if (now < grace) {
+        strapi.log.info(
+          `⏳ Skipped — before grace time (${grace.toISOString()})`
+        );
+        return;
+      }
+
+      strapi.log.info('⏰ Passed grace time');
+
+      const today = now.toISOString().split('T')[0];
+      strapi.log.info(`📅 Checking attendance for date: ${today}`);
+
+      // 🔍 Fetch records
+      const records = await strapi.entityService.findMany(
+        'api::daily-attendance.daily-attendance',
+        {
+          filters: {
+            Date: today,
+            in: { $notNull: true },
+            out: { $null: true },
+            status: 'present',
+          },
+          populate: { user: true },
+        }
+      );
+
+      strapi.log.info(`📊 Pending checkout records found: ${records.length}`);
+
+      if (!records.length) {
+        strapi.log.info('ℹ️ No pending checkout users. Exiting.');
+        return;
+      }
+
+      // 👥 Fetch HR emails
+      const hrRole = await strapi.db
+        .query('plugin::users-permissions.role')
+        .findOne({ where: { name: 'Hr' } });
+
+      if (!hrRole) {
+        strapi.log.warn('⚠️ HR role not found');
+      }
+
+      const hrUsers = hrRole
+        ? await strapi.db
+            .query('plugin::users-permissions.user')
+            .findMany({ where: { role: hrRole.id } })
+        : [];
+
+      const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
+      strapi.log.info(`👥 HR emails: ${JSON.stringify(hrEmails)}`);
+
+      // 📧 Send emails
+      for (const record of records) {
+        const user = record.user;
+
+        if (!user?.email) {
+          strapi.log.warn(
+            `⚠️ User ${user?.username || 'unknown'} has no email`
+          );
+          continue;
+        }
+
+        // ⛔ Throttle check
+        if (
+          record.last_checkout_reminder &&
+          now.getTime() -
+            new Date(record.last_checkout_reminder).getTime() <
+            30 * 60 * 1000
+        ) {
+          strapi.log.info(
+            `⛔ Throttled for ${user.email} (last reminder too recent)`
+          );
+          continue;
+        }
+
+        strapi.log.info(`📧 Sending checkout reminder to ${user.email}`);
+
+        await strapi.plugin('email').service('email').send({
+          to: user.email,
+          cc: hrEmails,
+          subject: '⚠️ Checkout Pending Reminder',
+          html: `
+            <p>Hello <b>${user.username}</b>,</p>
+            <p>You have not checked out today.</p>
+            <p><b>Office time:</b> 9:00 AM – 6:00 PM</p>
+            <p>Please checkout immediately.</p>
+          `,
+        });
+
+        strapi.log.info(`✅ Email sent to ${user.email}`);
+
+        // 📝 Update reminder timestamp
+        await strapi.entityService.update(
+          'api::daily-attendance.daily-attendance',
+          record.id,
+          {
+            data: {
+              last_checkout_reminder: now,
+            },
+          }
+        );
+
+        strapi.log.info(
+          `📝 Updated last_checkout_reminder for record ${record.id}`
+        );
+      }
+    } catch (error) {
+      strapi.log.error(
+        '❌ Missing checkout cron failed:',
+        error
+      );
+    }
+  },
+
+  options: {
+    rule: '*/1 * * * *', // every minute (TEST)
+    tz: 'Asia/Kolkata',
+  },
+},
 
   /* =========================================================
      📢 EMPLOYEE ANNOUNCEMENTS
@@ -255,7 +483,7 @@ module.exports = {
       }
     },
     options: {
-      rule: '*/1 * * * *', // every minute (after 9 AM it behaves like event)
+      rule: '*/1 * * * *', // every minute (after 5 AM it behaves like event)
       tz: 'Asia/Kolkata',
     },
   },

@@ -28,7 +28,8 @@
         "absent",
         "late",
         "half-day",
-        "leave"
+        "leave",
+        "short-leave"
       ],
       "default": "absent"
     },
@@ -40,6 +41,9 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "daily_attendances"
+    },
+    "last_checkout_reminder": {
+      "type": "datetime"
     }
   }
 }

@@ -903,7 +903,7 @@ export interface ApiDailyAttendanceDailyAttendance
     out: Attribute.Time;
     Date: Attribute.Date;
     status: Attribute.Enumeration<
-      ['present', 'absent', 'late', 'half-day', 'leave']
+      ['present', 'absent', 'late', 'half-day', 'leave', 'short-leave']
     > &
       Attribute.DefaultTo<'absent'>;
     notes: Attribute.Text;
@@ -912,6 +912,7 @@ export interface ApiDailyAttendanceDailyAttendance
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    last_checkout_reminder: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

@@ -1,5 +1,5 @@
 {
-  "/test-leaves": {
+  "/announcements": {
     "get": {
       "responses": {
         "200": {
@@ -7,7 +7,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestLeaveListResponse"
+                "$ref": "#/components/schemas/AnnouncementListResponse"
               }
             }
           }
@@ -64,7 +64,7 @@
         }
       },
       "tags": [
-        "Test-leave"
+        "Announcement"
       ],
       "parameters": [
         {
@@ -154,8 +154,7 @@
           "deprecated": false,
           "required": false,
           "schema": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "style": "deepObject"
         },
@@ -170,7 +169,7 @@
           }
         }
       ],
-      "operationId": "get/test-leaves"
+      "operationId": "get/announcements"
     },
     "post": {
       "responses": {
@@ -179,7 +178,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestLeaveResponse"
+                "$ref": "#/components/schemas/AnnouncementResponse"
               }
             }
           }
@@ -236,23 +235,23 @@
         }
       },
       "tags": [
-        "Test-leave"
+        "Announcement"
       ],
       "parameters": [],
-      "operationId": "post/test-leaves",
+      "operationId": "post/announcements",
       "requestBody": {
         "required": true,
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/TestLeaveRequest"
+              "$ref": "#/components/schemas/AnnouncementRequest"
             }
           }
         }
       }
     }
   },
-  "/test-leaves/{id}": {
+  "/announcements/{id}": {
     "get": {
       "responses": {
         "200": {
@@ -260,7 +259,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestLeaveResponse"
+                "$ref": "#/components/schemas/AnnouncementResponse"
               }
             }
           }
@@ -317,7 +316,7 @@
         }
       },
       "tags": [
-        "Test-leave"
+        "Announcement"
       ],
       "parameters": [
         {
@@ -331,7 +330,7 @@
           }
         }
       ],
-      "operationId": "get/test-leaves/{id}"
+      "operationId": "get/announcements/{id}"
     },
     "put": {
       "responses": {
@@ -340,7 +339,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestLeaveResponse"
+                "$ref": "#/components/schemas/AnnouncementResponse"
               }
             }
           }
@@ -397,7 +396,7 @@
         }
       },
       "tags": [
-        "Test-leave"
+        "Announcement"
       ],
       "parameters": [
         {
@@ -411,13 +410,13 @@
           }
         }
       ],
-      "operationId": "put/test-leaves/{id}",
+      "operationId": "put/announcements/{id}",
       "requestBody": {
         "required": true,
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/TestLeaveRequest"
+              "$ref": "#/components/schemas/AnnouncementRequest"
             }
           }
         }
@@ -488,7 +487,7 @@
         }
       },
       "tags": [
-        "Test-leave"
+        "Announcement"
       ],
       "parameters": [
         {
@@ -502,7 +501,7 @@
           }
         }
       ],
-      "operationId": "delete/test-leaves/{id}"
+      "operationId": "delete/announcements/{id}"
     }
   }
 }

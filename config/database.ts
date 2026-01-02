@@ -9,7 +9,7 @@ module.exports = ({ env }) => ({
       password: env('DATABASE_PASSWORD', 'strapi'),
       pool: {
         min: 2,
-        max: 20,           // ✅ SAFE VALUE
+        max: 10,           // ✅ SAFE VALUE
         idleTimeoutMillis: 30000,
         acquireTimeoutMillis: 60000,
       },

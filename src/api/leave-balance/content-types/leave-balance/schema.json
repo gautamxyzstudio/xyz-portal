@@ -12,29 +12,35 @@
   },
   "attributes": {
     "sl_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "el_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "cl_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 4
     },
     "unpaid_balance": {
-      "type": "integer",
+      "type": "decimal",
       "default": 0
     },
     "year": {
-      "type": "integer",
+      "type": "decimal",
       "required": true
     },
     "user": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
+    },
+    "User_detail": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "leave_bal"
     }
   }
 }

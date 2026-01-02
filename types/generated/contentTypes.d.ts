@@ -955,6 +955,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     status: Attribute.Boolean & Attribute.DefaultTo<true>;
+    coverImage: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

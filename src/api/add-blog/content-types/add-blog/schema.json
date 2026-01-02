@@ -40,6 +40,9 @@
     },
     "BlogDate": {
       "type": "datetime"
+    },
+    "blogSlug": {
+      "type": "string"
     }
   }
 }

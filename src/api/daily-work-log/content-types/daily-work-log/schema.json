@@ -1,0 +1,63 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_work_logs",
+  "info": {
+    "singularName": "daily-work-log",
+    "pluralName": "daily-work-logs",
+    "displayName": "daily-work-log"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "demo": {
+      "type": "string"
+    },
+
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "required": true
+    },
+
+    "date": {
+      "type": "date",
+      "required": true
+    },
+
+    "total_estimated_minutes": {
+      "type": "integer",
+      "default": 0
+    },
+
+    "total_actual_minutes": {
+      "type": "integer",
+      "default": 0
+    },
+
+    "regular_minutes": {
+      "type": "integer",
+      "default": 0
+    },
+
+    "overtime_minutes": {
+      "type": "integer",
+      "default": 0
+    },
+
+    "status": {
+      "type": "enumeration",
+      "enum": ["completed", "incomplete"],
+      "default": "incomplete"
+    },
+
+    "daily_tasks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::daily-task.daily-task",
+      "mappedBy": "daily_work_log"
+    }
+  }
+}

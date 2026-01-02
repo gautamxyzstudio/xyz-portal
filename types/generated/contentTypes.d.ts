@@ -836,7 +836,6 @@ export interface ApiAddBlogAddBlog extends Schema.CollectionType {
     metaDescr: Attribute.Text;
     metaTitle: Attribute.String;
     BlogDate: Attribute.DateTime;
-    blogSlug: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -925,96 +924,6 @@ export interface ApiDailyAttendanceDailyAttendance
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiDailyTaskDailyTask extends Schema.CollectionType {
-  collectionName: 'daily_tasks';
-  info: {
-    singularName: 'daily-task';
-    pluralName: 'daily-tasks';
-    displayName: 'dailyTask';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    daily_work_log: Attribute.Relation<
-      'api::daily-task.daily-task',
-      'manyToOne',
-      'api::daily-work-log.daily-work-log'
-    > &
-      Attribute.Required;
-    task_name: Attribute.String & Attribute.Required;
-    estimated_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    actual_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    task_status: Attribute.Enumeration<
-      ['pending', 'in_progress', 'completed', 'blocked']
-    > &
-      Attribute.DefaultTo<'pending'>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::daily-task.daily-task',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::daily-task.daily-task',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiDailyWorkLogDailyWorkLog extends Schema.CollectionType {
-  collectionName: 'daily_work_logs';
-  info: {
-    singularName: 'daily-work-log';
-    pluralName: 'daily-work-logs';
-    displayName: 'daily-work-log';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    demo: Attribute.String;
-    user: Attribute.Relation<
-      'api::daily-work-log.daily-work-log',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    > &
-      Attribute.Required;
-    date: Attribute.Date & Attribute.Required;
-    total_estimated_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    total_actual_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    regular_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    overtime_minutes: Attribute.Integer & Attribute.DefaultTo<0>;
-    status: Attribute.Enumeration<['completed', 'incomplete']> &
-      Attribute.DefaultTo<'incomplete'>;
-    daily_tasks: Attribute.Relation<
-      'api::daily-work-log.daily-work-log',
-      'oneToMany',
-      'api::daily-task.daily-task'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::daily-work-log.daily-work-log',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::daily-work-log.daily-work-log',
       'oneToOne',
       'admin::user'
     > &
@@ -1247,8 +1156,6 @@ declare module '@strapi/types' {
       'api::add-blog.add-blog': ApiAddBlogAddBlog;
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
-      'api::daily-task.daily-task': ApiDailyTaskDailyTask;
-      'api::daily-work-log.daily-work-log': ApiDailyWorkLogDailyWorkLog;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;

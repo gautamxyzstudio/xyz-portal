@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_tasks",
+  "info": {
+    "singularName": "daily-task",
+    "pluralName": "daily-tasks",
+    "displayName": "Daily Tasks",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "work_logs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::work-log.work-log",
+      "mappedBy": "daily_task"
+    },
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    }
+  }
+}

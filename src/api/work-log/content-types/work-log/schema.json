@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "work_logs",
+  "info": {
+    "singularName": "work-log",
+    "pluralName": "work-logs",
+    "displayName": "Work Log"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tasks": {
+      "type": "json"
+    },
+    "total_actual_time": {
+      "type": "integer",
+      "default": 0
+    },
+    "total_estimated_time": {
+      "type": "integer",
+      "default": 0
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "work_logs"
+    },
+    "daily_task": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::daily-task.daily-task",
+      "inversedBy": "work_logs"
+    }
+  }
+}

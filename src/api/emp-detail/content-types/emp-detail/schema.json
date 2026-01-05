@@ -47,6 +47,16 @@
     "status": {
       "type": "boolean",
       "default": true
+    },
+    "coverImage": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

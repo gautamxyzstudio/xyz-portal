@@ -100,20 +100,45 @@ export default {
 
     return ctx.body;
   },
+async find(ctx) {
+  const { id } = ctx.params;
+  const { fromDate, toDate } = ctx.query;
 
-  async find(ctx) {
-    const { id } = ctx.params;
-    const attendance = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
-      {
-        filters: {
-          user: id,
-        },
-      }
-    );
-    ctx.body = attendance;
-    return attendance;
-  },
+  const filters: any = {
+    user: id,
+  };
+
+  if (fromDate && toDate) {
+    filters.Date = {
+      $gte: fromDate,
+      $lte: toDate,
+    };
+  }
+
+  const attendance = await strapi.entityService.findMany(
+    'api::daily-attendance.daily-attendance',
+    {
+      filters,
+      sort: { Date: 'asc' },
+    }
+  );
+
+  ctx.body = attendance;
+}
+,
+  // async find(ctx) {
+  //   const { id } = ctx.params;
+  //   const attendance = await strapi.entityService.findMany(
+  //     'api::daily-attendance.daily-attendance',
+  //     {
+  //       filters: {
+  //         user: id,
+  //       },
+  //     }
+  //   );
+  //   ctx.body = attendance;
+  //   return attendance;
+  // },
 
   async findToday(ctx) {
     const { id } = ctx.params;

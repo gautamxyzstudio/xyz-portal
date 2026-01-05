@@ -68,254 +68,146 @@ module.exports = {
   /* =========================================================
       CHECKOUT REMINDER
   ========================================================= */
-//   missingCheckoutReminder: {
-//   task: async ({ strapi }) => {
-//     try {
-//       const now = new Date();
 
-//       // 🕡 Only after 6:30 PM IST
-//       const grace = new Date();
-//       grace.setHours(13, 57, 0, 0);
-//       if (now < grace) return;
+  missingCheckoutReminder: {
+    task: async ({ strapi }) => {
+      try {
+        const now = new Date();
+        strapi.log.info('🔥 missingCheckoutReminder STARTED');
 
-//       const today = now.toISOString().split('T')[0];
-
-//       const records = await strapi.entityService.findMany(
-//         'api::daily-attendance.daily-attendance',
-//         {
-//           filters: {
-//             Date: today,
-//             in: { $notNull: true },
-//             out: { $null: true },
-//             status: 'present',
-//           },
-//           populate: { user: true },
-//         }
-//       );
-
-//       if (!records.length) return;
-
-//       // 👥 HR emails
-//       const hrRole = await strapi.db
-//         .query('plugin::users-permissions.role')
-//         .findOne({ where: { name: 'Hr' } });
-
-//       const hrUsers = hrRole
-//         ? await strapi.db
-//             .query('plugin::users-permissions.user')
-//             .findMany({ where: { role: hrRole.id } })
-//         : [];
-
-//       const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
-
-//       for (const record of records) {
-//         const user = record.user;
-//         if (!user?.email) continue;
-
-//         // ⛔ 30-min throttle
-//         if (
-//           record.last_checkout_reminder &&
-//           now.getTime() -
-//             new Date(record.last_checkout_reminder).getTime() <
-//             30 * 60 * 1000
-//         ) {
-//           continue;
-//         }
-
-//         // 📧 SEND EMAIL
-//         await strapi.plugin('email').service('email').send({
-//           to: user.email,
-//           cc: hrEmails,
-//           subject: '⚠️ Checkout Pending Reminder',
-//           html: `
-//             <p>Hello <b>${user.username}</b>,</p>
-//             <p>You have not checked out today.</p>
-//             <p><b>Office time:</b> 9:00 AM – 6:00 PM</p>
-//             <p>Please checkout immediately.</p>
-//             <br/>
-//             <p style="font-size:12px;color:gray;">
-//               Automated reminder every 30 minutes until checkout.
-//             </p>
-//           `,
-//         });
-
-//         // 📝 Update timestamp
-//         await strapi.entityService.update(
-//           'api::daily-attendance.daily-attendance',
-//           record.id,
-//           {
-//             data: {
-//               last_checkout_reminder: now,
-//             },
-//           }
-//         );
-//       }
-//     } catch (error) {
-//       strapi.log.error('❌ Missing checkout cron failed:', error);
-//     }
-//   },
-//   options: {
-//     rule: '*/1 * * * *',
-//     tz: 'Asia/Kolkata',
-//   },
-// },
-
-
-missingCheckoutReminder: {
-  task: async ({ strapi }) => {
-    try {
-      const now = new Date();
-      strapi.log.info(
-        `🔥 missingCheckoutReminder STARTED at ${now.toISOString()}`
-      );
-
-      // 🕡 Grace time check
-      const grace = new Date();
-      grace.setHours(1, 57, 0, 0);
-
-      if (now < grace) {
-        strapi.log.info(
-          `⏳ Skipped — before grace time (${grace.toISOString()})`
-        );
-        return;
-      }
-
-      strapi.log.info('⏰ Passed grace time');
-
-      const today = now.toISOString().split('T')[0];
-      strapi.log.info(`📅 Checking attendance for date: ${today}`);
-
-      // 🔍 Fetch records
-      const records = await strapi.entityService.findMany(
-        'api::daily-attendance.daily-attendance',
-        {
-          filters: {
-            Date: today,
-            in: { $notNull: true },
-            out: { $null: true },
-            status: 'present',
-          },
-          populate: { user: true },
-        }
-      );
-
-      strapi.log.info(`📊 Pending checkout records found: ${records.length}`);
-
-      if (!records.length) {
-        strapi.log.info('ℹ️ No pending checkout users. Exiting.');
-        return;
-      }
-
-      // 👥 Fetch HR emails
-      const hrRole = await strapi.db
-        .query('plugin::users-permissions.role')
-        .findOne({ where: { name: 'Hr' } });
-
-      if (!hrRole) {
-        strapi.log.warn('⚠️ HR role not found');
-      }
-
-      const hrUsers = hrRole
-        ? await strapi.db
-            .query('plugin::users-permissions.user')
-            .findMany({ where: { role: hrRole.id } })
-        : [];
-
-      const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
-      strapi.log.info(`👥 HR emails: ${JSON.stringify(hrEmails)}`);
-
-      // 📧 Send emails
-      for (const record of records) {
-        const user = record.user;
-
-        if (!user?.email) {
-          strapi.log.warn(
-            `⚠️ User ${user?.username || 'unknown'} has no email`
-          );
-          continue;
+        /* =====================================================
+           ⏰ Allow only after 6:30 PM IST
+        ===================================================== */
+        const minutesNow = now.getHours() * 60 + now.getMinutes();
+        if (minutesNow < 18 * 60 + 3) {
+          strapi.log.info('⏳ Before 6:30 PM, skipping');
+          return;
         }
 
-        // ⛔ Throttle check
-        if (
-          record.last_checkout_reminder &&
-          now.getTime() -
-            new Date(record.last_checkout_reminder).getTime() <
-            30 * 60 * 1000
-        ) {
-          strapi.log.info(
-            `⛔ Throttled for ${user.email} (last reminder too recent)`
-          );
-          continue;
-        }
+        const today = now.toISOString().split('T')[0];
 
-        strapi.log.info(`📧 Sending checkout reminder to ${user.email}`);
-
-        await strapi.plugin('email').service('email').send({
-          to: user.email,
-          cc: hrEmails,
-          subject: '⚠️ Checkout Pending Reminder',
-          html: `
-            <p>Hello <b>${user.username}</b>,</p>
-            <p>You have not checked out today.</p>
-            <p><b>Office time:</b> 9:00 AM – 6:00 PM</p>
-            <p>Please checkout immediately.</p>
-          `,
-        });
-
-        strapi.log.info(`✅ Email sent to ${user.email}`);
-
-        // 📝 Update reminder timestamp
-        await strapi.entityService.update(
+        /* =====================================================
+           📋 Users who checked in but NOT checked out
+        ===================================================== */
+        const records = await strapi.entityService.findMany(
           'api::daily-attendance.daily-attendance',
-          record.id,
           {
-            data: {
-              last_checkout_reminder: now,
+            filters: {
+              Date: today,
+              in: { $notNull: true },
+              out: { $null: true },
+              status: 'present',
             },
+            populate: { user: true },
           }
         );
 
-        strapi.log.info(
-          `📝 Updated last_checkout_reminder for record ${record.id}`
+        strapi.log.info(`📊 Pending checkout users: ${records.length}`);
+        if (!records.length) return;
+
+        /* =====================================================
+           👥 FETCH ONLY HR (USING user_type)
+        ===================================================== */
+        const hrUsers = await strapi.entityService.findMany(
+          'plugin::users-permissions.user',
+          {
+            filters: {
+              user_type: 'Hr',   // ✅ ONLY DIMPLE MATCHES
+            },
+            fields: ['email', 'username'],
+          }
         );
+
+        const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
+        strapi.log.info(`👥 HR emails (FINAL): ${JSON.stringify(hrEmails)}`);
+
+        /* =====================================================
+           📧 Send email (employee + HR)
+        ===================================================== */
+        for (const record of records) {
+          const user = record.user;
+          if (!user?.email) continue;
+
+          // ⛔ 30-minute throttle
+          if (
+            record.last_checkout_reminder &&
+            now.getTime() -
+            new Date(record.last_checkout_reminder).getTime() <
+            30 * 60 * 1000
+          ) {
+            strapi.log.info(`⛔ Throttled for ${user.email}`);
+            continue;
+          }
+
+          // ❌ Prevent duplicate if HR forgets checkout
+          const ccHr = hrEmails.filter(email => email !== user.email);
+
+          await strapi.plugin('email').service('email').send({
+            to: user.email,      // 👤 employee
+            cc: ccHr,            // 👥 ONLY HR (dimple)
+            subject: '⚠️ Checkout Pending – Action Required',
+            html: `
+            <p>Dear <b>${user.username}</b>,</p>
+
+            <p>You have <b>not checked out</b> today.</p>
+
+            <p><b>Office time:</b> 9:00 AM – 6:00 PM</p>
+
+            <p>Please complete your checkout immediately.</p>
+
+            <br/>
+            <p style="font-size:12px;color:gray;">
+              Automated reminder sent every 30 minutes after 6:30 PM
+              until checkout.
+            </p>
+          `,
+          });
+
+          await strapi.entityService.update(
+            'api::daily-attendance.daily-attendance',
+            record.id,
+            {
+              data: { last_checkout_reminder: now },
+            }
+          );
+
+          strapi.log.info(`✅ Reminder sent to ${user.email}`);
+        }
+      } catch (error) {
+        strapi.log.error('❌ Missing checkout cron failed:', error);
       }
-    } catch (error) {
-      strapi.log.error(
-        '❌ Missing checkout cron failed:',
-        error
-      );
-    }
+    },
+
+    /* =====================================================
+       🔁 Run every 30 minutes
+    ===================================================== */
+    options: {
+      rule: '*/30 * * * *',
+      tz: 'Asia/Kolkata',
+    },
   },
 
-  options: {
-    rule: '*/1 * * * *', // every minute (TEST)
-    tz: 'Asia/Kolkata',
-  },
-},
+
 
   /* =========================================================
      📢 EMPLOYEE ANNOUNCEMENTS
   ========================================================= */
 
-  employeeAnnouncements: {
+
+  /* ===================================================
+      🎉 NEW EMPLOYEE JOINED 
+    =================================================== */
+
+  joiningAnnouncementCron: {
     task: async ({ strapi }) => {
       try {
         const now = new Date();
 
-        // ⛔ Before 5 AM → do nothing
         if (now.getHours() < 5) return;
 
         const todayISO = now.toISOString().split('T')[0];
-        const day = now.getDate();
-        const month = now.getMonth() + 1;
-        const year = now.getFullYear();
-
         const startOfDay = new Date(`${todayISO}T00:00:00.000Z`);
         const endOfDay = new Date(`${todayISO}T23:59:59.999Z`);
-
-        /* ============================
-           🎉 JOINING (ON USER CREATION)
-        ============================ */
 
         const newJoiners = await strapi.db
           .query('plugin::users-permissions.user')
@@ -324,7 +216,6 @@ missingCheckoutReminder: {
               joining_announced: false,
               joining_date: { $between: [startOfDay, endOfDay] },
             },
-            limit: 10,
           });
 
         for (const user of newJoiners) {
@@ -335,7 +226,7 @@ missingCheckoutReminder: {
                 Title: '🎉 New Employee Joined',
                 Description: `Please welcome <b>${user.username}</b> to the team!`,
                 Date: now,
-                publishedAt: new Date(),
+                publishedAt: now,
               },
             }
           );
@@ -349,62 +240,90 @@ missingCheckoutReminder: {
 
           strapi.log.info(`🎉 Joining announcement for ${user.username}`);
         }
-        /* ============================
-           🎂 BIRTHDAY (date_of_birth)
-        ============================ */
+      } catch (error) {
+        strapi.log.error('❌ Error in joiningAnnouncementCron:', error);
+      }
+    },
+    options: {
+      rule: '*/2 * * * *', // ⏱ every 2 minutes
+      tz: 'Asia/Kolkata',
+    },
+  },
+
+  /* ===================================================
+           🎂 BIRTHDAY (ONLY IF EXISTS)
+        =================================================== */
+
+  birthdayAnnouncementCron: {
+    task: async ({ strapi }) => {
+      try {
+        const now = new Date();
+        const todayISO = now.toISOString().split('T')[0];
+        const day = now.getDate();
+        const month = now.getMonth() + 1;
 
         const birthdayUsers = await strapi.db
           .query('plugin::users-permissions.user')
           .findMany({
-            where: {
-              date_of_birth: { $notNull: true },
-            },
+            where: { date_of_birth: { $notNull: true } },
           });
 
         const birthdayNames = birthdayUsers
           .filter(user => {
             const dob = new Date(user.date_of_birth);
-            return (
-              dob.getDate() === day &&
-              dob.getMonth() + 1 === month
-            );
+            return dob.getDate() === day && dob.getMonth() + 1 === month;
           })
           .map(user => user.username);
 
-        if (birthdayNames.length > 0) {
-          const exists = await strapi.db
-            .query('api::announcement.announcement')
-            .findOne({
-              where: {
+        if (birthdayNames.length === 0) return;
+
+        const exists = await strapi.db
+          .query('api::announcement.announcement')
+          .findOne({
+            where: {
+              Title: '🎂 Happy Birthday!',
+              Date: todayISO,
+            },
+          });
+
+        if (!exists) {
+          await strapi.entityService.create(
+            'api::announcement.announcement',
+            {
+              data: {
                 Title: '🎂 Happy Birthday!',
-                Date: todayISO,
+                Description: `🎉 Wishing a very happy birthday to <b>${birthdayNames.join(
+                  ', '
+                )}</b>!`,
+                Date: now,
+                publishedAt: now,
               },
-            });
-
-          if (!exists) {
-            await strapi.entityService.create(
-              'api::announcement.announcement',
-              {
-                data: {
-                  Title: '🎂 Happy Birthday!',
-                  Description: `🎉 Wishing a very happy birthday to <b>${birthdayNames.join(
-                    ', '
-                  )}</b>!`,
-                  Date: now,
-                  publishedAt: new Date(),
-                },
-              }
-            );
-
-            strapi.log.info(
-              `🎂 Birthday announcement created for: ${birthdayNames.join(', ')}`
-            );
-          }
+            }
+          );
         }
+      } catch (error) {
+        strapi.log.error('❌ Error in birthdayAnnouncementCron:', error);
+      }
+    },
+    options: {
+      rule: '0 5 * * *', // ⏰ 5 AM daily
+      tz: 'Asia/Kolkata',
+    },
+  },
 
-        /* ============================
-   🎊 ANNIVERSARY (ONLY IF EXISTS)
-============================ */
+
+  /* ===================================================
+     🎊 WORK ANNIVERSARY (ONLY IF EXISTS)
+  =================================================== */
+
+  anniversaryAnnouncementCron: {
+    task: async ({ strapi }) => {
+      try {
+        const now = new Date();
+        const todayISO = now.toISOString().split('T')[0];
+        const day = now.getDate();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
 
         const anniversaryUsers = await strapi.db
           .query('plugin::users-permissions.user')
@@ -415,15 +334,12 @@ missingCheckoutReminder: {
         const anniversaryPeople = anniversaryUsers
           .map(user => {
             const joinDate = new Date(user.joining_date);
-
-            // calculate completed years safely
             let yearsCompleted = year - joinDate.getFullYear();
+
             if (
               month < joinDate.getMonth() + 1 ||
-              (
-                month === joinDate.getMonth() + 1 &&
-                day < joinDate.getDate()
-              )
+              (month === joinDate.getMonth() + 1 &&
+                day < joinDate.getDate())
             ) {
               yearsCompleted--;
             }
@@ -436,55 +352,102 @@ missingCheckoutReminder: {
               return `${user.username} (${yearsCompleted} ${yearsCompleted === 1 ? 'year' : 'years'
                 })`;
             }
-
             return null;
           })
           .filter(Boolean);
 
-        if (anniversaryPeople.length > 0) {
-          const exists = await strapi.db
-            .query('api::announcement.announcement')
-            .findOne({
-              where: {
+        if (anniversaryPeople.length === 0) return;
+
+        const exists = await strapi.db
+          .query('api::announcement.announcement')
+          .findOne({
+            where: {
+              Title: '🎊 Work Anniversary',
+              Date: todayISO,
+            },
+          });
+
+        if (!exists) {
+          await strapi.entityService.create(
+            'api::announcement.announcement',
+            {
+              data: {
                 Title: '🎊 Work Anniversary',
-                Date: todayISO,
+                Description: `🎉 Congratulations to <b>${anniversaryPeople.join(
+                  ', '
+                )}</b> for completing <b>their years with us</b>!`,
+                Date: now,
+                publishedAt: now,
               },
-            });
-
-          if (!exists) {
-            await strapi.entityService.create(
-              'api::announcement.announcement',
-              {
-                data: {
-                  Title: '🎊 Work Anniversary',
-                  Description: `🎉 Congratulations to <b>${anniversaryPeople.join(
-                    ', '
-                  )}</b> for completing <b>${anniversaryPeople.length === 1
-                      ? anniversaryPeople[0].match(/\d+/)[0]
-                      : 'their'
-                    } years with us</b>!`,
-                  Date: now,
-                  publishedAt: new Date(),
-                },
-              }
-            );
-
-            strapi.log.info(
-              `🎊 Anniversary announcement created for ${anniversaryPeople.join(', ')}`
-            );
-          }
+            }
+          );
         }
-
-
-        return { success: true };
       } catch (error) {
-        strapi.log.error('❌ Error in employeeAnnouncements cron:', error);
-        return { success: false, error: error.message };
+        strapi.log.error('❌ Error in anniversaryAnnouncementCron:', error);
       }
     },
     options: {
-      rule: '*/1 * * * *', // every minute (after 5 AM it behaves like event)
+      rule: '0 5 * * *', // ⏰ 5 AM daily
       tz: 'Asia/Kolkata',
     },
   },
+
+  /* ===================================================================
+      🗑 DELETE JOINING , BIRTHDAY AND ANIVERSARY ANNOUNCEMENT AT 5 AM 
+    =================================================================== */
+
+  announcementCleanupCron: {
+    task: async ({ strapi }) => {
+      try {
+        const todayISO = new Date().toISOString().split('T')[0];
+
+        const twentyFourHoursAgo = new Date(
+          Date.now() - 24 * 60 * 60 * 1000
+        );
+
+        const old24hAnnouncements = await strapi.entityService.findMany(
+          'api::announcement.announcement',
+          {
+            filters: {
+              Title: { $in: ['🎂 Happy Birthday!', '🎊 Work Anniversary'] },
+              publishedAt: { $lt: twentyFourHoursAgo },
+            },
+            limit: 100,
+          }
+        );
+
+        for (const a of old24hAnnouncements) {
+          await strapi.entityService.delete(
+            'api::announcement.announcement',
+            a.id
+          );
+        }
+
+        const oldJoiningAnnouncements = await strapi.entityService.findMany(
+          'api::announcement.announcement',
+          {
+            filters: {
+              Title: '🎉 New Employee Joined',
+              Date: { $lt: todayISO },
+            },
+            limit: 100,
+          }
+        );
+
+        for (const a of oldJoiningAnnouncements) {
+          await strapi.entityService.delete(
+            'api::announcement.announcement',
+            a.id
+          );
+        }
+      } catch (error) {
+        strapi.log.error('❌ Error in announcementCleanupCron:', error);
+      }
+    },
+    options: {
+      rule: '0 4 * * *', // ⏰ 4 AM daily
+      tz: 'Asia/Kolkata',
+    },
+  },
+
 };

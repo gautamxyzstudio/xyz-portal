@@ -15,11 +15,11 @@
       "type": "json"
     },
     "total_actual_time": {
-      "type": "integer",
+      "type": "decimal",
       "default": 0
     },
     "total_estimated_time": {
-      "type": "integer",
+      "type": "decimal",
       "default": 0
     },
     "user": {

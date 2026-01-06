@@ -223,8 +223,8 @@ module.exports = {
             'api::announcement.announcement',
             {
               data: {
-                Title: '🎉 New Employee Joined',
-                Description: `Please welcome <b>${user.username}</b> to the team!`,
+                Title: 'New Employee Joined',
+                Description: `Please welcome ${user.username} to the team!`,
                 Date: now,
                 publishedAt: now,
               },
@@ -281,7 +281,7 @@ module.exports = {
           .query('api::announcement.announcement')
           .findOne({
             where: {
-              Title: '🎂 Happy Birthday!',
+              Title: 'Happy Birthday!',
               Date: todayISO,
             },
           });
@@ -291,10 +291,10 @@ module.exports = {
             'api::announcement.announcement',
             {
               data: {
-                Title: '🎂 Happy Birthday!',
-                Description: `🎉 Wishing a very happy birthday to <b>${birthdayNames.join(
+                Title: 'Happy Birthday!',
+                Description: `Wishing a very happy birthday to ${birthdayNames.join(
                   ', '
-                )}</b>!`,
+                )}!`,
                 Date: now,
                 publishedAt: now,
               },
@@ -362,7 +362,7 @@ module.exports = {
           .query('api::announcement.announcement')
           .findOne({
             where: {
-              Title: '🎊 Work Anniversary',
+              Title: 'Work Anniversary',
               Date: todayISO,
             },
           });
@@ -372,8 +372,8 @@ module.exports = {
             'api::announcement.announcement',
             {
               data: {
-                Title: '🎊 Work Anniversary',
-                Description: `🎉 Congratulations to <b>${anniversaryPeople.join(
+                Title: 'Work Anniversary',
+                Description: `Congratulations to <b>${anniversaryPeople.join(
                   ', '
                 )}</b> for completing <b>their years with us</b>!`,
                 Date: now,
@@ -409,7 +409,7 @@ module.exports = {
           'api::announcement.announcement',
           {
             filters: {
-              Title: { $in: ['🎂 Happy Birthday!', '🎊 Work Anniversary'] },
+              Title: { $in: ['Happy Birthday!', 'Work Anniversary'] },
               publishedAt: { $lt: twentyFourHoursAgo },
             },
             limit: 100,

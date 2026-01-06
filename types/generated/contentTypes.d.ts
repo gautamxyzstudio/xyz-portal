@@ -1119,7 +1119,8 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
       ['half_day', 'full_day', 'short_leave']
     >;
     half_day_type: Attribute.Enumeration<['first_half', 'second_half']>;
-    days: Attribute.JSON;
+    days: Attribute.Decimal;
+    leave_days: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1186,8 +1187,8 @@ export interface ApiWorkLogWorkLog extends Schema.CollectionType {
   };
   attributes: {
     tasks: Attribute.JSON;
-    total_actual_time: Attribute.Integer & Attribute.DefaultTo<0>;
-    total_estimated_time: Attribute.Integer & Attribute.DefaultTo<0>;
+    total_actual_time: Attribute.Decimal & Attribute.DefaultTo<0>;
+    total_estimated_time: Attribute.Decimal & Attribute.DefaultTo<0>;
     user: Attribute.Relation<
       'api::work-log.work-log',
       'manyToOne',

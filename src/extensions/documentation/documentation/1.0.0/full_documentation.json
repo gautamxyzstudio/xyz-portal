@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-06T06:27:54.826Z"
+    "x-generation-date": "2026-01-06T09:37:02.081Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -2570,7 +2570,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -2998,10 +3002,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",
@@ -3377,10 +3383,12 @@
                       "properties": {
                         "tasks": {},
                         "total_actual_time": {
-                          "type": "integer"
+                          "type": "number",
+                          "format": "float"
                         },
                         "total_estimated_time": {
-                          "type": "integer"
+                          "type": "number",
+                          "format": "float"
                         },
                         "user": {
                           "type": "object",
@@ -4526,7 +4534,11 @@
                                                       "second_half"
                                                     ]
                                                   },
-                                                  "days": {},
+                                                  "days": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                  },
+                                                  "leave_days": {},
                                                   "createdAt": {
                                                     "type": "string",
                                                     "format": "date-time"
@@ -6617,7 +6629,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -7045,10 +7061,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",
@@ -8993,7 +9011,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -9421,10 +9443,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",
@@ -9791,7 +9815,11 @@
                   "second_half"
                 ]
               },
-              "days": {}
+              "days": {
+                "type": "number",
+                "format": "float"
+              },
+              "leave_days": {}
             }
           }
         }
@@ -11029,7 +11057,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -11457,10 +11489,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",
@@ -11680,7 +11714,11 @@
               "second_half"
             ]
           },
-          "days": {},
+          "days": {
+            "type": "number",
+            "format": "float"
+          },
+          "leave_days": {},
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -13124,7 +13162,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -13552,10 +13594,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",
@@ -13836,10 +13880,12 @@
             "properties": {
               "tasks": {},
               "total_actual_time": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "total_estimated_time": {
-                "type": "integer"
+                "type": "number",
+                "format": "float"
               },
               "user": {
                 "oneOf": [
@@ -13918,10 +13964,12 @@
         "properties": {
           "tasks": {},
           "total_actual_time": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "total_estimated_time": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           },
           "user": {
             "type": "object",
@@ -15067,7 +15115,11 @@
                                         "second_half"
                                       ]
                                     },
-                                    "days": {},
+                                    "days": {
+                                      "type": "number",
+                                      "format": "float"
+                                    },
+                                    "leave_days": {},
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -15495,10 +15547,12 @@
                                   "properties": {
                                     "tasks": {},
                                     "total_actual_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "total_estimated_time": {
-                                      "type": "integer"
+                                      "type": "number",
+                                      "format": "float"
                                     },
                                     "user": {
                                       "type": "object",

@@ -70,17 +70,18 @@ export default {
     }
 
     const attendance = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
+      "api::daily-attendance.daily-attendance",
       {
         filters,
         start: (page - 1) * pageSize,
         limit: pageSize,
         populate,
+        sort: { Date: "desc" },
       }
     );
 
     const total = await strapi.entityService.count(
-      'api::daily-attendance.daily-attendance',
+      "api::daily-attendance.daily-attendance",
       {
         filters,
       }
@@ -100,32 +101,31 @@ export default {
 
     return ctx.body;
   },
-async find(ctx) {
-  const { id } = ctx.params;
-  const { fromDate, toDate } = ctx.query;
+  async find(ctx) {
+    const { id } = ctx.params;
+    const { fromDate, toDate } = ctx.query;
 
-  const filters: any = {
-    user: id,
-  };
-
-  if (fromDate && toDate) {
-    filters.Date = {
-      $gte: fromDate,
-      $lte: toDate,
+    const filters: any = {
+      user: id,
     };
-  }
 
-  const attendance = await strapi.entityService.findMany(
-    'api::daily-attendance.daily-attendance',
-    {
-      filters,
-      sort: { Date: 'asc' },
+    if (fromDate && toDate) {
+      filters.Date = {
+        $gte: fromDate,
+        $lte: toDate,
+      };
     }
-  );
 
-  ctx.body = attendance;
-}
-,
+    const attendance = await strapi.entityService.findMany(
+      "api::daily-attendance.daily-attendance",
+      {
+        filters,
+        sort: { Date: "desc" },
+      }
+    );
+
+    ctx.body = attendance;
+  },
   // async find(ctx) {
   //   const { id } = ctx.params;
   //   const attendance = await strapi.entityService.findMany(
@@ -143,198 +143,198 @@ async find(ctx) {
   async findToday(ctx) {
     const { id } = ctx.params;
     const attendance = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
+      "api::daily-attendance.daily-attendance",
       {
         filters: {
-          Date: new Date().toISOString().split('T')[0],
+          Date: new Date().toISOString().split("T")[0],
           user: id,
         },
+        sort: { Date: "desc" },
       }
     );
     ctx.body = attendance;
     return attendance;
   },
 
-async checkIn(ctx) {
-  try {
-    // 🔐 Get logged-in user from token
-    const userId = ctx.state.user?.id;
+  async checkIn(ctx) {
+    try {
+      // 🔐 Get logged-in user from token
+      const userId = ctx.state.user?.id;
 
-    if (!userId) {
-      return ctx.unauthorized('Login required');
-    }
-
-    const { date, in: inTimeRaw } = ctx.request.body.data;
-
-    if (!inTimeRaw) {
-      return ctx.badRequest('Check-in time is required');
-    }
-
-    // ⏱ Normalize time to HH:mm:ss.SSS
-    const inTime =
-      inTimeRaw.length === 5 ? `${inTimeRaw}:00.000` : inTimeRaw;
-
-    // ⛔ BLOCK CHECK-IN BEFORE 8:40 AM (VALIDATE GIVEN TIME)
-    const [hours, minutes] = inTime.split(':').map(Number);
-    const inMinutes = hours * 60 + minutes;
-    const minAllowed = 8 * 60 + 40; // 08:40 AM
-
-    if (inMinutes < minAllowed) {
-      return ctx.badRequest('Check-in is allowed only after 8:40 AM');
-    }
-
-    // 👤 Fetch user details
-    const user = await strapi.entityService.findOne(
-      'plugin::users-permissions.user',
-      userId
-    );
-
-    // 🚫 Block Admin & HR
-    if (user.user_type === 'Admin' || user.user_type === 'Hr') {
-      return ctx.badRequest(
-        'Attendance tracking is not required for Admin and Hr users'
-      );
-    }
-
-    // 📅 Today
-    const today = date || new Date().toISOString().split('T')[0];
-
-    // 🔍 Check existing attendance for today
-    const existing = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
-      {
-        filters: {
-          user: userId,
-          Date: today,
-        },
-        limit: 1,
+      if (!userId) {
+        return ctx.unauthorized("Login required");
       }
-    );
 
-    let attendance;
+      const { date, in: inTimeRaw } = ctx.request.body.data;
 
-    if (existing.length > 0) {
-      // 🔄 Update existing record
-      attendance = await strapi.entityService.update(
-        'api::daily-attendance.daily-attendance',
-        existing[0].id,
-        {
-          data: {
-            in: inTime,
-            status: 'present',
-            notes: 'User checked in successfully',
-            publishedAt: new Date(), // ✅ AUTO-PUBLISH
-          },
-        }
+      if (!inTimeRaw) {
+        return ctx.badRequest("Check-in time is required");
+      }
+
+      // ⏱ Normalize time to HH:mm:ss.SSS
+      const inTime = inTimeRaw.length === 5 ? `${inTimeRaw}:00.000` : inTimeRaw;
+
+      // ⛔ BLOCK CHECK-IN BEFORE 8:40 AM (VALIDATE GIVEN TIME)
+      const [hours, minutes] = inTime.split(":").map(Number);
+      const inMinutes = hours * 60 + minutes;
+      const minAllowed = 8 * 60 + 40; // 08:40 AM
+
+      if (inMinutes < minAllowed) {
+        return ctx.badRequest("Check-in is allowed only after 8:40 AM");
+      }
+
+      // 👤 Fetch user details
+      const user = await strapi.entityService.findOne(
+        "plugin::users-permissions.user",
+        userId
       );
-    } else {
-      // 🆕 Create new record
-      attendance = await strapi.entityService.create(
-        'api::daily-attendance.daily-attendance',
+
+      // 🚫 Block Admin & HR
+      if (user.user_type === "Admin" || user.user_type === "Hr") {
+        return ctx.badRequest(
+          "Attendance tracking is not required for Admin and Hr users"
+        );
+      }
+
+      // 📅 Today
+      const today = date || new Date().toISOString().split("T")[0];
+
+      // 🔍 Check existing attendance for today
+      const existing = await strapi.entityService.findMany(
+        "api::daily-attendance.daily-attendance",
         {
-          data: {
+          filters: {
             user: userId,
             Date: today,
-            in: inTime,
-            status: 'present',
-            notes: 'User checked in successfully',
-            publishedAt: new Date(), // ✅ ENSURE PUBLISHED
+          },
+          limit: 1,
+        }
+      );
+
+      let attendance;
+
+      if (existing.length > 0) {
+        // 🔄 Update existing record
+        attendance = await strapi.entityService.update(
+          "api::daily-attendance.daily-attendance",
+          existing[0].id,
+          {
+            data: {
+              in: inTime,
+              status: "present",
+              notes: "User checked in successfully",
+              publishedAt: new Date(), // ✅ AUTO-PUBLISH
+            },
+          }
+        );
+      } else {
+        // 🆕 Create new record
+        attendance = await strapi.entityService.create(
+          "api::daily-attendance.daily-attendance",
+          {
+            data: {
+              user: userId,
+              Date: today,
+              in: inTime,
+              status: "present",
+              notes: "User checked in successfully",
+              publishedAt: new Date(), // ✅ ENSURE PUBLISHED
+            },
+          }
+        );
+      }
+
+      ctx.body = attendance;
+      return attendance;
+    } catch (error) {
+      strapi.log.error("Check-in failed:", error);
+      ctx.throw(500, "Check-in failed");
+    }
+  },
+
+  async checkOut(ctx) {
+    try {
+      // 🔐 Logged-in user
+      const userId = ctx.state.user?.id;
+      if (!userId) {
+        return ctx.unauthorized("Login required");
+      }
+
+      // ✅ Safe body parsing
+      const body = ctx.request.body?.data || ctx.request.body;
+      if (!body) {
+        return ctx.badRequest("Request body is required");
+      }
+
+      const { out: outTimeRaw } = body;
+      if (!outTimeRaw) {
+        return ctx.badRequest("Checkout time is required");
+      }
+
+      // ⏱ Normalize time to HH:mm:ss.SSS
+      const outTime =
+        outTimeRaw.length === 5 ? `${outTimeRaw}:00.000` : outTimeRaw;
+
+      // 📅 Today
+      const today = new Date().toISOString().split("T")[0];
+
+      // 🔍 Find today’s attendance for THIS user
+      const records = await strapi.entityService.findMany(
+        "api::daily-attendance.daily-attendance",
+        {
+          filters: {
+            user: userId,
+            Date: today,
+          },
+          limit: 1,
+        }
+      );
+
+      if (!records.length) {
+        return ctx.badRequest("No check-in found for today");
+      }
+
+      const attendance = records[0];
+
+      // 🚫 Prevent checkout without check-in
+      if (!attendance.in) {
+        return ctx.badRequest("User has not checked in yet");
+      }
+
+      // 🚫 Prevent double checkout
+      if (attendance.out) {
+        return ctx.badRequest("User has already checked out");
+      }
+
+      // ✅ Update checkout
+      const updated = await strapi.entityService.update(
+        "api::daily-attendance.daily-attendance",
+        attendance.id,
+        {
+          data: {
+            out: outTime,
+            notes: "User checked out successfully",
+            last_checkout_reminder: null, // 🛑 stop reminder emails
+            publishedAt: new Date(), // ✅ ensure published
           },
         }
       );
+
+      ctx.body = updated;
+      return updated;
+    } catch (error) {
+      strapi.log.error("Checkout failed:", error);
+      ctx.throw(500, "Checkout failed");
     }
-
-    ctx.body = attendance;
-    return attendance;
-  } catch (error) {
-    strapi.log.error('Check-in failed:', error);
-    ctx.throw(500, 'Check-in failed');
-  }
-},
-
-async checkOut(ctx) {
-  try {
-    // 🔐 Logged-in user
-    const userId = ctx.state.user?.id;
-    if (!userId) {
-      return ctx.unauthorized('Login required');
-    }
-
-    // ✅ Safe body parsing
-    const body = ctx.request.body?.data || ctx.request.body;
-    if (!body) {
-      return ctx.badRequest('Request body is required');
-    }
-
-    const { out: outTimeRaw } = body;
-    if (!outTimeRaw) {
-      return ctx.badRequest('Checkout time is required');
-    }
-
-    // ⏱ Normalize time to HH:mm:ss.SSS
-    const outTime =
-      outTimeRaw.length === 5 ? `${outTimeRaw}:00.000` : outTimeRaw;
-
-    // 📅 Today
-    const today = new Date().toISOString().split('T')[0];
-
-    // 🔍 Find today’s attendance for THIS user
-    const records = await strapi.entityService.findMany(
-      'api::daily-attendance.daily-attendance',
-      {
-        filters: {
-          user: userId,
-          Date: today,
-        },
-        limit: 1,
-      }
-    );
-
-    if (!records.length) {
-      return ctx.badRequest('No check-in found for today');
-    }
-
-    const attendance = records[0];
-
-    // 🚫 Prevent checkout without check-in
-    if (!attendance.in) {
-      return ctx.badRequest('User has not checked in yet');
-    }
-
-    // 🚫 Prevent double checkout
-    if (attendance.out) {
-      return ctx.badRequest('User has already checked out');
-    }
-
-    // ✅ Update checkout
-    const updated = await strapi.entityService.update(
-      'api::daily-attendance.daily-attendance',
-      attendance.id,
-      {
-        data: {
-          out: outTime,
-          notes: 'User checked out successfully',
-          last_checkout_reminder: null, // 🛑 stop reminder emails
-          publishedAt: new Date(), // ✅ ensure published
-        },
-      }
-    );
-
-    ctx.body = updated;
-    return updated;
-  } catch (error) {
-    strapi.log.error('Checkout failed:', error);
-    ctx.throw(500, 'Checkout failed');
-  }
-},
+  },
 
   async updateAttendance(ctx) {
     const { id, out, in: inTime } = ctx.request.body.data;
     if (!id || !out || !inTime) {
-      return ctx.badRequest('Missing required fields: id, out, or in');
+      return ctx.badRequest("Missing required fields: id, out, or in");
     }
     const attendance = await strapi.entityService.update(
-      'api::daily-attendance.daily-attendance',
+      "api::daily-attendance.daily-attendance",
       id,
       {
         data: { out, in: inTime },
@@ -348,7 +348,7 @@ async checkOut(ctx) {
   async createDailyEntries(ctx) {
     try {
       const result = await strapi
-        .service('api::daily-attendance.daily-attendance')
+        .service("api::daily-attendance.daily-attendance")
         .createDailyAttendanceEntries();
       ctx.body = result;
       return result;
@@ -360,7 +360,7 @@ async checkOut(ctx) {
   async markAbsentUsers(ctx) {
     try {
       const result = await strapi
-        .service('api::daily-attendance.daily-attendance')
+        .service("api::daily-attendance.daily-attendance")
         .markAbsentUsers();
       ctx.body = result;
       return result;
@@ -375,12 +375,12 @@ async checkOut(ctx) {
 
       if (!startDate || !endDate) {
         return ctx.badRequest(
-          'Missing required parameters: startDate and endDate'
+          "Missing required parameters: startDate and endDate"
         );
       }
 
       const result = await strapi
-        .service('api::daily-attendance.daily-attendance')
+        .service("api::daily-attendance.daily-attendance")
         .getAttendanceStats(startDate, endDate);
       ctx.body = result;
       return result;
@@ -394,11 +394,11 @@ async checkOut(ctx) {
     try {
       // Create daily entries
       const createResult = await strapi
-        .service('api::daily-attendance.daily-attendance')
+        .service("api::daily-attendance.daily-attendance")
         .createDailyAttendanceEntries();
 
       ctx.body = {
-        message: 'Daily cron job triggered successfully',
+        message: "Daily cron job triggered successfully",
         createEntries: createResult,
         timestamp: new Date().toISOString(),
       };
@@ -413,11 +413,11 @@ async checkOut(ctx) {
     try {
       // Mark absent users
       const markAbsentResult = await strapi
-        .service('api::daily-attendance.daily-attendance')
+        .service("api::daily-attendance.daily-attendance")
         .markAbsentUsers();
 
       ctx.body = {
-        message: 'End of day cron job triggered successfully',
+        message: "End of day cron job triggered successfully",
         markAbsent: markAbsentResult,
         timestamp: new Date().toISOString(),
       };
@@ -432,7 +432,7 @@ async checkOut(ctx) {
     try {
       // Try to get a single record to see the structure
       const records = await strapi.entityService.findMany(
-        'api::daily-attendance.daily-attendance',
+        "api::daily-attendance.daily-attendance",
         {
           limit: 1,
         }
@@ -442,10 +442,10 @@ async checkOut(ctx) {
         success: true,
         recordCount: records.length,
         sampleRecord: records[0] || null,
-        tableInfo: 'Daily attendance table structure check',
+        tableInfo: "Daily attendance table structure check",
       };
     } catch (error) {
-      console.error('Debug table error:', error);
+      console.error("Debug table error:", error);
       ctx.body = {
         success: false,
         error: error.message,
@@ -468,14 +468,14 @@ async checkOut(ctx) {
       ctx.body = {
         success: true,
         tableStructure: result.rows || result,
-        message: 'Table structure retrieved successfully',
+        message: "Table structure retrieved successfully",
       };
     } catch (error) {
-      console.error('Error checking table structure:', error);
+      console.error("Error checking table structure:", error);
       ctx.body = {
         success: false,
         error: error.message,
-        message: 'Failed to retrieve table structure',
+        message: "Failed to retrieve table structure",
       };
     }
   },

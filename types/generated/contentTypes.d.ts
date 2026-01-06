@@ -836,6 +836,7 @@ export interface ApiAddBlogAddBlog extends Schema.CollectionType {
     metaDescr: Attribute.Text;
     metaTitle: Attribute.String;
     BlogDate: Attribute.DateTime;
+    blogSlug: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

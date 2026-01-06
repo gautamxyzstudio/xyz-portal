@@ -79,7 +79,7 @@ module.exports = {
            ⏰ Allow only after 6:30 PM IST
         ===================================================== */
         const minutesNow = now.getHours() * 60 + now.getMinutes();
-        if (minutesNow < 18 * 60 + 0) {
+        if (minutesNow < 18 * 60 + 30) {
           strapi.log.info('⏳ Before 6:30 PM, skipping');
           return;
         }

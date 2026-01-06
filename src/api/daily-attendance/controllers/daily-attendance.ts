@@ -76,6 +76,10 @@ export default {
         start: (page - 1) * pageSize,
         limit: pageSize,
         populate,
+          sort: [
+      { Date: 'desc' },        // 📅 latest date first
+      { createdAt: 'desc' },   // 🕒 tie-breaker
+    ],
       }
     );
 
@@ -109,6 +113,10 @@ export default {
         filters: {
           user: id,
         },
+         sort: [
+      { Date: 'desc' },
+      { createdAt: 'desc' },
+    ],
       }
     );
     ctx.body = attendance;
@@ -124,6 +132,7 @@ export default {
           Date: new Date().toISOString().split('T')[0],
           user: id,
         },
+          sort: [{ createdAt: 'desc' }],
       }
     );
     ctx.body = attendance;

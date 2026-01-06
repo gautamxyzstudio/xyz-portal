@@ -6,21 +6,19 @@ export default factories.createCoreController(
   ({ strapi }) => ({
 
     // =====================================================
-    // CREATE OR GET TODAY'S WORK LOG (ACCEPT TASKS)
+    // CREATE OR GET TODAY'S WORK LOG (AUTO TASK IDS)
     // =====================================================
     async createToday(ctx: Context) {
       const userId = ctx.state.user?.id;
       if (!userId) return ctx.unauthorized("Login required");
 
       const today = new Date().toISOString().split("T")[0];
-
-      // 🔒 READ TASKS ONLY FOR FIRST-TIME CREATION
       const body = ctx.request.body?.data || {};
       const incomingTasks = Array.isArray(body.tasks) ? body.tasks : [];
 
       const allowedStatus = ["in-progress", "completed", "hold"];
 
-      // 1️⃣ Find or create Daily Task (ONE per day)
+      // 1️⃣ Find Daily Task
       const dailyTasks = await strapi.entityService.findMany(
         "api::daily-task.daily-task",
         {
@@ -29,19 +27,21 @@ export default factories.createCoreController(
         }
       );
 
+      // ✅ FIX: explicit typing to avoid TS error
       let dailyTask: any;
-      if (!dailyTasks.length) {
+
+      if (dailyTasks.length) {
+        dailyTask = dailyTasks[0];
+      } else {
         dailyTask = await strapi.entityService.create(
           "api::daily-task.daily-task",
           {
             data: { date: today },
           }
         );
-      } else {
-        dailyTask = dailyTasks[0];
       }
 
-      // 2️⃣ Find existing Work Log (ONE per user per day)
+      // 2️⃣ Find existing Work Log
       const workLogs = await strapi.entityService.findMany(
         "api::work-log.work-log",
         {
@@ -53,39 +53,48 @@ export default factories.createCoreController(
         }
       );
 
-      let workLog: any;
+      // 🔒 Already exists → return it
+      if (workLogs.length) {
+        return {
+          date: today,
+          work_log: workLogs[0],
+        };
+      }
 
-      // ✅ CASE 1: CREATE (FIRST TIME TODAY)
-      if (!workLogs.length) {
-        let totalEstimated = 0;
-        let totalActual = 0;
+      // 3️⃣ Create first work log with sequential task ids
+      let totalEstimated = 0;
+      let totalActual = 0;
 
-        for (const task of incomingTasks) {
-          if (task.status && !allowedStatus.includes(task.status)) {
-            return ctx.badRequest(`Invalid task status: ${task.status}`);
-          }
-
-          totalEstimated += Number(task.estimated_time || 0);
-          totalActual += Number(task.actual_time || 0);
+      const tasksWithIds = incomingTasks.map((task, index) => {
+        if (task.status && !allowedStatus.includes(task.status)) {
+          throw new Error(`Invalid task status: ${task.status}`);
         }
 
-        workLog = await strapi.entityService.create(
-          "api::work-log.work-log",
-          {
-            data: {
-              user: userId,
-              daily_task: dailyTask.id,
-              tasks: incomingTasks,
-              total_estimated_time: totalEstimated,
-              total_actual_time: totalActual,
-            },
-          }
-        );
-      }
-      // 🔒 CASE 2: ALREADY EXISTS → JUST RETURN IT (NO UPDATE)
-      else {
-        workLog = workLogs[0];
-      }
+        totalEstimated += Number(task.estimated_time || 0);
+        totalActual += Number(task.actual_time || 0);
+
+        return {
+          id: index + 1, // ✅ 1,2,3...
+          task_title: task.task_title || "",
+          task_description: task.task_description || "",
+          status: task.status,
+          estimated_time: Number(task.estimated_time || 0),
+          actual_time: Number(task.actual_time || 0),
+        };
+      });
+
+      const workLog = await strapi.entityService.create(
+        "api::work-log.work-log",
+        {
+          data: {
+            user: userId,
+            daily_task: dailyTask.id,
+            tasks: tasksWithIds,
+            total_estimated_time: totalEstimated,
+            total_actual_time: totalActual,
+          },
+        }
+      );
 
       return {
         date: today,
@@ -94,7 +103,7 @@ export default factories.createCoreController(
     },
 
     // =====================================================
-    // UPDATE WORK LOG (ONLY actual_time + status)
+    // UPDATE WORK LOG (status + actual_time only)
     // =====================================================
     async updateWorkLog(ctx: Context) {
       const userId = ctx.state.user?.id;
@@ -108,7 +117,6 @@ export default factories.createCoreController(
 
       const allowedStatus = ["in-progress", "completed", "hold"];
 
-      // 1️⃣ Fetch work log
       const workLog: any = await strapi.entityService.findOne(
         "api::work-log.work-log",
         id,
@@ -124,36 +132,48 @@ export default factories.createCoreController(
         ? [...workLog.tasks]
         : [];
 
-      // 2️⃣ Update ONLY allowed fields per task
       for (const incoming of tasks) {
+        if (incoming.id === undefined) {
+          return ctx.badRequest("Task id is required");
+        }
+
         const index = existingTasks.findIndex(
-          (t) => t.id === incoming.id
+          (t) => Number(t.id) === Number(incoming.id)
         );
 
         if (index === -1) {
           return ctx.badRequest(`Task not found: ${incoming.id}`);
         }
 
-        // ✅ status
-        if (incoming.status) {
+        // 🚫 BLOCK UNAUTHORIZED FIELD CHANGES
+        if (
+          incoming.estimated_time !== undefined ||
+          incoming.task_title !== undefined ||
+          incoming.task_description !== undefined
+        ) {
+          return ctx.forbidden(
+            "You are not allowed to change estimated time, title or description"
+          );
+        }
+
+        // ✅ status (allowed)
+        if (incoming.status !== undefined) {
           if (!allowedStatus.includes(incoming.status)) {
             return ctx.badRequest(`Invalid status: ${incoming.status}`);
           }
           existingTasks[index].status = incoming.status;
         }
 
-        // ✅ actual_time
+        // ✅ actual_time (allowed)
         if (incoming.actual_time !== undefined) {
           if (Number(incoming.actual_time) < 0) {
             return ctx.badRequest("Actual time must be >= 0");
           }
           existingTasks[index].actual_time = Number(incoming.actual_time);
         }
-
-        // ❌ estimated_time is intentionally ignored
       }
 
-      // 3️⃣ Recalculate totals
+      // 🔢 Recalculate totals (estimated stays same)
       let totalEstimated = 0;
       let totalActual = 0;
 
@@ -162,7 +182,6 @@ export default factories.createCoreController(
         totalActual += Number(task.actual_time || 0);
       }
 
-      // 4️⃣ Save
       const updated = await strapi.entityService.update(
         "api::work-log.work-log",
         id,
@@ -181,10 +200,9 @@ export default factories.createCoreController(
       };
     },
 
-    //  =====================================================
-    // ADD TASK IN EXISTING WORK LOG 
     // =====================================================
-
+    // ADD TASK (AUTO NEXT ID)
+    // =====================================================
     async addTask(ctx: Context) {
       const userId = ctx.state.user?.id;
       const { id } = ctx.params;
@@ -194,12 +212,10 @@ export default factories.createCoreController(
       if (!task) return ctx.badRequest("Task is required");
 
       const allowedStatus = ["in-progress", "completed", "hold"];
-
       if (!allowedStatus.includes(task.status)) {
         return ctx.badRequest(`Invalid task status: ${task.status}`);
       }
 
-      // 1️⃣ Fetch work log
       const workLog: any = await strapi.entityService.findOne(
         "api::work-log.work-log",
         id,
@@ -215,9 +231,14 @@ export default factories.createCoreController(
         ? workLog.tasks
         : [];
 
-      // 2️⃣ Auto-generate task ID if missing
+      const lastId =
+        existingTasks.length > 0
+          ? Math.max(...existingTasks.map((t) => Number(t.id)))
+          : 0;
+
       const newTask = {
-        id: task.id || `task-${Date.now()}`,
+        id: lastId + 1,
+        task_title: task.task_title || "",
         task_description: task.task_description || "",
         status: task.status,
         estimated_time: Number(task.estimated_time || 0),
@@ -226,7 +247,6 @@ export default factories.createCoreController(
 
       const updatedTasks = [...existingTasks, newTask];
 
-      // 3️⃣ Recalculate totals
       let totalEstimated = 0;
       let totalActual = 0;
 
@@ -235,7 +255,6 @@ export default factories.createCoreController(
         totalActual += Number(t.actual_time || 0);
       }
 
-      // 4️⃣ Save
       const updated = await strapi.entityService.update(
         "api::work-log.work-log",
         id,
@@ -253,6 +272,5 @@ export default factories.createCoreController(
         work_log: updated,
       };
     },
-
   })
 );

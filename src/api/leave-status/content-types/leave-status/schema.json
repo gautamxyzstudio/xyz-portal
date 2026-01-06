@@ -76,7 +76,7 @@
       "type": "decimal"
     },
     "leave_days": {
-  "type": "json"
-}
+      "type": "json"
+    }
   }
 }

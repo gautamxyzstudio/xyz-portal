@@ -798,7 +798,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     date_of_birth: Attribute.Date;
     joining_date: Attribute.Date;
-    active_blogs: Attribute.Boolean;
+    active_blogs: Attribute.Boolean & Attribute.DefaultTo<false>;
     joining_announced: Attribute.Boolean & Attribute.DefaultTo<false>;
     work_logs: Attribute.Relation<
       'plugin::users-permissions.user',
@@ -1181,6 +1181,7 @@ export interface ApiWorkLogWorkLog extends Schema.CollectionType {
     singularName: 'work-log';
     pluralName: 'work-logs';
     displayName: 'Work Log';
+    description: '';
   };
   options: {
     draftAndPublish: false;

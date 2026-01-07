@@ -115,15 +115,15 @@ async findAll(ctx) {
    👤 GET ATTENDANCE OF A SINGLE USER
 ===================================================== */
 async findByUser(ctx) {
-  const { userId } = ctx.params;
+  const { id } = ctx.params;
   const { fromDate, toDate } = ctx.query;
 
-  if (!userId) {
+  if (!id) {
     return ctx.badRequest('User ID is required');
   }
 
   const filters: any = {
-    user: userId,
+    user: id,
   };
 
   /* ===============================

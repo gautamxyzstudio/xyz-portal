@@ -8,7 +8,7 @@ module.exports = {
     {
       method: 'GET',
       path: '/daily-attendance/:id',
-      handler: 'daily-attendance.find',
+      handler: 'daily-attendance.findByUser',
     },
     {
       method: 'GET',
@@ -25,37 +25,6 @@ module.exports = {
       path: '/daily-attendance/check-out',
       handler: 'daily-attendance.checkOut',
     },
-    {
-      method: 'PUT',
-      path: '/daily-attendance/update-attendance',
-      handler: 'daily-attendance.updateAttendance',
-    },
-    // Cron job routes
-    {
-      method: 'POST',
-      path: '/daily-attendance/cron/create-daily-entries',
-      handler: 'daily-attendance.createDailyEntries',
-    },
-    {
-      method: 'POST',
-      path: '/daily-attendance/cron/mark-absent-users',
-      handler: 'daily-attendance.markAbsentUsers',
-    },
-    {
-      method: 'GET',
-      path: '/daily-attendance/stats',
-      handler: 'daily-attendance.getAttendanceStats',
-    },
-    // Manual trigger routes for testing
-    {
-      method: 'POST',
-      path: '/daily-attendance/cron/trigger-daily',
-      handler: 'daily-attendance.triggerDailyCron',
-    },
-    {
-      method: 'POST',
-      path: '/daily-attendance/cron/trigger-end-of-day',
-      handler: 'daily-attendance.triggerEndOfDayCron',
-    },
+
   ],
 };

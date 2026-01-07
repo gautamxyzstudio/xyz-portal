@@ -798,8 +798,18 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     date_of_birth: Attribute.Date;
     joining_date: Attribute.Date;
-    active_blogs: Attribute.Boolean;
+    active_blogs: Attribute.Boolean & Attribute.DefaultTo<false>;
     joining_announced: Attribute.Boolean & Attribute.DefaultTo<false>;
+    work_logs: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::work-log.work-log'
+    >;
+    projects: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::project.project'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -925,6 +935,41 @@ export interface ApiDailyAttendanceDailyAttendance
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::daily-attendance.daily-attendance',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiDailyTaskDailyTask extends Schema.CollectionType {
+  collectionName: 'daily_tasks';
+  info: {
+    singularName: 'daily-task';
+    pluralName: 'daily-tasks';
+    displayName: 'Daily Tasks';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    work_logs: Attribute.Relation<
+      'api::daily-task.daily-task',
+      'oneToMany',
+      'api::work-log.work-log'
+    >;
+    date: Attribute.Date & Attribute.Required & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::daily-task.daily-task',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::daily-task.daily-task',
       'oneToOne',
       'admin::user'
     > &
@@ -1070,18 +1115,18 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
     leave_type: Attribute.Enumeration<['SL', 'CL', 'EL', 'un-paid']>;
-    is_first_half: Attribute.Boolean;
     user: Attribute.Relation<
       'api::leave-status.leave-status',
       'manyToOne',
       'plugin::users-permissions.user'
     >;
     start_time: Attribute.Time;
-    leave_duration: Attribute.Enumeration<
+    leave_category: Attribute.Enumeration<
       ['half_day', 'full_day', 'short_leave']
     >;
     half_day_type: Attribute.Enumeration<['first_half', 'second_half']>;
-    days: Attribute.JSON;
+    days: Attribute.Decimal;
+    leave_days: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1093,6 +1138,42 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::leave-status.leave-status',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiProjectProject extends Schema.CollectionType {
+  collectionName: 'projects';
+  info: {
+    singularName: 'project';
+    pluralName: 'projects';
+    displayName: 'Projects';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    users_permissions_users: Attribute.Relation<
+      'api::project.project',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::project.project',
       'oneToOne',
       'admin::user'
     > &
@@ -1136,6 +1217,48 @@ export interface ApiUserDocumentsUserDocuments extends Schema.CollectionType {
   };
 }
 
+export interface ApiWorkLogWorkLog extends Schema.CollectionType {
+  collectionName: 'work_logs';
+  info: {
+    singularName: 'work-log';
+    pluralName: 'work-logs';
+    displayName: 'Work Log';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    tasks: Attribute.JSON;
+    total_actual_time: Attribute.Decimal & Attribute.DefaultTo<0>;
+    total_estimated_time: Attribute.Decimal & Attribute.DefaultTo<0>;
+    user: Attribute.Relation<
+      'api::work-log.work-log',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    daily_task: Attribute.Relation<
+      'api::work-log.work-log',
+      'manyToOne',
+      'api::daily-task.daily-task'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::work-log.work-log',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::work-log.work-log',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1157,11 +1280,14 @@ declare module '@strapi/types' {
       'api::add-blog.add-blog': ApiAddBlogAddBlog;
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
+      'api::daily-task.daily-task': ApiDailyTaskDailyTask;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
+      'api::project.project': ApiProjectProject;
       'api::user-documents.user-documents': ApiUserDocumentsUserDocuments;
+      'api::work-log.work-log': ApiWorkLogWorkLog;
     }
   }
 }

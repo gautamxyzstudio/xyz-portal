@@ -111,12 +111,25 @@
       "type": "date"
     },
     "active_blogs": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "joining_announced": {
       "type": "boolean",
       "default": false,
       "required": false
+    },
+    "work_logs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::work-log.work-log",
+      "mappedBy": "user"
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "users_permissions_users"
     }
   }
 }

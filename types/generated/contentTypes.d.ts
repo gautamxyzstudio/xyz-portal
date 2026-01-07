@@ -805,6 +805,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::work-log.work-log'
     >;
+    projects: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::project.project'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1108,14 +1113,13 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
     decline_reason: Attribute.Text;
     title: Attribute.String & Attribute.Required;
     leave_type: Attribute.Enumeration<['SL', 'CL', 'EL', 'un-paid']>;
-    is_first_half: Attribute.Boolean;
     user: Attribute.Relation<
       'api::leave-status.leave-status',
       'manyToOne',
       'plugin::users-permissions.user'
     >;
     start_time: Attribute.Time;
-    leave_duration: Attribute.Enumeration<
+    leave_category: Attribute.Enumeration<
       ['half_day', 'full_day', 'short_leave']
     >;
     half_day_type: Attribute.Enumeration<['first_half', 'second_half']>;
@@ -1132,6 +1136,42 @@ export interface ApiLeaveStatusLeaveStatus extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::leave-status.leave-status',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiProjectProject extends Schema.CollectionType {
+  collectionName: 'projects';
+  info: {
+    singularName: 'project';
+    pluralName: 'projects';
+    displayName: 'Projects';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    users_permissions_users: Attribute.Relation<
+      'api::project.project',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::project.project',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::project.project',
       'oneToOne',
       'admin::user'
     > &
@@ -1243,6 +1283,7 @@ declare module '@strapi/types' {
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;
       'api::leave-status.leave-status': ApiLeaveStatusLeaveStatus;
+      'api::project.project': ApiProjectProject;
       'api::user-documents.user-documents': ApiUserDocumentsUserDocuments;
       'api::work-log.work-log': ApiWorkLogWorkLog;
     }

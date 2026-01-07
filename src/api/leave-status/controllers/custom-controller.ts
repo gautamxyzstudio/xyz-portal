@@ -19,7 +19,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       data.publishedAt = new Date();
 
       /* ================= SHORT LEAVE (ONCE PER MONTH) ================= */
-      if (data.leave_duration === "short_leave") {
+      if (data.leave_category === "short_leave") {
         const start = new Date(data.start_date);
         const monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
         const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 0);
@@ -27,7 +27,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         const count = await strapi.entityService.count(moduleUid, {
           filters: {
             user: userId,
-            leave_duration: "short_leave",
+            leave_category: "short_leave",
             status: { $ne: "declined" },
             start_date: { $between: [monthStart, monthEnd] },
           },
@@ -62,7 +62,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         }
 
         // Half Day
-        if (data.leave_duration === "half_day") {
+        if (data.leave_category === "half_day") {
           leaveDays.push({
             date: dateStr,
             day: dayName,
@@ -156,7 +156,7 @@ async hrUpdateAndApproveLeave(ctx) {
   }, 0);
 
   /* ================= BALANCE DEDUCTION ================= */
-  if (status === "approved" && leave.leave_duration !== "short_leave") {
+  if (status === "approved" && leave.leave_category !== "short_leave") {
 
     const approvedDays = finalDays.filter(
       (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"

@@ -124,6 +124,12 @@
       "relation": "oneToMany",
       "target": "api::work-log.work-log",
       "mappedBy": "user"
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "users_permissions_users"
     }
   }
 }

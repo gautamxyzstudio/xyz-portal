@@ -45,9 +45,6 @@
         "un-paid"
       ]
     },
-    "is_first_half": {
-      "type": "boolean"
-    },
     "user": {
       "type": "relation",
       "relation": "manyToOne",
@@ -57,7 +54,7 @@
     "start_time": {
       "type": "time"
     },
-    "leave_duration": {
+    "leave_category": {
       "type": "enumeration",
       "enum": [
         "half_day",

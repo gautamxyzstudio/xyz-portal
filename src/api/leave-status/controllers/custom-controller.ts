@@ -3,7 +3,6 @@ import { factories } from "@strapi/strapi";
 const moduleUid = "api::leave-status.leave-status";
 
 export default factories.createCoreController(moduleUid, ({ strapi }) => ({
-
   /* ======================================================
      CREATE LEAVE
   ====================================================== */
@@ -94,191 +93,223 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
 
       /* ================= ASSIGN CORRECTLY ================= */
       data.leave_days = leaveDays; // ✅ JSON
-      data.days = totalDays;       // ✅ DECIMAL
+      data.days = totalDays; // ✅ DECIMAL
 
       const leave = await strapi.entityService.create(moduleUid, {
         data,
         populate: ["user"],
       });
 
-      return ctx.send({ message: "Leave request submitted", leave });
+      /* ================= EMAIL TO HR ================= */
+      const hrRole = await strapi.db
+        .query("plugin::users-permissions.role")
+        .findOne({ where: { name: "Hr" } });
 
+      if (hrRole) {
+        const hrUsers = await strapi.db
+          .query("plugin::users-permissions.user")
+          .findMany({
+            where: { role: { id: hrRole.id } },
+            select: ["email", "username"],
+          });
+
+        for (const hr of hrUsers) {
+          if (!hr.email) continue;
+
+          await strapi
+            .plugin("email")
+            .service("email")
+            .send({
+              to: hr.email,
+              subject: `New Leave Request from ${leave.user.username}`,
+              html: `
+              <p>Hello ${hr.username},</p>
+              <p><strong>${leave.user.username}</strong> has applied for leave.</p>
+              <ul>
+                <li><strong>Title:</strong> ${leave.title}</li>
+                <li><strong>From:</strong> ${leave.start_date}</li>
+                <li><strong>To:</strong> ${leave.end_date}</li>
+              </ul>
+            `,
+            });
+        }
+      }
+      return ctx.send({ message: "Leave request submitted", leave });
     } catch (err) {
       return ctx.badRequest(err.message);
     }
   },
 
-
   /* ======================================================
      HR UPDATE + APPROVE / REJECT
   ====================================================== */
-async hrUpdateAndApproveLeave(ctx) {
-  const { id } = ctx.params;
-  const { days, status, decline_reason } = ctx.request.body;
-  const user = ctx.state.user;
+  async hrUpdateAndApproveLeave(ctx) {
+    const { id } = ctx.params;
+    const { days, status, decline_reason } = ctx.request.body;
+    const user = ctx.state.user;
 
-  if (!user || user.user_type !== "Hr") {
-    return ctx.unauthorized("Only HR can take action");
-  }
-
-  const leave: any = await strapi.entityService.findOne(
-    moduleUid,
-    id,
-    { populate: ["user"] }
-  );
-
-  if (!leave || leave.status !== "pending") {
-    return ctx.badRequest("Invalid leave");
-  }
-
-  /* ================= MERGE DAY-WISE CHANGES ================= */
-  const finalDays = leave.leave_days.map((day) => {
-    const hrDay = days?.find((d) => d.date === day.date);
-
-    // Non-editable days (holiday/weekend)
-    if (!day.editable) {
-      return { ...day, approval_status: "approved" };
+    if (!user || user.user_type !== "Hr") {
+      return ctx.unauthorized("Only HR can take action");
     }
 
-    return {
-      ...day,
-      leave_type: hrDay?.leave_type ?? day.leave_type,
-      approval_status: hrDay?.approval_status ?? "approved",
-    };
-  });
+    const leave: any = await strapi.entityService.findOne(moduleUid, id, {
+      populate: ["user"],
+    });
 
-  /* ================= RECALCULATE TOTAL LEAVE DAYS ================= */
-  const approvedTotalDays = finalDays.reduce((sum, d) => {
-    if (d.approval_status === "approved" && d.leave_type !== "Holiday") {
-      return sum + Number(d.duration || 0);
+    if (!leave || leave.status !== "pending") {
+      return ctx.badRequest("Invalid leave");
     }
-    return sum;
-  }, 0);
 
-  /* ================= BALANCE DEDUCTION ================= */
-  if (status === "approved" && leave.leave_category !== "short_leave") {
+    /* ================= MERGE DAY-WISE CHANGES ================= */
+    const finalDays = leave.leave_days.map((day) => {
+      const hrDay = days?.find((d) => d.date === day.date);
 
-    const approvedDays = finalDays.filter(
-      (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
-    );
+      // Non-editable days (holiday/weekend)
+      if (!day.editable) {
+        return { ...day, approval_status: "approved" };
+      }
 
-    const year = new Date().getFullYear();
+      return {
+        ...day,
+        leave_type: hrDay?.leave_type ?? day.leave_type,
+        approval_status: hrDay?.approval_status ?? "approved",
+      };
+    });
 
-    let [balance]: any[] = await strapi.entityService.findMany(
-      "api::leave-balance.leave-balance",
-      { filters: { user: leave.user.id, year } }
-    );
+    /* ================= RECALCULATE TOTAL LEAVE DAYS ================= */
+    const approvedTotalDays = finalDays.reduce((sum, d) => {
+      if (d.approval_status === "approved" && d.leave_type !== "Holiday") {
+        return sum + Number(d.duration || 0);
+      }
+      return sum;
+    }, 0);
 
-    if (!balance) {
-      balance = await strapi.entityService.create(
+    /* ================= BALANCE DEDUCTION ================= */
+    if (status === "approved" && leave.leave_category !== "short_leave") {
+      const approvedDays = finalDays.filter(
+        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
+      );
+
+      const year = new Date().getFullYear();
+
+      let [balance]: any[] = await strapi.entityService.findMany(
         "api::leave-balance.leave-balance",
-        {
-          data: {
-            user: leave.user.id,
-            year,
-            el_balance: 4,
-            cl_balance: 4,
-            sl_balance: 4,
-            unpaid_balance: 0,
-            publishedAt: new Date(),
-          },
+        { filters: { user: leave.user.id, year } }
+      );
+
+      if (!balance) {
+        balance = await strapi.entityService.create(
+          "api::leave-balance.leave-balance",
+          {
+            data: {
+              user: leave.user.id,
+              year,
+              el_balance: 4,
+              cl_balance: 4,
+              sl_balance: 4,
+              unpaid_balance: 0,
+              publishedAt: new Date(),
+            },
+          }
+        );
+      }
+
+      for (const day of approvedDays) {
+        const deduction = Number(day.duration || 1);
+
+        switch (day.leave_type) {
+          case "EL":
+            balance.el_balance >= deduction
+              ? (balance.el_balance -= deduction)
+              : (balance.unpaid_balance += deduction);
+            break;
+          case "CL":
+            balance.cl_balance >= deduction
+              ? (balance.cl_balance -= deduction)
+              : (balance.unpaid_balance += deduction);
+            break;
+          case "SL":
+            balance.sl_balance >= deduction
+              ? (balance.sl_balance -= deduction)
+              : (balance.unpaid_balance += deduction);
+            break;
+          case "un-paid":
+            balance.unpaid_balance += deduction;
+            break;
         }
+      }
+
+      await strapi.entityService.update(
+        "api::leave-balance.leave-balance",
+        balance.id,
+        { data: balance }
       );
     }
 
-    for (const day of approvedDays) {
-      const deduction = Number(day.duration || 1);
+    /* ================= UPDATE LEAVE ================= */
+    const updatedLeave = await strapi.entityService.update(moduleUid, id, {
+      data: {
+        leave_days: finalDays, // ✅ JSON array
+        days: approvedTotalDays, // ✅ decimal
+        status,
+        decline_reason: status === "declined" ? decline_reason : null,
+      },
+    });
 
-      switch (day.leave_type) {
-        case "EL":
-          balance.el_balance >= deduction
-            ? (balance.el_balance -= deduction)
-            : (balance.unpaid_balance += deduction);
-          break;
-        case "CL":
-          balance.cl_balance >= deduction
-            ? (balance.cl_balance -= deduction)
-            : (balance.unpaid_balance += deduction);
-          break;
-        case "SL":
-          balance.sl_balance >= deduction
-            ? (balance.sl_balance -= deduction)
-            : (balance.unpaid_balance += deduction);
-          break;
-      }
-    }
+    /* ================= EMAIL TO EMPLOYEE ================= */
+    if (leave.user?.email) {
+      const approvedDays = finalDays.filter(
+        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
+      );
+      const rejectedDays = finalDays.filter(
+        (d) => d.approval_status === "rejected"
+      );
 
-    await strapi.entityService.update(
-      "api::leave-balance.leave-balance",
-      balance.id,
-      { data: balance }
-    );
-  }
+      const isPartial = approvedDays.length && rejectedDays.length;
 
-  /* ================= UPDATE LEAVE ================= */
-  const updatedLeave = await strapi.entityService.update(moduleUid, id, {
-    data: {
-      leave_days: finalDays,        // ✅ JSON array
-      days: approvedTotalDays,      // ✅ decimal
-      status,
-      decline_reason: status === "declined" ? decline_reason : null,
-    },
-  });
-
-  /* ================= EMAIL TO EMPLOYEE ================= */
-  if (leave.user?.email) {
-    const approvedDays = finalDays.filter(
-      (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
-    );
-    const rejectedDays = finalDays.filter(
-      (d) => d.approval_status === "rejected"
-    );
-
-    const isPartial = approvedDays.length && rejectedDays.length;
-
-    let subject = "Leave Update";
-    let html = `
+      let subject = "Leave Update";
+      let html = `
       <p>Hello ${leave.user.username},</p>
       <p><strong>Title:</strong> ${leave.title}</p>
       <p><strong>From:</strong> ${leave.start_date}</p>
       <p><strong>To:</strong> ${leave.end_date}</p>
     `;
 
-    if (status === "declined") {
-      subject = "Leave Declined";
-      html += `<p><strong>Reason:</strong> ${decline_reason}</p>`;
-    } else {
-      subject = isPartial ? "Leave Partially Approved" : "Leave Approved";
+      if (status === "declined") {
+        subject = "Leave Declined";
+        html += `<p><strong>Reason:</strong> ${decline_reason}</p>`;
+      } else {
+        subject = isPartial ? "Leave Partially Approved" : "Leave Approved";
 
-      if (approvedDays.length) {
-        html += `<p><strong>Approved Days:</strong></p><ul>`;
-        approvedDays.forEach((d) => {
-          html += `<li>${d.date} (${d.leave_type})</li>`;
-        });
-        html += `</ul>`;
+        if (approvedDays.length) {
+          html += `<p><strong>Approved Days:</strong></p><ul>`;
+          approvedDays.forEach((d) => {
+            html += `<li>${d.date} (${d.leave_type})</li>`;
+          });
+          html += `</ul>`;
+        }
+
+        if (rejectedDays.length) {
+          html += `<p><strong>Rejected Days:</strong></p><ul>`;
+          rejectedDays.forEach((d) => {
+            html += `<li>${d.date}</li>`;
+          });
+          html += `</ul>`;
+        }
       }
 
-      if (rejectedDays.length) {
-        html += `<p><strong>Rejected Days:</strong></p><ul>`;
-        rejectedDays.forEach((d) => {
-          html += `<li>${d.date}</li>`;
-        });
-        html += `</ul>`;
-      }
+      await strapi.plugin("email").service("email").send({
+        to: leave.user.email,
+        subject,
+        html,
+      });
     }
 
-    await strapi.plugin("email").service("email").send({
-      to: leave.user.email,
-      subject,
-      html,
+    return ctx.send({
+      message: "Leave processed successfully",
+      leave: updatedLeave,
     });
-  }
-
-  return ctx.send({
-    message: "Leave processed successfully",
-    leave: updatedLeave,
-  });
-},
+  },
 
   /* ======================================================
   FIND ALL LEAVES
@@ -301,7 +332,7 @@ async hrUpdateAndApproveLeave(ctx) {
           populate: {
             user: true,
           },
-          sort: {id: "desc" },
+          sort: { id: "desc" },
         }
       );
 
@@ -313,5 +344,4 @@ async hrUpdateAndApproveLeave(ctx) {
       ctx.throw(500, error);
     }
   },
-
 }));

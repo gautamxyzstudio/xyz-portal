@@ -4,24 +4,41 @@ export default {
       method: "POST",
       path: "/work-logs/today",
       handler: "work-log.createToday",
-      config: {
-        auth: {}, 
-      },
+      config: { auth: {} }
     },
     {
       method: "POST",
       path: "/work-logs/:id/add-task",
       handler: "work-log.addTask",
-      config: { auth: {} },
+      config: { auth: {} }
     },
-     {
+    {
       method: "PUT",
-      path: "/work-logs/:id",
-      handler: "work-log.updateWorkLog",
-      config: {
-        auth: {}, 
-      },
+      path: "/work-logs/:id/update-task",
+      handler: "work-log.updateTask",
+      config: { auth: {} }
     },
-  ],
+    {
+      method: "POST",
+      path: "/work-logs/start-timer",
+      handler: "work-log.startTaskTimer",
+      config: { auth: {} }
+    },
+    {
+      method: "POST",
+      path: "/work-logs/stop-timer",
+      handler: "work-log.stopTaskTimer",
+      config: { auth: {} }
+    },
+    {
+  method: "GET",
+  path: "/work-logs/user",
+  handler: "work-log.userWorkLogs",
+  config: {
+    auth: {},   
+  },
+}
 
+
+  ]
 };

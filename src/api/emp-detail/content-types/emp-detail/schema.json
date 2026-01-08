@@ -4,7 +4,7 @@
   "info": {
     "singularName": "emp-detail",
     "pluralName": "emp-details",
-    "displayName": "userDetials",
+    "displayName": "emp_details",
     "description": ""
   },
   "options": {
@@ -23,9 +23,6 @@
     },
     "phoneNumber": {
       "type": "string"
-    },
-    "joiningDate": {
-      "type": "date"
     },
     "Photo": {
       "type": "media",
@@ -49,14 +46,29 @@
       "default": true
     },
     "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
+    },
+    "date_of_birth": {
+      "type": "date"
+    },
+    "joining_announced": {
+      "type": "boolean",
+      "default": false
+    },
+    "active_blogs": {
+      "type": "boolean",
+      "default": false
+    },
+    "joinig_date": {
+      "type": "date"
     }
   }
 }

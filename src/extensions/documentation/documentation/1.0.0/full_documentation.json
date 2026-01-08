@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-08T09:55:52.144Z"
+    "x-generation-date": "2026-01-08T13:02:21.376Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1877,10 +1877,6 @@
                                   "phoneNumber": {
                                     "type": "string"
                                   },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
                                   "Photo": {
                                     "type": "object",
                                     "properties": {
@@ -2412,6 +2408,20 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -3068,20 +3078,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -3097,13 +3093,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",
@@ -3571,13 +3569,15 @@
                       "type": "object",
                       "properties": {
                         "tasks": {},
-                        "total_actual_time": {
-                          "type": "number",
-                          "format": "float"
+                        "active_task_id": {
+                          "type": "integer"
                         },
-                        "total_estimated_time": {
-                          "type": "number",
-                          "format": "float"
+                        "total_time_taken": {
+                          "type": "integer"
+                        },
+                        "work_date": {
+                          "type": "string",
+                          "format": "date"
                         },
                         "user": {
                           "type": "object",
@@ -4069,10 +4069,6 @@
                                                 },
                                                 "phoneNumber": {
                                                   "type": "string"
-                                                },
-                                                "joiningDate": {
-                                                  "type": "string",
-                                                  "format": "date"
                                                 },
                                                 "Photo": {
                                                   "type": "object",
@@ -4605,6 +4601,20 @@
                                                       }
                                                     }
                                                   }
+                                                },
+                                                "date_of_birth": {
+                                                  "type": "string",
+                                                  "format": "date"
+                                                },
+                                                "joining_announced": {
+                                                  "type": "boolean"
+                                                },
+                                                "active_blogs": {
+                                                  "type": "boolean"
+                                                },
+                                                "joinig_date": {
+                                                  "type": "string",
+                                                  "format": "date"
                                                 },
                                                 "createdAt": {
                                                   "type": "string",
@@ -5261,20 +5271,6 @@
                                         }
                                       }
                                     },
-                                    "date_of_birth": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "joining_date": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
-                                    "active_blogs": {
-                                      "type": "boolean"
-                                    },
-                                    "joining_announced": {
-                                      "type": "boolean"
-                                    },
                                     "work_logs": {
                                       "type": "object",
                                       "properties": {
@@ -5660,10 +5656,6 @@
               "phoneNumber": {
                 "type": "string"
               },
-              "joiningDate": {
-                "type": "string",
-                "format": "date"
-              },
               "Photo": {
                 "type": "array",
                 "items": {
@@ -5702,6 +5694,20 @@
                   }
                 ],
                 "example": "string or id"
+              },
+              "date_of_birth": {
+                "type": "string",
+                "format": "date"
+              },
+              "joining_announced": {
+                "type": "boolean"
+              },
+              "active_blogs": {
+                "type": "boolean"
+              },
+              "joinig_date": {
+                "type": "string",
+                "format": "date"
               }
             }
           }
@@ -5767,10 +5773,6 @@
           },
           "phoneNumber": {
             "type": "string"
-          },
-          "joiningDate": {
-            "type": "string",
-            "format": "date"
           },
           "Photo": {
             "type": "object",
@@ -6636,10 +6638,6 @@
                                   "phoneNumber": {
                                     "type": "string"
                                   },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
                                   "Photo": {
                                     "type": "object",
                                     "properties": {
@@ -6940,6 +6938,20 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -7596,20 +7608,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -7625,13 +7623,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",
@@ -8065,6 +8065,20 @@
                 }
               }
             }
+          },
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "joining_announced": {
+            "type": "boolean"
+          },
+          "active_blogs": {
+            "type": "boolean"
+          },
+          "joinig_date": {
+            "type": "string",
+            "format": "date"
           },
           "createdAt": {
             "type": "string",
@@ -9155,10 +9169,6 @@
                                   "phoneNumber": {
                                     "type": "string"
                                   },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
                                   "Photo": {
                                     "type": "object",
                                     "properties": {
@@ -9690,6 +9700,20 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -10346,20 +10370,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -10375,13 +10385,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",
@@ -11424,10 +11436,6 @@
                                   "phoneNumber": {
                                     "type": "string"
                                   },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
                                   "Photo": {
                                     "type": "object",
                                     "properties": {
@@ -11959,6 +11967,20 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -12615,20 +12637,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -12644,13 +12652,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",
@@ -13619,10 +13629,6 @@
                                     "phoneNumber": {
                                       "type": "string"
                                     },
-                                    "joiningDate": {
-                                      "type": "string",
-                                      "format": "date"
-                                    },
                                     "Photo": {
                                       "type": "object",
                                       "properties": {
@@ -14154,6 +14160,20 @@
                                           }
                                         }
                                       }
+                                    },
+                                    "date_of_birth": {
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "joining_announced": {
+                                      "type": "boolean"
+                                    },
+                                    "active_blogs": {
+                                      "type": "boolean"
+                                    },
+                                    "joinig_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -14810,20 +14830,6 @@
                             }
                           }
                         },
-                        "date_of_birth": {
-                          "type": "string",
-                          "format": "date"
-                        },
-                        "joining_date": {
-                          "type": "string",
-                          "format": "date"
-                        },
-                        "active_blogs": {
-                          "type": "boolean"
-                        },
-                        "joining_announced": {
-                          "type": "boolean"
-                        },
                         "work_logs": {
                           "type": "object",
                           "properties": {
@@ -14839,13 +14845,15 @@
                                     "type": "object",
                                     "properties": {
                                       "tasks": {},
-                                      "total_actual_time": {
-                                        "type": "number",
-                                        "format": "float"
+                                      "active_task_id": {
+                                        "type": "integer"
                                       },
-                                      "total_estimated_time": {
-                                        "type": "number",
-                                        "format": "float"
+                                      "total_time_taken": {
+                                        "type": "integer"
+                                      },
+                                      "work_date": {
+                                        "type": "string",
+                                        "format": "date"
                                       },
                                       "user": {
                                         "type": "object",
@@ -16160,10 +16168,6 @@
                                   "phoneNumber": {
                                     "type": "string"
                                   },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
-                                  },
                                   "Photo": {
                                     "type": "object",
                                     "properties": {
@@ -16464,6 +16468,20 @@
                                         }
                                       }
                                     }
+                                  },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
                                   },
                                   "createdAt": {
                                     "type": "string",
@@ -17120,20 +17138,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -17149,13 +17153,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",
@@ -17525,16 +17531,21 @@
         ],
         "properties": {
           "data": {
+            "required": [
+              "work_date"
+            ],
             "type": "object",
             "properties": {
               "tasks": {},
-              "total_actual_time": {
-                "type": "number",
-                "format": "float"
+              "active_task_id": {
+                "type": "integer"
               },
-              "total_estimated_time": {
-                "type": "number",
-                "format": "float"
+              "total_time_taken": {
+                "type": "integer"
+              },
+              "work_date": {
+                "type": "string",
+                "format": "date"
               },
               "user": {
                 "oneOf": [
@@ -17610,15 +17621,20 @@
       },
       "WorkLog": {
         "type": "object",
+        "required": [
+          "work_date"
+        ],
         "properties": {
           "tasks": {},
-          "total_actual_time": {
-            "type": "number",
-            "format": "float"
+          "active_task_id": {
+            "type": "integer"
           },
-          "total_estimated_time": {
-            "type": "number",
-            "format": "float"
+          "total_time_taken": {
+            "type": "integer"
+          },
+          "work_date": {
+            "type": "string",
+            "format": "date"
           },
           "user": {
             "type": "object",
@@ -18110,10 +18126,6 @@
                                   },
                                   "phoneNumber": {
                                     "type": "string"
-                                  },
-                                  "joiningDate": {
-                                    "type": "string",
-                                    "format": "date"
                                   },
                                   "Photo": {
                                     "type": "object",
@@ -18647,6 +18659,20 @@
                                       }
                                     }
                                   },
+                                  "date_of_birth": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "joining_announced": {
+                                    "type": "boolean"
+                                  },
+                                  "active_blogs": {
+                                    "type": "boolean"
+                                  },
+                                  "joinig_date": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
                                   "createdAt": {
                                     "type": "string",
                                     "format": "date-time"
@@ -19302,20 +19328,6 @@
                           }
                         }
                       },
-                      "date_of_birth": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "joining_date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "active_blogs": {
-                        "type": "boolean"
-                      },
-                      "joining_announced": {
-                        "type": "boolean"
-                      },
                       "work_logs": {
                         "type": "object",
                         "properties": {
@@ -19331,13 +19343,15 @@
                                   "type": "object",
                                   "properties": {
                                     "tasks": {},
-                                    "total_actual_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "active_task_id": {
+                                      "type": "integer"
                                     },
-                                    "total_estimated_time": {
-                                      "type": "number",
-                                      "format": "float"
+                                    "total_time_taken": {
+                                      "type": "integer"
+                                    },
+                                    "work_date": {
+                                      "type": "string",
+                                      "format": "date"
                                     },
                                     "user": {
                                       "type": "object",

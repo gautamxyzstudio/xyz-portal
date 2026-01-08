@@ -15,13 +15,16 @@
     "tasks": {
       "type": "json"
     },
-    "total_actual_time": {
-      "type": "decimal",
+    "active_task_id": {
+      "type": "integer"
+    },
+    "total_time_taken": {
+      "type": "integer",
       "default": 0
     },
-    "total_estimated_time": {
-      "type": "decimal",
-      "default": 0
+    "work_date": {
+      "type": "date",
+      "required": true
     },
     "user": {
       "type": "relation",

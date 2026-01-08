@@ -796,10 +796,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToOne',
       'api::leave-balance.leave-balance'
     >;
-    date_of_birth: Attribute.Date;
-    joining_date: Attribute.Date;
-    active_blogs: Attribute.Boolean & Attribute.DefaultTo<false>;
-    joining_announced: Attribute.Boolean & Attribute.DefaultTo<false>;
     work_logs: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
@@ -982,7 +978,7 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
   info: {
     singularName: 'emp-detail';
     pluralName: 'emp-details';
-    displayName: 'userDetials';
+    displayName: 'emp_details';
     description: '';
   };
   options: {
@@ -993,7 +989,6 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     designation: Attribute.String;
     empCode: Attribute.String;
     phoneNumber: Attribute.String;
-    joiningDate: Attribute.Date;
     Photo: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
     user_detail: Attribute.Relation<
       'api::emp-detail.emp-detail',
@@ -1002,6 +997,10 @@ export interface ApiEmpDetailEmpDetail extends Schema.CollectionType {
     >;
     status: Attribute.Boolean & Attribute.DefaultTo<true>;
     coverImage: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    date_of_birth: Attribute.Date;
+    joining_announced: Attribute.Boolean & Attribute.DefaultTo<false>;
+    active_blogs: Attribute.Boolean & Attribute.DefaultTo<false>;
+    joinig_date: Attribute.Date;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1230,8 +1229,9 @@ export interface ApiWorkLogWorkLog extends Schema.CollectionType {
   };
   attributes: {
     tasks: Attribute.JSON;
-    total_actual_time: Attribute.Decimal & Attribute.DefaultTo<0>;
-    total_estimated_time: Attribute.Decimal & Attribute.DefaultTo<0>;
+    active_task_id: Attribute.Integer;
+    total_time_taken: Attribute.Integer & Attribute.DefaultTo<0>;
+    work_date: Attribute.Date & Attribute.Required;
     user: Attribute.Relation<
       'api::work-log.work-log',
       'manyToOne',

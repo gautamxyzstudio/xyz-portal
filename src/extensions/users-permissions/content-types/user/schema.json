@@ -104,21 +104,6 @@
       "target": "api::leave-balance.leave-balance",
       "mappedBy": "User_detail"
     },
-    "date_of_birth": {
-      "type": "date"
-    },
-    "joining_date": {
-      "type": "date"
-    },
-    "active_blogs": {
-      "type": "boolean",
-      "default": false
-    },
-    "joining_announced": {
-      "type": "boolean",
-      "default": false,
-      "required": false
-    },
     "work_logs": {
       "type": "relation",
       "relation": "oneToMany",

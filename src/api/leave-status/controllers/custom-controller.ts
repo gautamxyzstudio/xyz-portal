@@ -344,4 +344,79 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       ctx.throw(500, error);
     }
   },
+
+// async findUserAllLeaves(ctx) {
+//   try {
+//     const loggedInUser = ctx.state.user;
+
+//     if (!loggedInUser) {
+//       return ctx.unauthorized("Token missing or invalid");
+//     }
+
+//     const { startDate, endDate, search } = ctx.query;
+
+//     const filters: any = {};
+
+//     /* ===============================
+//        👤 USER ACCESS (STRICT)
+//     =============================== */
+//     if (loggedInUser.user_type !== "Hr") {
+//       // Normal user → ONLY own leaves
+//       filters.user = loggedInUser.id;
+//     }
+
+//     /* ===============================
+//        📅 Date range filter (optional)
+//        (applies to both user & HR)
+//     =============================== */
+//      if (startDate && endDate) {
+//       filters.start_date = { $gte: startDate };
+//       filters.end_date = { $lte: endDate };
+//     }
+
+//     /* ===============================
+//        🧑‍💼 HR SEARCH (STRICT)
+//     =============================== */
+//     if (search && loggedInUser.user_type === "Hr") {
+//       filters.user = {
+//         $or: [
+//           { username: { $containsi: search } },
+//           {
+//             user_detial: {
+//               name: { $containsi: search },
+//             },
+//           },
+//         ],
+//       };
+//     }
+
+//     const data = await strapi.entityService.findMany(
+//       "api::leave-status.leave-status",
+//       {
+//         filters,
+//         populate: {
+//           user: {
+//             populate: {
+//               user_detial: true,
+//             },
+//           },
+//         },
+//         sort: { id: "desc" },
+//       }
+//     );
+
+//     return {
+//       message:
+//         loggedInUser.user_type === "Hr"
+//           ? "Leave records fetched (HR access)"
+//           : "Logged-in user's leave requests",
+//         count: data.length,
+//         data,
+//       };
+//   } catch (error) {
+//     ctx.throw(500, error);
+//   }
+// },
+
+
 }));

@@ -311,110 +311,117 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
      FIND ALL LEAVES (PAGINATED)
   ====================================================== */
   async findUserAllLeaves(ctx) {
-  try {
-    const loggedInUser = ctx.state.user;
-    if (!loggedInUser) {
-      return ctx.unauthorized("Token missing or invalid");
-    }
+    try {
+      const loggedInUser = ctx.state.user;
+      if (!loggedInUser) {
+        return ctx.unauthorized("Token missing or invalid");
+      }
 
-    const {
-      page = 1,
-      pageSize = 10,
-      startDate,
-      endDate,
-      username,
-    } = ctx.query;
+      const {
+        page = 1,
+        pageSize = 10,
+        startDate,
+        endDate,
+        username,
+      } = ctx.query;
 
-    const filters: any = { $and: [] };
+      const filters: any = { $and: [] };
 
-    /* ===============================
+      /* ===============================
        👤 EMPLOYEE: ONLY OWN LEAVES
     =============================== */
-    if (loggedInUser.user_type !== "Hr") {
-      filters.$and.push({ user: loggedInUser.id });
-    }
+      if (loggedInUser.user_type !== "Hr") {
+        filters.$and.push({ user: loggedInUser.id });
+      }
 
-    /* ===============================
+      /* ===============================
+   🚫 HR SHOULD NOT SEE PENDING
+=============================== */
+      if (loggedInUser.user_type === "Hr") {
+        filters.$and.push({
+          status: { $ne: "pending" },
+        });
+      }
+
+      /* ===============================
        📅 DATE RANGE (OVERLAP)
     =============================== */
-    if (startDate || endDate) {
-      const dateFilter: any = {};
-      if (startDate) dateFilter.$lte = startDate;
-      if (endDate) dateFilter.$gte = endDate;
+      if (startDate || endDate) {
+        const dateFilter: any = {};
+        if (startDate) dateFilter.$lte = startDate;
+        if (endDate) dateFilter.$gte = endDate;
 
-      filters.$and.push(
-        { start_date: { $lte: endDate || startDate } },
-        { end_date: { $gte: startDate || endDate } }
-      );
-    }
+        filters.$and.push(
+          { start_date: { $lte: endDate || startDate } },
+          { end_date: { $gte: startDate || endDate } }
+        );
+      }
 
-    /* ===============================
+      /* ===============================
        👩‍💼 HR: SEARCH USER
     =============================== */
-    if (username && loggedInUser.user_type === "Hr") {
-      filters.$and.push({
-        $or: [
-          {
-            user: {
-              username: { $containsi: username },
+      if (username && loggedInUser.user_type === "Hr") {
+        filters.$and.push({
+          $or: [
+            {
+              user: {
+                username: { $containsi: username },
+              },
             },
-          },
-          {
+            {
+              user: {
+                user_detial: {
+                  name: { $containsi: username },
+                },
+              },
+            },
+          ],
+        });
+      }
+
+      if (filters.$and.length === 0) delete filters.$and;
+
+      /* ===============================
+       📥 FETCH LEAVES (PAGINATED)
+    =============================== */
+      const leaves = await strapi.entityService.findMany(
+        "api::leave-status.leave-status",
+        {
+          filters,
+          populate: {
             user: {
-              user_detial: {
-                name: { $containsi: username },
+              populate: {
+                user_detial: true,
               },
             },
           },
-        ],
-      });
-    }
+          sort: { id: "desc" },
+          start: (Number(page) - 1) * Number(pageSize),
+          limit: Number(pageSize),
+        }
+      );
 
-    if (filters.$and.length === 0) delete filters.$and;
-
-    /* ===============================
-       📥 FETCH LEAVES (PAGINATED)
-    =============================== */
-    const leaves = await strapi.entityService.findMany(
-      "api::leave-status.leave-status",
-      {
-        filters,
-        populate: {
-          user: {
-            populate: {
-              user_detial: true,
-            },
-          },
-        },
-        sort: { id: "desc" },
-        start: (Number(page) - 1) * Number(pageSize),
-        limit: Number(pageSize),
-      }
-    );
-
-    /* ===============================
+      /* ===============================
        📊 TOTAL COUNT
     =============================== */
-    const total = await strapi.entityService.count(
-      "api::leave-status.leave-status",
-      { filters }
-    );
+      const total = await strapi.entityService.count(
+        "api::leave-status.leave-status",
+        { filters }
+      );
 
-    ctx.body = {
-      data: leaves,
-      meta: {
-        pagination: {
-          page: Number(page),
-          pageSize: Number(pageSize),
-          pageCount: Math.ceil(total / Number(pageSize)),
-          total,
+      ctx.body = {
+        data: leaves,
+        meta: {
+          pagination: {
+            page: Number(page),
+            pageSize: Number(pageSize),
+            pageCount: Math.ceil(total / Number(pageSize)),
+            total,
+          },
         },
-      },
-    };
-  } catch (error) {
-    ctx.throw(500, error);
-  }
-}
-
-
+      };
+    } catch (error) {
+      ctx.throw(500, error);
+    }
+  },
 }));

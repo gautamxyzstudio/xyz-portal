@@ -6,139 +6,133 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
   /* ======================================================
      CREATE LEAVE
   ====================================================== */
-  async create(ctx) {
-    try {
-      const data = ctx.request.body?.data || {};
-      const userId = ctx.state.user?.id;
+async create(ctx) {
+  try {
+    const data = ctx.request.body?.data || {};
+    const userId = ctx.state.user?.id;
 
-      if (!userId) return ctx.unauthorized("Login required");
+    if (!userId) return ctx.unauthorized("Login required");
 
-      data.user = userId;
-      data.status = "pending";
-      data.publishedAt = new Date();
+    data.user = userId;
+    data.status = "pending";
+    data.publishedAt = new Date();
 
-      /* ================= SHORT LEAVE (ONCE PER MONTH) ================= */
-      if (data.leave_category === "short_leave") {
-        const start = new Date(data.start_date);
-        const monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
-        const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+    /* ================= SHORT LEAVE (ONCE PER MONTH) ================= */
+    if (data.leave_category === "short_leave") {
+      const start = new Date(data.start_date);
+      const monthStart = new Date(start.getFullYear(), start.getMonth(), 1);
+      const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
-        const count = await strapi.entityService.count(moduleUid, {
-          filters: {
-            user: userId,
-            leave_category: "short_leave",
-            status: { $ne: "declined" },
-            start_date: { $between: [monthStart, monthEnd] },
-          },
+      const count = await strapi.entityService.count(moduleUid, {
+        filters: {
+          user: userId,
+          leave_category: "short_leave",
+          status: { $ne: "declined" },
+          start_date: { $between: [monthStart, monthEnd] },
+        },
+      });
+
+      if (count >= 1) {
+        return ctx.badRequest("Short leave already used this month");
+      }
+    }
+
+    /* ================= DAY-WISE GENERATION ================= */
+    const leaveDays = [];
+    const start = new Date(data.start_date);
+    const end = new Date(data.end_date);
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dayIndex = d.getDay();
+      const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
+      const dateStr = d.toISOString().split("T")[0];
+
+      // Weekend → Holiday
+      if (dayIndex === 0 || dayIndex === 6) {
+        leaveDays.push({
+          date: dateStr,
+          day: dayName,
+          leave_type: "Holiday",
+          editable: false,
+          approval_status: "approved",
+          duration: 0,
         });
-
-        if (count >= 1) {
-          return ctx.badRequest("Short leave already used this month");
-        }
+        continue;
       }
 
-      /* ================= DAY-WISE GENERATION ================= */
-      const leaveDays: any[] = [];
-      const start = new Date(data.start_date);
-      const end = new Date(data.end_date);
-
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dayIndex = d.getDay();
-        const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
-        const dateStr = d.toISOString().split("T")[0];
-
-        // Weekend → Holiday
-        if (dayIndex === 0 || dayIndex === 6) {
-          leaveDays.push({
-            date: dateStr,
-            day: dayName,
-            leave_type: "Holiday",
-            editable: false,
-            approval_status: "approved",
-            duration: 0,
-          });
-          continue;
-        }
-
-        // Half Day
-        if (data.leave_category === "half_day") {
-          leaveDays.push({
-            date: dateStr,
-            day: dayName,
-            leave_type: data.leave_type,
-            editable: true,
-            approval_status: "pending",
-            duration: 0.5,
-            half_day_type: data.half_day_type,
-          });
-          break;
-        }
-
-        // Full Day
+      // Half Day
+      if (data.leave_category === "half_day") {
         leaveDays.push({
           date: dateStr,
           day: dayName,
           leave_type: data.leave_type,
           editable: true,
           approval_status: "pending",
-          duration: 1,
+          duration: 0.5,
+          half_day_type: data.half_day_type,
         });
+        break;
       }
 
-      /* ================= TOTAL DAYS (NUMBER) ================= */
-      const totalDays = leaveDays.reduce(
-        (sum, d) => sum + Number(d.duration || 0),
-        0
-      );
+      // Full Day
+      leaveDays.push({
+        date: dateStr,
+        day: dayName,
+        leave_type: data.leave_type,
+        editable: true,
+        approval_status: "pending",
+        duration: 1,
+      });
+    }
 
-      /* ================= ASSIGN CORRECTLY ================= */
-      data.leave_days = leaveDays; // ✅ JSON
-      data.days = totalDays; // ✅ DECIMAL
+    /* ================= TOTAL DAYS ================= */
+    const totalDays = leaveDays.reduce(
+      (sum, d) => sum + Number(d.duration || 0),
+      0
+    );
 
-      const leave = await strapi.entityService.create(moduleUid, {
-        data,
-        populate: ["user"],
+    data.leave_days = leaveDays;
+    data.days = totalDays;
+
+    const leave = await strapi.entityService.create(moduleUid, {
+      data,
+      populate: ["user"],
+    });
+
+    /* ================= EMAIL TO HR (FIXED) ================= */
+    const hrUsers = await strapi.db
+      .query("plugin::users-permissions.user")
+      .findMany({
+        where: {
+          user_type: { $eqi: "Hr" }, // ✅ ONLY FIX
+        },
+        select: ["email", "username"],
       });
 
-      /* ================= EMAIL TO HR ================= */
-      const hrRole = await strapi.db
-        .query("plugin::users-permissions.role")
-        .findOne({ where: { name: "Hr" } });
+    for (const hr of hrUsers) {
+      if (!hr.email) continue;
 
-      if (hrRole) {
-        const hrUsers = await strapi.db
-          .query("plugin::users-permissions.user")
-          .findMany({
-            where: { role: { id: hrRole.id } },
-            select: ["email", "username"],
-          });
-
-        for (const hr of hrUsers) {
-          if (!hr.email) continue;
-
-          await strapi
-            .plugin("email")
-            .service("email")
-            .send({
-              to: hr.email,
-              subject: `New Leave Request from ${leave.user.username}`,
-              html: `
-              <p>Hello ${hr.username},</p>
-              <p><strong>${leave.user.username}</strong> has applied for leave.</p>
-              <ul>
-                <li><strong>Title:</strong> ${leave.title}</li>
-                <li><strong>From:</strong> ${leave.start_date}</li>
-                <li><strong>To:</strong> ${leave.end_date}</li>
-              </ul>
-            `,
-            });
-        }
-      }
-      return ctx.send({ message: "Leave request submitted", leave });
-    } catch (err) {
-      return ctx.badRequest(err.message);
+      await strapi.plugin("email").service("email").send({
+        to: hr.email,
+        subject: `New Leave Request from ${leave.user.username}`,
+        html: `
+          <p>Hello ${hr.username},</p>
+          <p><strong>${leave.user.username}</strong> has applied for leave.</p>
+          <ul>
+            <li><strong>Title:</strong> ${leave.title}</li>
+            <li><strong>From:</strong> ${leave.start_date}</li>
+            <li><strong>To:</strong> ${leave.end_date}</li>
+          </ul>
+        `,
+      });
     }
-  },
+
+    return ctx.send({ message: "Leave request submitted", leave });
+  } catch (err) {
+    return ctx.badRequest(err.message);
+  }
+},
+
 
   /* ======================================================
      HR UPDATE + APPROVE / REJECT
@@ -314,109 +308,88 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
   /* ======================================================
   FIND ALL LEAVES
 ====================================================== */
-  async findUserAllLeaves(ctx) {
-    try {
-      // ✅ User extracted from JWT token
-      const user = ctx.state.user;
 
-      if (!user) {
-        return ctx.unauthorized("Token missing or invalid");
-      }
-
-      const data = await strapi.entityService.findMany(
-        "api::leave-status.leave-status",
-        {
-          filters: {
-            user: user.id, // 🔐 filter by logged-in user
-          },
-          populate: {
-            user: true,
-          },
-          sort: { id: "desc" },
-        }
-      );
-
-      return {
-        message: "Logged-in user's leave requests",
-        data,
-      };
-    } catch (error) {
-      ctx.throw(500, error);
+async findUserAllLeaves(ctx) {
+  try {
+    const loggedInUser = ctx.state.user;
+    if (!loggedInUser) {
+      return ctx.unauthorized("Token missing or invalid");
     }
-  },
 
-// async findUserAllLeaves(ctx) {
-//   try {
-//     const loggedInUser = ctx.state.user;
+    const { startDate, endDate, username } = ctx.query;
 
-//     if (!loggedInUser) {
-//       return ctx.unauthorized("Token missing or invalid");
-//     }
+    const filters: any = {
+      $and: [],
+    };
 
-//     const { startDate, endDate, search } = ctx.query;
+    /* ===============================
+       👤 EMPLOYEE: ONLY OWN LEAVES
+    =============================== */
+    if (loggedInUser.user_type !== "Hr") {
+      filters.$and.push({
+        user: loggedInUser.id,
+      });
+    }
 
-//     const filters: any = {};
+    /* ===============================
+       📅 DATE RANGE (OVERLAP)
+    =============================== */
+    if (startDate && endDate) {
+      filters.$and.push(
+        { start_date: { $lte: endDate } },
+        { end_date: { $gte: startDate } }
+      );
+    }
 
-//     /* ===============================
-//        👤 USER ACCESS (STRICT)
-//     =============================== */
-//     if (loggedInUser.user_type !== "Hr") {
-//       // Normal user → ONLY own leaves
-//       filters.user = loggedInUser.id;
-//     }
+    /* ===============================
+       👩‍💼 HR: FILTER BY USERNAME
+    =============================== */
+    if (username && loggedInUser.user_type === "Hr") {
+      filters.$and.push({
+        user: {
+          $or: [
+            { search: { $containsi: username } },
+            {
+              user_detial: {
+                name: { $containsi: username },
+              },
+            },
+          ],
+        },
+      });
+    }
 
-//     /* ===============================
-//        📅 Date range filter (optional)
-//        (applies to both user & HR)
-//     =============================== */
-//      if (startDate && endDate) {
-//       filters.start_date = { $gte: startDate };
-//       filters.end_date = { $lte: endDate };
-//     }
+    // 🔥 IMPORTANT: remove empty $and
+    if (filters.$and.length === 0) {
+      delete filters.$and;
+    }
 
-//     /* ===============================
-//        🧑‍💼 HR SEARCH (STRICT)
-//     =============================== */
-//     if (search && loggedInUser.user_type === "Hr") {
-//       filters.user = {
-//         $or: [
-//           { username: { $containsi: search } },
-//           {
-//             user_detial: {
-//               name: { $containsi: search },
-//             },
-//           },
-//         ],
-//       };
-//     }
+    const data = await strapi.entityService.findMany(
+      "api::leave-status.leave-status",
+      {
+        filters,
+        populate: {
+          user: {
+            populate: {
+              user_detial: true,
+            },
+          },
+        },
+        sort: { id: "desc" },
+      }
+    );
 
-//     const data = await strapi.entityService.findMany(
-//       "api::leave-status.leave-status",
-//       {
-//         filters,
-//         populate: {
-//           user: {
-//             populate: {
-//               user_detial: true,
-//             },
-//           },
-//         },
-//         sort: { id: "desc" },
-//       }
-//     );
-
-//     return {
-//       message:
-//         loggedInUser.user_type === "Hr"
-//           ? "Leave records fetched (HR access)"
-//           : "Logged-in user's leave requests",
-//         count: data.length,
-//         data,
-//       };
-//   } catch (error) {
-//     ctx.throw(500, error);
-//   }
-// },
-
+    return {
+      message:
+        loggedInUser.user_type === "Hr"
+          ? "Leave records fetched (HR access)"
+          : "Logged-in user's leave requests",
+      count: data.length,
+      data,
+    };
+  } catch (error) {
+    ctx.throw(500, error);
+  }
+}
 
 }));

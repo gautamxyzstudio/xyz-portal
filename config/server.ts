@@ -1,4 +1,4 @@
-const cronTasks = require('./cron-tasks');
+const cronTasks = require('../src/cron/cron-tasks');
 
 export default ({ env }) => ({
   host: env('HOST', '0.0.0.0'),

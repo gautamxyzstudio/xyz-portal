@@ -221,9 +221,31 @@ export default factories.createCoreController(
     ===================================================== */
     async startTaskTimer(ctx: Context) {
       const userId = ctx.state.user?.id;
+      if (!userId) return ctx.unauthorized("Login required");
+
       const { workLogId, task_id } = ctx.request.body;
       const now = getISTNow();
 
+      /* ================= CHECK CHECKOUT ================= */
+      const today = now.toISOString().slice(0, 10);
+
+      const attendance = await strapi.entityService.findMany(
+        "api::daily-attendance.daily-attendance",
+        {
+          filters: { user: userId, Date: today },
+          limit: 1,
+        }
+      );
+
+      if (!attendance.length) {
+        return ctx.badRequest("You have not checked in today");
+      }
+
+      if (attendance[0].out && attendance[0].out !== "00:00:00") {
+        return ctx.badRequest("You have already checked out. Tasks cannot be started.");
+      }
+
+      /* ================= LUNCH CHECK ================= */
       if (isLunchTime(now)) {
         return ctx.badRequest("Timers paused between 1–2 PM");
       }
@@ -238,12 +260,12 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      // Pause all running tasks
+      /* ================= PAUSE ALL TASKS ================= */
       for (const t of workLog.tasks) {
         pauseTask(t, now);
       }
 
-      // Resume selected task
+      /* ================= START SELECTED TASK ================= */
       const task = workLog.tasks.find(t => t.task_id === task_id);
       if (!task) return ctx.badRequest("Task not found");
 

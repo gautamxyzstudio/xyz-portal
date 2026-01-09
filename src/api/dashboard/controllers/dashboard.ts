@@ -11,12 +11,18 @@ export default {
       const endOfDay = new Date(`${today}T23:59:59.999Z`);
 
       /* ============================
-         👥 Total Active Employees
+         👥 Total Active Employees (FIXED)
       ============================ */
       const totalEmployees = await strapi.db
         .query("plugin::users-permissions.user")
         .count({
-          where: { blocked: false },
+          where: {
+            blocked: false,
+            user_type: "Employee",
+            role: {
+              name: "Employee",
+            },
+          },
         });
 
       /* ============================

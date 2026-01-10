@@ -18,6 +18,7 @@ export default {
           user_detial: {
             populate: {
               Photo: true,
+              coverImage:true
             },
           },
         },
@@ -61,6 +62,7 @@ export default {
           user_detial: {
             populate: {
               Photo: true,
+              coverImage:true
             },
           },
         },

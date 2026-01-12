@@ -77,6 +77,90 @@ module.exports = {
     },
 
     /* =========================================================
+  📢 EMPLOYEE ANNOUNCEMENTS
+ ========================================================= */
+
+    joiningAnnouncementCron: {
+        task: async ({ strapi }) => {
+            try {
+                /* ==========================================
+                   🔔 CRON TRIGGER LOG
+                ========================================== */
+                strapi.log.info('➡️ Joining announcement cron triggered');
+
+                /* ==========================================
+                   🕰 IST DATE (SAFE)
+                ========================================== */
+                const nowIST = new Date(
+                    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+                );
+
+                // YYYY-MM-DD (REQUIRED for type: "date")
+                const todayIST = nowIST.toISOString().slice(0, 10);
+
+                strapi.log.info(`📅 IST Today: ${todayIST}`);
+
+                /* ==========================================
+                   🔍 FIND NEW JOINED EMPLOYEES
+                ========================================== */
+                const newJoiners = await strapi.entityService.findMany(
+                    'api::emp-detail.emp-detail',
+                    {
+                        filters: {
+                            joining_announced: false,
+                            joinig_date: todayIST,
+                        },
+                        populate: { user_detail: true },
+                    }
+                );
+
+                strapi.log.info(`👀 New joiners found: ${newJoiners.length}`);
+
+                /* ==========================================
+                   🎉 CREATE ANNOUNCEMENTS
+                ========================================== */
+                for (const emp of newJoiners) {
+                    if (!emp.user_detail) {
+                        strapi.log.warn(`⚠️ Emp ${emp.id} has no linked user`);
+                        continue;
+                    }
+
+                    await strapi.entityService.create(
+                        'api::announcement.announcement',
+                        {
+                            data: {
+                                Title: 'New Employee Joined',
+                                Description: `Please welcome <b>${emp.user_detail.username}</b> to the team!`,
+                                Date: todayIST,
+                                publishedAt: nowIST
+                            },
+                        }
+                    );
+
+                    await strapi.entityService.update(
+                        'api::emp-detail.emp-detail',
+                        emp.id,
+                        {
+                            data: { joining_announced: true },
+                        }
+                    );
+
+                    strapi.log.info(
+                        `🎉 Announcement created for ${emp.user_detail.username}`
+                    );
+                }
+            } catch (error) {
+                strapi.log.error('❌ Error in joiningAnnouncementCron:', error);
+            }
+        },
+
+        options: {
+            rule: '*/10 * * * *', // ⏱ every 5 minutes
+            tz: 'Asia/Kolkata',
+        },
+    },
+
+    /* =========================================================
        🎂 BIRTHDAY ANNOUNCEMENT
     ========================================================= */
     birthdayAnnouncementCron: {
@@ -311,7 +395,7 @@ module.exports = {
             }
         },
         options: {
-            rule: '0 8 * * *', // ⏰ 11:30 AM IST
+            rule: '0 8 * * *',
             tz: 'Asia/Kolkata',
         },
     },
@@ -390,106 +474,106 @@ module.exports = {
        CHECKOUT REMINDER 
        ========================================= */
 
-  checkoutReminder: {
-    task: async ({ strapi }) => {
-      try {
-        const istNow = new Date(
-          new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-        );
+    checkoutReminder: {
+        task: async ({ strapi }) => {
+            try {
+                const istNow = new Date(
+                    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+                );
 
-        const hours = istNow.getHours();
-        const minutes = istNow.getMinutes();
-        const today = istNow.toISOString().slice(0, 10);
+                const hours = istNow.getHours();
+                const minutes = istNow.getMinutes();
+                const today = istNow.toISOString().slice(0, 10);
 
-        strapi.log.info(
-          `[CheckoutReminder] Cron running at ${istNow.toLocaleTimeString("en-IN")}`
-        );
+                strapi.log.info(
+                    `[CheckoutReminder] Cron running at ${istNow.toLocaleTimeString("en-IN")}`
+                );
 
-        /* ================= TIME GATE ================= */
-        // Before 5:15 PM → do nothing
-        if (hours < 18 || (hours === 18 && minutes < 15)) return;
+                /* ================= TIME GATE ================= */
 
-        /* ================= ACTIVE ATTENDANCE ================= */
-        const attendances = await strapi.entityService.findMany(
-          "api::daily-attendance.daily-attendance",
-          {
-            filters: {
-              Date: today,
-              in: { $notNull: true },
-              out: { $null: true }, // ✅ ONLY valid check for time fields
-            },
-            populate: { user: true },
-          }
-        );
+                if (hours < 18 || (hours === 18 && minutes < 15)) return;
 
-        if (!attendances.length) return;
+                /* ================= ACTIVE ATTENDANCE ================= */
+                const attendances = await strapi.entityService.findMany(
+                    "api::daily-attendance.daily-attendance",
+                    {
+                        filters: {
+                            Date: today,
+                            in: { $notNull: true },
+                            out: { $null: true },
+                        },
+                        populate: { user: true },
+                    }
+                );
 
-        /* ================= HR USERS ================= */
-        const hrUsers = await strapi.entityService.findMany(
-          "plugin::users-permissions.user",
-          {
-            filters: {
-              role: { name: "Hr" },
-              user_type: "Hr",
-            },
-          }
-        );
+                if (!attendances.length) return;
 
-        const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
+                /* ================= HR USERS ================= */
+                const hrUsers = await strapi.entityService.findMany(
+                    "plugin::users-permissions.user",
+                    {
+                        filters: {
+                            role: { name: "Hr" },
+                            user_type: "Hr",
+                        },
+                    }
+                );
 
-        /* ================= SEND REMINDERS ================= */
-        for (const attendance of attendances) {
-          const lastReminder = attendance.last_checkout_reminder
-            ? new Date(attendance.last_checkout_reminder)
-            : null;
+                const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
 
-          // ⏱ 30-minute rule
-          if (
-            lastReminder &&
-            istNow.getTime() - lastReminder.getTime() < 30 * 60 * 1000
-          ) {
-            continue;
-          }
+                /* ================= SEND REMINDERS ================= */
+                for (const attendance of attendances) {
+                    const lastReminder = attendance.last_checkout_reminder
+                        ? new Date(attendance.last_checkout_reminder)
+                        : null;
 
-          const userEmail = attendance.user?.email;
-          if (!userEmail) continue;
+                    // ⏱ 30-minute rule
+                    if (
+                        lastReminder &&
+                        istNow.getTime() - lastReminder.getTime() < 30 * 60 * 1000
+                    ) {
+                        continue;
+                    }
 
-          await strapi.plugin("email").service("email").send({
-            to: userEmail,   // employee
-            cc: hrEmails,    // HR
-            subject: "Checkout Reminder – Working After Office Hours",
-            html: `<p>Dear <b>${attendance.user.username}</b></p>
+                    const userEmail = attendance.user?.email;
+                    if (!userEmail) continue;
+
+                    await strapi.plugin("email").service("email").send({
+                        to: userEmail,   // employee
+                        cc: hrEmails,    // HR
+                        subject: "Checkout Reminder – Working After Office Hours",
+                        html: `<p>Dear <b>${attendance.user.username}</b></p>
 
 <p>This is to inform you that your checkout has not been completed in the employee portal. <br/>
 Please complete the checkout at your convenience. </p>
 
 `,
-          });
+                    });
 
-          await strapi.entityService.update(
-            "api::daily-attendance.daily-attendance",
-            attendance.id,
-            {
-              data: {
-                last_checkout_reminder: istNow, // ✅ datetime (schema-correct)
-              },
+                    await strapi.entityService.update(
+                        "api::daily-attendance.daily-attendance",
+                        attendance.id,
+                        {
+                            data: {
+                                last_checkout_reminder: istNow,
+                            },
+                        }
+                    );
+
+                    strapi.log.info(
+                        `[CheckoutReminder] Reminder sent to ${attendance.user.username}`
+                    );
+                }
+            } catch (error) {
+                strapi.log.error("[CheckoutReminder] FAILED");
+                strapi.log.error(error);
             }
-          );
-
-          strapi.log.info(
-            `[CheckoutReminder] Reminder sent to ${attendance.user.username}`
-          );
-        }
-      } catch (error) {
-        strapi.log.error("[CheckoutReminder] FAILED");
-        strapi.log.error(error);
-      }
+        },
+        options: {
+            rule: "*/15 * * * *",
+            tz: "Asia/Kolkata",
+        },
     },
-    options: {
-      rule: "*/15 * * * *",
-      tz: "Asia/Kolkata",
-    },
-  },
 
 
 }

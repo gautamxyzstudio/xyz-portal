@@ -183,188 +183,385 @@ export default {
      -----------------------------------------------------
       Attendance is created ONLY when user checks in
   ===================================================== */
+  // async checkIn(ctx) {
+  //   try {
+  //     const userId = ctx.state.user?.id;
+  //     if (!userId) return ctx.unauthorized('Login required');
+
+  //     const { date, in: inTimeRaw } = ctx.request.body.data || {};
+  //     if (!inTimeRaw) return ctx.badRequest('Check-in time is required');
+
+  //     // ⏱ Normalize time (HH:mm:ss.SSS)
+  //     const inTime =
+  //       inTimeRaw.length === 5 ? `${inTimeRaw}:00.000` : inTimeRaw;
+
+  //     // ⛔ Block early check-in (before 08:40 AM)
+  //     const [hours, minutes] = inTime.split(':').map(Number);
+  //     if (hours * 60 + minutes < 8 * 60 + 40) {
+  //       return ctx.badRequest('Check-in allowed only after 8:40 AM');
+  //     }
+
+  //     // 👤 Fetch user
+  //     const user = await strapi.entityService.findOne(
+  //       'plugin::users-permissions.user',
+  //       userId
+  //     );
+
+  //     // 🚫 Admin / HR excluded
+  //     if (user.user_type === 'Admin' || user.user_type === 'Hr') {
+  //       return ctx.badRequest('Attendance not required for Admin/HR');
+  //     }
+
+  //     const today = date || getISTDate();
+
+  //     // 🔍 Check if attendance already exists for today
+  //     const existing = await strapi.entityService.findMany(
+  //       'api::daily-attendance.daily-attendance',
+  //       {
+  //         filters: {
+  //           user: userId,
+  //           Date: today,
+  //         },
+  //         limit: 1,
+  //       }
+  //     );
+
+  //     // 🚫 BLOCK second check-in
+  //     if (existing.length && existing[0].in) {
+  //       return ctx.badRequest('You have already checked in for today');
+  //     }
+
+  //     // 🆕 Create attendance (only once)
+  //     const attendance = await strapi.entityService.create(
+  //       'api::daily-attendance.daily-attendance',
+  //       {
+  //         data: {
+  //           user: userId,
+  //           Date: today,
+  //           in: inTime,
+  //           out: null,
+  //           status: 'present',
+  //           publishedAt: new Date(),
+  //         },
+  //       }
+  //     );
+
+  //     ctx.body = attendance;
+  //   } catch (error) {
+  //     strapi.log.error('Check-in failed:', error);
+  //     ctx.throw(500, 'Check-in failed');
+  //   }
+  // },
+
   async checkIn(ctx) {
-    try {
-      const userId = ctx.state.user?.id;
-      if (!userId) return ctx.unauthorized('Login required');
+  try {
+    const userId = ctx.state.user?.id;
+    if (!userId) return ctx.unauthorized('Login required');
 
-      const { date, in: inTimeRaw } = ctx.request.body.data || {};
-      if (!inTimeRaw) return ctx.badRequest('Check-in time is required');
+    const { date, in: inTimeRaw } = ctx.request.body.data || {};
+    if (!inTimeRaw) return ctx.badRequest('Check-in time is required');
 
-      // ⏱ Normalize time (HH:mm:ss.SSS)
-      const inTime =
-        inTimeRaw.length === 5 ? `${inTimeRaw}:00.000` : inTimeRaw;
+    // ⏱ Normalize time (HH:mm:ss.SSS)
+    const inTime =
+      inTimeRaw.length === 5 ? `${inTimeRaw}:00.000` : inTimeRaw;
 
-      // ⛔ Block early check-in (before 08:40 AM)
-      const [hours, minutes] = inTime.split(':').map(Number);
-      if (hours * 60 + minutes < 8 * 60 + 40) {
-        return ctx.badRequest('Check-in allowed only after 8:40 AM');
-      }
-
-      // 👤 Fetch user
-      const user = await strapi.entityService.findOne(
-        'plugin::users-permissions.user',
-        userId
-      );
-
-      // 🚫 Admin / HR excluded
-      if (user.user_type === 'Admin' || user.user_type === 'Hr') {
-        return ctx.badRequest('Attendance not required for Admin/HR');
-      }
-
-      const today = date || getISTDate();
-
-      // 🔍 Check if attendance already exists for today
-      const existing = await strapi.entityService.findMany(
-        'api::daily-attendance.daily-attendance',
-        {
-          filters: {
-            user: userId,
-            Date: today,
-          },
-          limit: 1,
-        }
-      );
-
-      // 🚫 BLOCK second check-in
-      if (existing.length && existing[0].in) {
-        return ctx.badRequest('You have already checked in for today');
-      }
-
-      // 🆕 Create attendance (only once)
-      const attendance = await strapi.entityService.create(
-        'api::daily-attendance.daily-attendance',
-        {
-          data: {
-            user: userId,
-            Date: today,
-            in: inTime,
-            out: null,
-            status: 'present',
-            publishedAt: new Date(),
-          },
-        }
-      );
-
-      ctx.body = attendance;
-    } catch (error) {
-      strapi.log.error('Check-in failed:', error);
-      ctx.throw(500, 'Check-in failed');
+    // ⛔ Block early check-in (before 08:40 AM)
+    const [hours, minutes] = inTime.split(':').map(Number);
+    if (hours * 60 + minutes < 8 * 60 + 40) {
+      return ctx.badRequest('Check-in allowed only after 8:40 AM');
     }
-  },
+
+    // 👤 Fetch user
+    const user = await strapi.entityService.findOne(
+      'plugin::users-permissions.user',
+      userId
+    );
+
+    // 🚫 Admin / HR excluded
+    if (user.user_type === 'Admin' || user.user_type === 'Hr') {
+      return ctx.badRequest('Attendance not required for Admin/HR');
+    }
+
+    const today = date || getISTDate();
+
+    // 🔍 Check if attendance already exists for today
+    const existing = await strapi.entityService.findMany(
+      'api::daily-attendance.daily-attendance',
+      {
+        filters: {
+          user: userId,
+          Date: today,
+        },
+        limit: 1,
+      }
+    );
+
+    // 🚫 BLOCK second check-in
+    if (existing.length && existing[0].in) {
+      return ctx.badRequest('You have already checked in for today');
+    }
+
+    // 🆕 Create attendance (only once)
+    const attendance = await strapi.entityService.create(
+      'api::daily-attendance.daily-attendance',
+      {
+        data: {
+          user: userId,
+          Date: today,
+          in: inTime,
+          out: null,
+          status: 'present',
+
+          /* ===========================
+             🆕 TIMER FIELDS (FIXED)
+             - ISO string avoids TS red line
+          =========================== */
+          checkin_started_at: new Date().toISOString(), // ✅ FIXED
+          is_checked_in: true,
+
+          publishedAt: new Date(),
+        },
+      }
+    );
+
+    ctx.body = attendance;
+  } catch (error) {
+    strapi.log.error('Check-in failed:', error);
+    ctx.throw(500, 'Check-in failed');
+  }
+},
+
 
   /* =====================================================
      ⏹ CHECK-OUT  
   ==================================================== */
+  // async checkOut(ctx) {
+  //   try {
+  //     const userId = ctx.state.user?.id;
+  //     if (!userId) return ctx.unauthorized("Login required");
+
+  //     const { out: outTimeRaw } = ctx.request.body?.data || {};
+  //     if (!outTimeRaw) return ctx.badRequest("Checkout time required");
+
+  //     const outTime =
+  //       outTimeRaw.length === 5 ? `${outTimeRaw}:00.000` : outTimeRaw;
+
+  //     /* ================= IST DATE & TIME ================= */
+  //     const istNow = new Date(
+  //       new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  //     );
+
+  //     const today = istNow.toISOString().slice(0, 10);
+
+  //     /* ================= ATTENDANCE ================= */
+  //     const records = await strapi.entityService.findMany(
+  //       "api::daily-attendance.daily-attendance",
+  //       {
+  //         filters: { user: userId, Date: today },
+  //         limit: 1,
+  //       }
+  //     );
+
+  //     if (!records.length) {
+  //       return ctx.badRequest("No check-in found for today");
+  //     }
+
+  //     const attendance = records[0];
+
+  //     if (!attendance.in) {
+  //       return ctx.badRequest("User has not checked in");
+  //     }
+
+  //     if (
+  //       attendance.out &&
+  //       attendance.out !== "" &&
+  //       attendance.out !== "00:00:00"
+  //     ) {
+  //       return ctx.badRequest("Already checked out");
+  //     }
+
+  //     /* ================= STOP TASK TIMERS ================= */
+  //     const workLogs = await strapi.entityService.findMany(
+  //       "api::work-log.work-log",
+  //       {
+  //         filters: {
+  //           user: userId,
+  //           work_date: today,
+  //         },
+  //         limit: 1,
+  //       }
+  //     );
+
+  //     if (workLogs.length) {
+  //       const workLog = workLogs[0];
+  //       const tasks = (workLog.tasks || []) as any[];
+
+  //       let totalTimeTaken = 0;
+
+  //       for (const task of tasks) {
+  //         if (task.is_running && task.last_started_at) {
+  //           const elapsed = Math.floor(
+  //             (istNow.getTime() -
+  //               new Date(task.last_started_at).getTime()) / 1000
+  //           );
+
+  //           task.time_spent = (task.time_spent || 0) + elapsed;
+  //           task.is_running = false;
+  //           task.last_started_at = null;
+  //         }
+
+  //         totalTimeTaken += task.time_spent || 0;
+  //       }
+
+  //       await strapi.entityService.update(
+  //         "api::work-log.work-log",
+  //         workLog.id,
+  //         {
+  //           data: {
+  //             tasks,
+  //             active_task_id: null,
+  //             total_time_taken: totalTimeTaken,
+  //           },
+  //         }
+  //       );
+  //     }
+
+  //     /* ================= UPDATE ATTENDANCE ================= */
+  //     const updatedAttendance = await strapi.entityService.update(
+  //       "api::daily-attendance.daily-attendance",
+  //       attendance.id,
+  //       {
+  //         data: {
+  //           out: outTime,
+  //           last_checkout_reminder: null,
+  //         },
+  //       }
+  //     );
+
+  //     ctx.body = updatedAttendance;
+  //   } catch (error) {
+  //     strapi.log.error("Checkout failed:", error);
+  //     ctx.throw(500, "Checkout failed");
+  //   }
+  // },
+
   async checkOut(ctx) {
-    try {
-      const userId = ctx.state.user?.id;
-      if (!userId) return ctx.unauthorized("Login required");
+  try {
+    const userId = ctx.state.user?.id;
+    if (!userId) return ctx.unauthorized("Login required");
 
-      const { out: outTimeRaw } = ctx.request.body?.data || {};
-      if (!outTimeRaw) return ctx.badRequest("Checkout time required");
+    const { out: outTimeRaw } = ctx.request.body?.data || {};
+    if (!outTimeRaw) return ctx.badRequest("Checkout time required");
 
-      const outTime =
-        outTimeRaw.length === 5 ? `${outTimeRaw}:00.000` : outTimeRaw;
+    const outTime =
+      outTimeRaw.length === 5 ? `${outTimeRaw}:00.000` : outTimeRaw;
 
-      /* ================= IST DATE & TIME ================= */
-      const istNow = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-      );
+    /* ================= IST DATE & TIME ================= */
+    const istNow = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+    );
 
-      const today = istNow.toISOString().slice(0, 10);
+    const today = istNow.toISOString().slice(0, 10);
 
-      /* ================= ATTENDANCE ================= */
-      const records = await strapi.entityService.findMany(
-        "api::daily-attendance.daily-attendance",
-        {
-          filters: { user: userId, Date: today },
-          limit: 1,
+    /* ================= ATTENDANCE ================= */
+    const records = await strapi.entityService.findMany(
+      "api::daily-attendance.daily-attendance",
+      {
+        filters: { user: userId, Date: today },
+        limit: 1,
+      }
+    );
+
+    if (!records.length) {
+      return ctx.badRequest("No check-in found for today");
+    }
+
+    const attendance = records[0];
+
+    if (!attendance.in) {
+      return ctx.badRequest("User has not checked in");
+    }
+
+    if (
+      attendance.out &&
+      attendance.out !== "" &&
+      attendance.out !== "00:00:00"
+    ) {
+      return ctx.badRequest("Already checked out");
+    }
+
+    /* ================= STOP TASK TIMERS ================= */
+    // ❗ UNCHANGED
+    const workLogs = await strapi.entityService.findMany(
+      "api::work-log.work-log",
+      {
+        filters: {
+          user: userId,
+          work_date: today,
+        },
+        limit: 1,
+      }
+    );
+
+    if (workLogs.length) {
+      const workLog = workLogs[0];
+      const tasks = (workLog.tasks || []) as any[];
+
+      let totalTimeTaken = 0;
+
+      for (const task of tasks) {
+        if (task.is_running && task.last_started_at) {
+          const elapsed = Math.floor(
+            (istNow.getTime() -
+              new Date(task.last_started_at).getTime()) / 1000
+          );
+
+          task.time_spent = (task.time_spent || 0) + elapsed;
+          task.is_running = false;
+          task.last_started_at = null;
         }
-      );
 
-      if (!records.length) {
-        return ctx.badRequest("No check-in found for today");
+        totalTimeTaken += task.time_spent || 0;
       }
 
-      const attendance = records[0];
-
-      if (!attendance.in) {
-        return ctx.badRequest("User has not checked in");
-      }
-
-      if (
-        attendance.out &&
-        attendance.out !== "" &&
-        attendance.out !== "00:00:00"
-      ) {
-        return ctx.badRequest("Already checked out");
-      }
-
-      /* ================= STOP TASK TIMERS ================= */
-      const workLogs = await strapi.entityService.findMany(
+      await strapi.entityService.update(
         "api::work-log.work-log",
-        {
-          filters: {
-            user: userId,
-            work_date: today,
-          },
-          limit: 1,
-        }
-      );
-
-      if (workLogs.length) {
-        const workLog = workLogs[0];
-        const tasks = (workLog.tasks || []) as any[];
-
-        let totalTimeTaken = 0;
-
-        for (const task of tasks) {
-          if (task.is_running && task.last_started_at) {
-            const elapsed = Math.floor(
-              (istNow.getTime() -
-                new Date(task.last_started_at).getTime()) / 1000
-            );
-
-            task.time_spent = (task.time_spent || 0) + elapsed;
-            task.is_running = false;
-            task.last_started_at = null;
-          }
-
-          totalTimeTaken += task.time_spent || 0;
-        }
-
-        await strapi.entityService.update(
-          "api::work-log.work-log",
-          workLog.id,
-          {
-            data: {
-              tasks,
-              active_task_id: null,
-              total_time_taken: totalTimeTaken,
-            },
-          }
-        );
-      }
-
-      /* ================= UPDATE ATTENDANCE ================= */
-      const updatedAttendance = await strapi.entityService.update(
-        "api::daily-attendance.daily-attendance",
-        attendance.id,
+        workLog.id,
         {
           data: {
-            out: outTime,
-            last_checkout_reminder: null,
+            tasks,
+            active_task_id: null,
+            total_time_taken: totalTimeTaken,
           },
         }
       );
-
-      ctx.body = updatedAttendance;
-    } catch (error) {
-      strapi.log.error("Checkout failed:", error);
-      ctx.throw(500, "Checkout failed");
     }
-  },
+
+    /* ================= UPDATE ATTENDANCE ================= */
+    const updatedAttendance = await strapi.entityService.update(
+      "api::daily-attendance.daily-attendance",
+      attendance.id,
+      {
+        data: {
+          out: outTime,
+          last_checkout_reminder: null,
+
+          /* ===========================
+             🆕 TIMER FIELDS (FIXED)
+          =========================== */
+          checkin_started_at: null,
+          is_checked_in: false,
+        },
+      }
+    );
+
+    ctx.body = updatedAttendance;
+  } catch (error) {
+    strapi.log.error("Checkout failed:", error);
+    ctx.throw(500, "Checkout failed");
+  }
+},
+
 
   /* =====================================================
      🚫 MANUAL UPDATE (DISABLED)

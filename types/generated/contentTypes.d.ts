@@ -920,6 +920,9 @@ export interface ApiDailyAttendanceDailyAttendance
       'plugin::users-permissions.user'
     >;
     last_checkout_reminder: Attribute.DateTime;
+    checkin_started_at: Attribute.DateTime;
+    is_checked_in: Attribute.Boolean & Attribute.DefaultTo<false>;
+    last_paused_at: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-09T14:17:44.036Z"
+    "x-generation-date": "2026-01-12T12:32:06.409Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1350,6 +1350,17 @@
               "last_checkout_reminder": {
                 "type": "string",
                 "format": "date-time"
+              },
+              "checkin_started_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "is_checked_in": {
+                "type": "boolean"
+              },
+              "last_paused_at": {
+                "type": "string",
+                "format": "date-time"
               }
             }
           }
@@ -2538,6 +2549,17 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -3395,6 +3417,17 @@
             }
           },
           "last_checkout_reminder": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checkin_started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_checked_in": {
+            "type": "boolean"
+          },
+          "last_paused_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -4728,6 +4761,17 @@
                                                     }
                                                   },
                                                   "last_checkout_reminder": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                  },
+                                                  "checkin_started_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                  },
+                                                  "is_checked_in": {
+                                                    "type": "boolean"
+                                                  },
+                                                  "last_paused_at": {
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
@@ -7065,6 +7109,17 @@
                                       }
                                     },
                                     "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
                                       "type": "string",
                                       "format": "date-time"
                                     },
@@ -9830,6 +9885,17 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -12097,6 +12163,17 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -14287,6 +14364,17 @@
                                         }
                                       },
                                       "last_checkout_reminder": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "checkin_started_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "is_checked_in": {
+                                        "type": "boolean"
+                                      },
+                                      "last_paused_at": {
                                         "type": "string",
                                         "format": "date-time"
                                       },
@@ -16598,6 +16686,17 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -18785,6 +18884,17 @@
                                       }
                                     },
                                     "last_checkout_reminder": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "checkin_started_at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "is_checked_in": {
+                                      "type": "boolean"
+                                    },
+                                    "last_paused_at": {
                                       "type": "string",
                                       "format": "date-time"
                                     },

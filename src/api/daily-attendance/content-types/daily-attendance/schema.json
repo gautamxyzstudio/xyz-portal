@@ -44,6 +44,17 @@
     },
     "last_checkout_reminder": {
       "type": "datetime"
+    },
+     "checkin_started_at": {
+      "type": "datetime"
+    },
+    "is_checked_in": {
+      "type": "boolean",
+      "default": false
+    },
+    "last_paused_at": {
+      "type": "datetime"
     }
+
   }
 }

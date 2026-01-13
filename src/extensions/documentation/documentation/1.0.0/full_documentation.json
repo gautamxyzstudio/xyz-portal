@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-13T06:32:29.705Z"
+    "x-generation-date": "2026-01-13T10:35:23.730Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1361,6 +1361,9 @@
               "last_paused_at": {
                 "type": "string",
                 "format": "date-time"
+              },
+              "attendance_seconds": {
+                "type": "integer"
               }
             }
           }
@@ -2560,6 +2563,9 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "attendance_seconds": {
+                                      "type": "integer"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -3430,6 +3436,9 @@
           "last_paused_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "attendance_seconds": {
+            "type": "integer"
           },
           "createdAt": {
             "type": "string",
@@ -4774,6 +4783,9 @@
                                                   "last_paused_at": {
                                                     "type": "string",
                                                     "format": "date-time"
+                                                  },
+                                                  "attendance_seconds": {
+                                                    "type": "integer"
                                                   },
                                                   "createdAt": {
                                                     "type": "string",
@@ -7122,6 +7134,9 @@
                                     "last_paused_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "attendance_seconds": {
+                                      "type": "integer"
                                     },
                                     "createdAt": {
                                       "type": "string",
@@ -9896,6 +9911,9 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "attendance_seconds": {
+                                      "type": "integer"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -12174,6 +12192,9 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "attendance_seconds": {
+                                      "type": "integer"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -14377,6 +14398,9 @@
                                       "last_paused_at": {
                                         "type": "string",
                                         "format": "date-time"
+                                      },
+                                      "attendance_seconds": {
+                                        "type": "integer"
                                       },
                                       "createdAt": {
                                         "type": "string",
@@ -16697,6 +16721,9 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "attendance_seconds": {
+                                      "type": "integer"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -18897,6 +18924,9 @@
                                     "last_paused_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "attendance_seconds": {
+                                      "type": "integer"
                                     },
                                     "createdAt": {
                                       "type": "string",

@@ -54,7 +54,11 @@
     },
     "last_paused_at": {
       "type": "datetime"
-    }
+    },
+    "attendance_seconds": {
+  "type": "integer",
+  "default": 0
+}
 
   }
 }

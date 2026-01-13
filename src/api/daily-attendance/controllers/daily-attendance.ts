@@ -194,64 +194,95 @@ export default {
      -----------------------------------------------------
       Attendance is created ONLY when user checks in
   ===================================================== */
-  async checkIn(ctx) {
+async checkIn(ctx) {
   try {
     const userId = ctx.state.user?.id;
     if (!userId) return ctx.unauthorized("Login required");
 
-    /* ================= SAFE BODY PARSING ================= */
     const body = ctx.request.body?.data || ctx.request.body || {};
-    const { date, in: inTimeRaw } = body as { date?: string; in?: string };
+    const { date, in: inTimeRaw } = body;
 
-    if (!inTimeRaw) return ctx.badRequest("Check-in time is required");
+    const today = date || getISTDate();
 
-    /* ================= TIME NORMALIZATION ================= */
+    /* ================= EXISTING ATTENDANCE FIRST ================= */
+    const existing = await strapi.entityService.findMany(
+      "api::daily-attendance.daily-attendance",
+      {
+        filters: { user: userId, Date: today },
+        limit: 1,
+      }
+    );
+
+    /* =====================================================
+       🔁 RESUME AFTER LUNCH / PAUSE (DO NOT REQUIRE `in`)
+    ===================================================== */
+    if (existing.length) {
+      const record = existing[0];
+
+      if (record.out) {
+        return ctx.badRequest("You have already checked out for today");
+      }
+
+      if (!record.is_checked_in) {
+        const istNow = getISTNow();
+        if (isLunchBreak(istNow)) {
+          return ctx.badRequest(
+            "Lunch break (1:00–2:00 PM). You can join after 2:00 PM."
+          );
+        }
+
+        const resumed = await strapi.entityService.update(
+          "api::daily-attendance.daily-attendance",
+          record.id,
+          {
+            data: {
+              checkin_started_at: new Date().toISOString(),
+              is_checked_in: true,
+            },
+          }
+        );
+
+        ctx.body = resumed;
+        return;
+      }
+
+      return ctx.badRequest("You are already checked in");
+    }
+
+    /* ================= FIRST CHECK-IN ONLY ================= */
+
+    if (!inTimeRaw) {
+      return ctx.badRequest("Check-in time is required");
+    }
+
     const inTime =
       typeof inTimeRaw === "string" && inTimeRaw.length === 5
         ? `${inTimeRaw}:00`
         : inTimeRaw;
 
-    /* ================= EARLY CHECK-IN BLOCK ================= */
     const [hours, minutes] = inTime.split(":").map(Number);
     if (hours * 60 + minutes < 8 * 60 + 40) {
       return ctx.badRequest("Check-in allowed only after 8:40 AM");
     }
 
-    /* ================= USER FETCH ================= */
     const user = await strapi.entityService.findOne(
       "plugin::users-permissions.user",
       userId
     );
 
-    /* ================= ADMIN / HR BLOCK ================= */
-    if (user.user_type === "Admin" || user.user_type === "Hr") {
+    if (["Admin", "Hr"].includes(user.user_type)) {
       return ctx.badRequest("Attendance not required for Admin/HR");
     }
 
-    /* ================= LUNCH BREAK BLOCK ================= */
-    const istNow = getISTNow();
-    if (isLunchBreak(istNow)) {
-      return ctx.badRequest(
-        "You cannot resume timer between 1:00 PM and 2:00 PM (Lunch Break)"
-      );
-    }
-
-    const today = date || getISTDate();
-
-    /* =====================================================
-       🚫 BLOCK CHECK-IN IF USER IS ON APPROVED LEAVE
-       (TS-safe cast for Strapi UID)
-    ===================================================== */
+    /* ================= LEAVE CHECK (ONLY FOR FIRST CHECK-IN) ================= */
     const approvedLeave = await strapi.entityService.findMany(
-      "api::leave.leave" as any,
+      "api::leave-status.leave-status",
       {
         filters: {
           user: userId,
-          approval_status: "approved",
-          $or: [
-            { from_date: { $lte: today }, to_date: { $gte: today } },
-            { date: today }, // single-day leave
-          ],
+          status: "approved",
+          start_date: { $lte: today },
+          end_date: { $gte: today },
         },
         limit: 1,
       }
@@ -263,20 +294,6 @@ export default {
       );
     }
 
-    /* ================= EXISTING ATTENDANCE CHECK ================= */
-    const existing = await strapi.entityService.findMany(
-      "api::daily-attendance.daily-attendance",
-      {
-        filters: { user: userId, Date: today },
-        limit: 1,
-      }
-    );
-
-    if (existing.length && existing[0].in) {
-      return ctx.badRequest("You have already checked in for today");
-    }
-
-    /* ================= CREATE ATTENDANCE ================= */
     const attendance = await strapi.entityService.create(
       "api::daily-attendance.daily-attendance",
       {
@@ -286,6 +303,7 @@ export default {
           in: inTime,
           out: null,
           status: "present",
+          attendance_seconds: 0,
           checkin_started_at: new Date().toISOString(),
           is_checked_in: true,
           publishedAt: new Date(),
@@ -314,7 +332,7 @@ async checkOut(ctx) {
 
     if (!outTimeRaw) return ctx.badRequest("Checkout time required");
 
-    // ✅ FIXED: HH:mm:ss 
+    // HH:mm:ss 
     const outTime =
       typeof outTimeRaw === "string" && outTimeRaw.length === 5
         ? `${outTimeRaw}:00`
@@ -346,11 +364,7 @@ async checkOut(ctx) {
       return ctx.badRequest("User has not checked in");
     }
 
-    if (
-      attendance.out &&
-      attendance.out !== "" &&
-      attendance.out !== "00:00:00"
-    ) {
+    if (attendance.out) {
       return ctx.badRequest("Already checked out");
     }
 
@@ -365,6 +379,8 @@ async checkOut(ctx) {
 
     if (workLogs.length) {
       const workLog = workLogs[0];
+
+      
       const tasks = (workLog.tasks || []) as any[];
 
       let totalTimeTaken = 0;
@@ -397,6 +413,17 @@ async checkOut(ctx) {
       );
     }
 
+    /* ================= ACCUMULATE ATTENDANCE TIME ================= */
+    let attendanceSeconds = attendance.attendance_seconds || 0;
+
+    if (attendance.is_checked_in && attendance.checkin_started_at) {
+      const elapsed = Math.floor(
+        (istNow.getTime() -
+          new Date(attendance.checkin_started_at).getTime()) / 1000
+      );
+      attendanceSeconds += elapsed;
+    }
+
     /* ================= UPDATE ATTENDANCE ================= */
     const updatedAttendance = await strapi.entityService.update(
       "api::daily-attendance.daily-attendance",
@@ -404,6 +431,7 @@ async checkOut(ctx) {
       {
         data: {
           out: outTime,
+          attendance_seconds: attendanceSeconds,
           last_checkout_reminder: null,
           checkin_started_at: null,
           is_checked_in: false,
@@ -418,72 +446,73 @@ async checkOut(ctx) {
   }
 },
 
+
   /* =====================================================
      MANUAL ATTENDENCE UPDATE
   ===================================================== */
-async updateAttendance(ctx) {
-  try {
-    const loggedInUser = ctx.state.user;
+  async updateAttendance(ctx) {
+    try {
+      const loggedInUser = ctx.state.user;
 
-    if (!loggedInUser) {
-      return ctx.unauthorized("Login required");
-    }
-
-    // 👤 Fetch logged-in user
-    const user = await strapi.entityService.findOne(
-      "plugin::users-permissions.user",
-      loggedInUser.id
-    );
-
-    // ✅ Allow Admin + HR only
-    if (!["Admin", "Hr"].includes(user.user_type)) {
-      return ctx.forbidden(
-        "Manual attendance update is allowed only for Admin or HR"
-      );
-    }
-
-    const { id } = ctx.params;
-
-    // 🔧 Support both wrapped & direct payload
-    let data = ctx.request.body?.data || ctx.request.body;
-
-    // 🛡 Ensure payload is an object
-    if (typeof data === "string") {
-      try {
-        data = JSON.parse(data);
-      } catch {
-        return ctx.badRequest("Invalid JSON payload");
+      if (!loggedInUser) {
+        return ctx.unauthorized("Login required");
       }
+
+      // 👤 Fetch logged-in user
+      const user = await strapi.entityService.findOne(
+        "plugin::users-permissions.user",
+        loggedInUser.id
+      );
+
+      // ✅ Allow Admin + HR only
+      if (!["Admin", "Hr"].includes(user.user_type)) {
+        return ctx.forbidden(
+          "Manual attendance update is allowed only for Admin or HR"
+        );
+      }
+
+      const { id } = ctx.params;
+
+      // 🔧 Support both wrapped & direct payload
+      let data = ctx.request.body?.data || ctx.request.body;
+
+      // 🛡 Ensure payload is an object
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return ctx.badRequest("Invalid JSON payload");
+        }
+      }
+
+      if (!id || !data || Object.keys(data).length === 0) {
+        return ctx.badRequest("Attendance ID and update data are required");
+      }
+
+      /* =================================================
+         ⏱ NORMALIZE TIME FIELDS (CRITICAL FIX)
+         Strapi time fields require HH:mm:ss
+      ================================================= */
+      if (data.in && typeof data.in === "string" && data.in.length === 5) {
+        data.in = `${data.in}:00`;
+      }
+
+      if (data.out && typeof data.out === "string" && data.out.length === 5) {
+        data.out = `${data.out}:00`;
+      }
+
+      // ✅ Update attendance
+      const updatedAttendance = await strapi.entityService.update(
+        "api::daily-attendance.daily-attendance",
+        id,
+        { data }
+      );
+
+      ctx.body = updatedAttendance;
+    } catch (error) {
+      strapi.log.error("Admin/HR attendance update failed:", error);
+      ctx.throw(500, "Failed to update attendance");
     }
-
-    if (!id || !data || Object.keys(data).length === 0) {
-      return ctx.badRequest("Attendance ID and update data are required");
-    }
-
-    /* =================================================
-       ⏱ NORMALIZE TIME FIELDS (CRITICAL FIX)
-       Strapi time fields require HH:mm:ss
-    ================================================= */
-    if (data.in && typeof data.in === "string" && data.in.length === 5) {
-      data.in = `${data.in}:00`;
-    }
-
-    if (data.out && typeof data.out === "string" && data.out.length === 5) {
-      data.out = `${data.out}:00`;
-    }
-
-    // ✅ Update attendance
-    const updatedAttendance = await strapi.entityService.update(
-      "api::daily-attendance.daily-attendance",
-      id,
-      { data }
-    );
-
-    ctx.body = updatedAttendance;
-  } catch (error) {
-    strapi.log.error("Admin/HR attendance update failed:", error);
-    ctx.throw(500, "Failed to update attendance");
   }
-}
 
 };

@@ -403,72 +403,120 @@ module.exports = {
     /* =================================
          LUNCH TIME AUTO-PAUSE TASKS
       ========================================== */
-    lunchAutoPause: {
-        task: async ({ strapi }) => {
-            try {
-                /* ===== IST TIME ===== */
-                const now = new Date(
-                    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-                );
+  lunchAutoPause: {
+  task: async ({ strapi }) => {
+    try {
+      /* ===== IST TIME ===== */
+      const now = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+      );
 
-                const hour = now.getHours();
+      const hour = now.getHours();
 
-                if (hour < 13 || hour >= 14) return;
+      // ⏸ Only between 1:00 PM and 1:59 PM
+      if (hour < 13 || hour >= 14) return;
 
-                const today = now.toISOString().slice(0, 10);
+      const today = now.toISOString().slice(0, 10);
 
-                /* ===== FETCH TODAY WORK LOGS ===== */
-                const workLogs = await strapi.entityService.findMany(
-                    "api::work-log.work-log",
-                    {
-                        filters: { work_date: today },
-                        populate: { user: true },
-                        limit: -1,
-                    }
-                );
+      // 🔵 START LOG
+      strapi.log.info(
+        `🕐 [Lunch AutoPause] Started at ${now.toLocaleTimeString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        })}`
+      );
 
-                for (const log of workLogs) {
-                    let changed = false;
+      /* =====================================================
+         🧩 PAUSE TASK TIMERS
+      ===================================================== */
+      const workLogs = await strapi.entityService.findMany(
+        "api::work-log.work-log",
+        {
+          filters: { work_date: today },
+          populate: { user: true },
+          limit: -1,
+        }
+      );
 
-                    for (const task of log.tasks || []) {
-                        if (task.is_running && task.last_started_at) {
-                            const elapsed = Math.floor(
-                                (now.getTime() -
-                                    new Date(task.last_started_at).getTime()) /
-                                1000
-                            );
+      let pausedTasksCount = 0;
 
-                            task.time_spent = (task.time_spent || 0) + elapsed;
-                            task.is_running = false;
-                            task.last_started_at = null;
-                            changed = true;
-                        }
-                    }
+      for (const log of workLogs) {
+        let changed = false;
 
-                    if (changed) {
-                        await strapi.entityService.update(
-                            "api::work-log.work-log",
-                            log.id,
-                            {
-                                data: {
-                                    tasks: log.tasks,
-                                    active_task_id: null,
-                                },
-                            }
-                        );
-                    }
-                }
+        for (const task of log.tasks || []) {
+          if (task.is_running && task.last_started_at) {
+            const elapsed = Math.floor(
+              (now.getTime() - new Date(task.last_started_at).getTime()) / 1000
+            );
 
-                console.log("✅ Lunch auto-pause executed");
-            } catch (err) {
-                console.error("❌ Lunch auto-pause failed", err);
+            task.time_spent = (task.time_spent || 0) + elapsed;
+            task.is_running = false;
+            task.last_started_at = null;
+            changed = true;
+            pausedTasksCount++;
+          }
+        }
+
+        if (changed) {
+          await strapi.entityService.update(
+            "api::work-log.work-log",
+            log.id,
+            {
+              data: {
+                tasks: log.tasks,
+                active_task_id: null,
+              },
             }
-        },
-        options: {
-            rule: "*/5 * * * *",
-            tz: 'Asia/Kolkata',
-        },
-    },
+          );
+        }
+      }
+
+      /* =====================================================
+         🆕 PAUSE CHECK-IN TIMER
+      ===================================================== */
+      const runningAttendances =
+        await strapi.entityService.findMany(
+          "api::daily-attendance.daily-attendance",
+          {
+            filters: {
+              Date: today,
+              is_checked_in: true,
+              checkin_started_at: { $notNull: true },
+            },
+            limit: -1,
+          }
+        );
+
+      let pausedCheckinsCount = 0;
+
+      for (const attendance of runningAttendances) {
+        await strapi.entityService.update(
+          "api::daily-attendance.daily-attendance",
+          attendance.id,
+          {
+            data: {
+              checkin_started_at: null,
+              is_checked_in: false,
+              last_paused_at: now.toISOString(),
+            },
+          }
+        );
+        pausedCheckinsCount++;
+      }
+
+      // 🟢 SUCCESS LOG
+      strapi.log.info(
+        `✅ [Lunch AutoPause] Completed | Tasks paused: ${pausedTasksCount} | Check-ins paused: ${pausedCheckinsCount}`
+      );
+    } catch (err) {
+      // 🔴 ERROR LOG
+      strapi.log.error("❌ [Lunch AutoPause] Failed", err);
+    }
+  },
+  options: {
+    rule: "*/5 * * * *",
+    tz: "Asia/Kolkata",
+  },
+},
 
     /* ======================================
        CHECKOUT REMINDER 

@@ -688,6 +688,13 @@ STAY CONNECTED
     subject,
     html,
   });
+
+return ctx.send({
+  success: true,
+  message: "Leave updated successfully",
+  data: updatedLeave,
+});
+
 }
 
   },

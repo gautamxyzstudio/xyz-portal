@@ -1,346 +1,228 @@
 module.exports = {
-
-    /* =========================================================
-       🕕 DAILY ATTENDANCE 
-    ========================================================= */
-    markAbsentUsers: {
-        task: async ({ strapi }) => {
-            try {
-                const getISTDate = () => {
-                    return new Date(
-                        new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
-                    )
-                        .toISOString()
-                        .slice(0, 10);
-                };
-
-                const today = getISTDate();
-
-                const users = await strapi.entityService.findMany(
-                    'plugin::users-permissions.user',
-                    {
-                        filters: {
-                            user_type: { $notIn: ['Admin', 'Hr'] },
-                            blocked: false,
-                        },
-                        fields: ['id'],
-                    }
-                );
-
-                for (const user of users) {
-                    const existingAttendance = await strapi.entityService.findMany(
-                        'api::daily-attendance.daily-attendance',
-                        {
-                            filters: { user: user.id, Date: today },
-                            limit: 1,
-                        }
-                    );
-
-                    if (existingAttendance.length) continue;
-
-                    const leave = await strapi.entityService.findMany(
-                        'api::leave-status.leave-status',
-                        {
-                            filters: {
-                                user: user.id,
-                                status: 'approved',
-                                start_date: { $lte: today },
-                                end_date: { $gte: today },
-                            },
-                            limit: 1,
-                        }
-                    );
-
-                    if (leave.length) continue;
-
-                    await strapi.entityService.create(
-                        'api::daily-attendance.daily-attendance',
-                        {
-                            data: {
-                                user: user.id,
-                                Date: today,
-                                status: 'absent',
-                                out: '00:00:00.000',
-                                publishedAt: new Date(),
-                            },
-                        }
-                    );
-                }
-            } catch (error) {
-                strapi.log.error('❌ markAbsentUsers cron failed:', error);
-            }
-        },
-        options: {
-            rule: '0 22 * * *',
-            tz: 'Asia/Kolkata',
-        },
-    },
-
     /* =========================================================
   📢 EMPLOYEE ANNOUNCEMENTS
  ========================================================= */
 
     joiningAnnouncementCron: {
-        task: async ({ strapi }) => {
-            try {
-                /* ==========================================
-                   🔔 CRON TRIGGER LOG
-                ========================================== */
-                strapi.log.info('➡️ Joining announcement cron triggered');
+  task: async ({ strapi }) => {
+    try {
+      strapi.log.info('➡️ Joining announcement cron triggered');
 
-                /* ==========================================
-                   🕰 IST DATE (SAFE)
-                ========================================== */
-                const nowIST = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
-                );
+      const nowIST = new Date(
+        new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+      );
 
-                // YYYY-MM-DD (REQUIRED for type: "date")
-                const todayIST = nowIST.toISOString().slice(0, 10);
+      // ✅ SAFE IST DATE
+      const yyyy = nowIST.getFullYear();
+      const mm = String(nowIST.getMonth() + 1).padStart(2, '0');
+      const dd = String(nowIST.getDate()).padStart(2, '0');
+      const todayIST = `${yyyy}-${mm}-${dd}`;
 
-                strapi.log.info(`📅 IST Today: ${todayIST}`);
+      strapi.log.info(`📅 IST Today: ${todayIST}`);
 
-                /* ==========================================
-                   🔍 FIND NEW JOINED EMPLOYEES
-                ========================================== */
-                const newJoiners = await strapi.entityService.findMany(
-                    'api::emp-detail.emp-detail',
-                    {
-                        filters: {
-                            joining_announced: false,
-                            joinig_date: todayIST,
-                        },
-                        populate: { user_detail: true },
-                    }
-                );
+      const newJoiners = await strapi.entityService.findMany(
+        'api::emp-detail.emp-detail',
+        {
+          filters: {
+            joining_announced: false,
+            joinig_date: todayIST,
+          },
+          populate: { user_detail: true },
+        }
+      );
 
-                strapi.log.info(`👀 New joiners found: ${newJoiners.length}`);
+      for (const emp of newJoiners) {
+        if (!emp.user_detail) continue;
 
-                /* ==========================================
-                   🎉 CREATE ANNOUNCEMENTS
-                ========================================== */
-                for (const emp of newJoiners) {
-                    if (!emp.user_detail) {
-                        strapi.log.warn(`⚠️ Emp ${emp.id} has no linked user`);
-                        continue;
-                    }
+        await strapi.entityService.create(
+          'api::announcement.announcement',
+          {
+            data: {
+              Title: 'New Employee Joined',
+              Description: `Please welcome <b>${emp.user_detail.username}</b> to the team!`,
+              Date: todayIST,
+              publishedAt: new Date(), // UTC is fine
+            },
+          }
+        );
 
-                    await strapi.entityService.create(
-                        'api::announcement.announcement',
-                        {
-                            data: {
-                                Title: 'New Employee Joined',
-                                Description: `Please welcome <b>${emp.user_detail.username}</b> to the team!`,
-                                Date: todayIST,
-                                publishedAt: nowIST
-                            },
-                        }
-                    );
+        await strapi.entityService.update(
+          'api::emp-detail.emp-detail',
+          emp.id,
+          { data: { joining_announced: true } }
+        );
+      }
+    } catch (error) {
+      strapi.log.error('❌ Error in joiningAnnouncementCron:', error);
+    }
+  },
+  options: {
+    rule: '*/5 * * * *',
+    tz: 'Asia/Kolkata',
+  },
+},
 
-                    await strapi.entityService.update(
-                        'api::emp-detail.emp-detail',
-                        emp.id,
-                        {
-                            data: { joining_announced: true },
-                        }
-                    );
-
-                    strapi.log.info(
-                        `🎉 Announcement created for ${emp.user_detail.username}`
-                    );
-                }
-            } catch (error) {
-                strapi.log.error('❌ Error in joiningAnnouncementCron:', error);
-            }
-        },
-
-        options: {
-            rule: '*/10 * * * *', // ⏱ every 5 minutes
-            tz: 'Asia/Kolkata',
-        },
-    },
 
     /* =========================================================
        🎂 BIRTHDAY ANNOUNCEMENT
     ========================================================= */
-    birthdayAnnouncementCron: {
-        task: async ({ strapi }) => {
-            try {
-                const now = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
-                );
+   birthdayAnnouncementCron: {
+  task: async ({ strapi }) => {
+    try {
+      const now = new Date(
+        new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+      );
 
-                const day = now.getDate();
-                const month = now.getMonth() + 1;
+      const day = now.getDate();
+      const month = now.getMonth() + 1;
 
-                strapi.log.info(
-                    `🎂 Birthday cron running for ${day}-${month}`
-                );
+      const employees = await strapi.entityService.findMany(
+        'api::emp-detail.emp-detail',
+        {
+          filters: { date_of_birth: { $notNull: true } },
+          populate: { user_detail: true },
+        }
+      );
 
-                const employees = await strapi.entityService.findMany(
-                    'api::emp-detail.emp-detail',
-                    {
-                        filters: { date_of_birth: { $notNull: true } },
-                        populate: { user_detail: true },
-                    }
-                );
+      const birthdayNames = employees
+        .filter(emp => {
+          if (!emp.date_of_birth || !emp.user_detail) return false;
 
-                const birthdayNames = employees
-                    .filter(emp => {
-                        if (!emp.date_of_birth || !emp.user_detail) return false;
+          const [, dobMonth, dobDay] = emp.date_of_birth
+            .split('-')
+            .map(Number);
 
-                        // ✅ SAFE DATE COMPARISON (NO JS Date conversion)
-                        const [_, dobMonth, dobDay] = emp.date_of_birth
-                            .split('-')
-                            .map(Number);
+          return dobDay === day && dobMonth === month;
+        })
+        .map(emp => emp.user_detail.username);
 
-                        return dobDay === day && dobMonth === month;
-                    })
-                    .map(emp => emp.user_detail.username);
+      if (!birthdayNames.length) return;
 
-                strapi.log.info(
-                    `🎯 Birthdays today: ${birthdayNames.length}`
-                );
+      const startOfToday = new Date(now);
+      startOfToday.setHours(0, 0, 0, 0);
 
-                if (!birthdayNames.length) return;
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
 
-                // ✅ Prevent duplicate for TODAY
-                const startOfToday = new Date(now);
-                startOfToday.setHours(0, 0, 0, 0);
+      const exists = await strapi.entityService.findMany(
+        'api::announcement.announcement',
+        {
+          filters: {
+            Title: 'Happy Birthday!',
+            createdAt: { $between: [startOfToday, endOfToday] },
+          },
+          limit: 1,
+        }
+      );
 
-                const endOfToday = new Date(now);
-                endOfToday.setHours(23, 59, 59, 999);
+      if (exists.length) return;
 
-                const exists = await strapi.entityService.findMany(
-                    'api::announcement.announcement',
-                    {
-                        filters: {
-                            Title: 'Happy Birthday!',
-                            createdAt: { $between: [startOfToday, endOfToday] },
-                        },
-                        limit: 1,
-                    }
-                );
+      await strapi.entityService.create(
+        'api::announcement.announcement',
+        {
+          data: {
+            Title: 'Happy Birthday!',
+            Description: `🎉 Wishing a very happy birthday to <b>${birthdayNames.join(', ')}</b>!`,
+            Date: now,
+            publishedAt: now,
+          },
+        }
+      );
+    } catch (error) {
+      strapi.log.error('❌ birthdayAnnouncementCron failed:', error);
+    }
+  },
+  options: {
+    rule: '10 7 * * *',
+    tz: 'Asia/Kolkata',
+  },
+},
 
-                if (exists.length) {
-                    strapi.log.info('⛔ Birthday announcement already exists today');
-                    return;
-                }
-
-                await strapi.entityService.create(
-                    'api::announcement.announcement',
-                    {
-                        data: {
-                            Title: 'Happy Birthday!',
-                            Description: `🎉 Wishing a very happy birthday to <b>${birthdayNames.join(
-                                ', '
-                            )}</b>!`,
-                            Date: now,
-                            publishedAt: now,
-                        },
-                    }
-                );
-
-                strapi.log.info('🎉 Birthday announcement CREATED');
-            } catch (error) {
-                strapi.log.error('❌ birthdayAnnouncementCron failed:', error);
-            }
-        },
-
-        options: {
-            rule: '10 7 * * *', // your schedule
-            tz: 'Asia/Kolkata',
-        },
-    },
 
     /* =========================================================
        🎊 WORK ANNIVERSARY 
     ========================================================= */
-    anniversaryAnnouncementCron: {
-        task: async ({ strapi }) => {
-            try {
-                const now = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
-                );
+  anniversaryAnnouncementCron: {
+  task: async ({ strapi }) => {
+    try {
+      const now = new Date(
+        new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+      );
 
-                const day = now.getDate();
-                const month = now.getMonth() + 1;
-                const year = now.getFullYear();
+      const day = now.getDate();
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear();
 
-                const startOfToday = new Date(now);
-                startOfToday.setHours(0, 0, 0, 0);
+      const startOfToday = new Date(now);
+      startOfToday.setHours(0, 0, 0, 0);
 
-                const endOfToday = new Date(now);
-                endOfToday.setHours(23, 59, 59, 999);
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
 
-                const employees = await strapi.entityService.findMany(
-                    'api::emp-detail.emp-detail',
-                    {
-                        filters: { joinig_date: { $notNull: true } },
-                        populate: { user_detail: true },
-                    }
-                );
+      const employees = await strapi.entityService.findMany(
+        'api::emp-detail.emp-detail',
+        {
+          filters: { joinig_date: { $notNull: true } },
+          populate: { user_detail: true },
+        }
+      );
 
-                const anniversaryPeople = employees
-                    .map(emp => {
-                        const joinDate = new Date(emp.joinig_date);
-                        let years = year - joinDate.getFullYear();
+      const anniversaryPeople = employees
+        .map(emp => {
+          if (!emp.joinig_date || !emp.user_detail) return null;
 
-                        if (
-                            month < joinDate.getMonth() + 1 ||
-                            (month === joinDate.getMonth() + 1 &&
-                                day < joinDate.getDate())
-                        ) {
-                            years--;
-                        }
+          const [joinYear, joinMonth, joinDay] = emp.joinig_date
+            .split('-')
+            .map(Number);
 
-                        return joinDate.getDate() === day &&
-                            joinDate.getMonth() + 1 === month &&
-                            years > 0
-                            ? `${emp.user_detail.username} (${years} ${years === 1 ? 'year' : 'years'
-                            })`
-                            : null;
-                    })
-                    .filter(Boolean);
+          const years =
+            year -
+            joinYear -
+            (month < joinMonth || (month === joinMonth && day < joinDay)
+              ? 1
+              : 0);
 
-                if (!anniversaryPeople.length) return;
+          return joinDay === day && joinMonth === month && years > 0
+            ? `${emp.user_detail.username} (${years} ${years === 1 ? 'year' : 'years'})`
+            : null;
+        })
+        .filter(Boolean);
 
-                const exists = await strapi.entityService.findMany(
-                    'api::announcement.announcement',
-                    {
-                        filters: {
-                            Title: 'Work Anniversary',
-                            createdAt: { $between: [startOfToday, endOfToday] },
-                        },
-                        limit: 1,
-                    }
-                );
+      if (!anniversaryPeople.length) return;
 
-                if (exists.length) return;
+      const exists = await strapi.entityService.findMany(
+        'api::announcement.announcement',
+        {
+          filters: {
+            Title: 'Work Anniversary',
+            createdAt: { $between: [startOfToday, endOfToday] },
+          },
+          limit: 1,
+        }
+      );
 
-                await strapi.entityService.create(
-                    'api::announcement.announcement',
-                    {
-                        data: {
-                            Title: 'Work Anniversary',
-                            Description: `🎉 Congratulations to <b>${anniversaryPeople.join(
-                                ', '
-                            )}</b> for completing their years with us!`,
-                            Date: now,
-                            publishedAt: now,
-                        },
-                    }
-                );
-            } catch (error) {
-                strapi.log.error('❌ anniversaryAnnouncementCron failed:', error);
-            }
-        },
-        options: {
-            rule: '0 7 * * *',
-            tz: 'Asia/Kolkata',
-        },
-    },
+      if (exists.length) return;
 
+      await strapi.entityService.create(
+        'api::announcement.announcement',
+        {
+          data: {
+            Title: 'Work Anniversary',
+            Description: `🎉 Congratulations to <b>${anniversaryPeople.join(', ')}</b> for completing their years with us!`,
+            Date: now,
+            publishedAt: now,
+          },
+        }
+      );
+    } catch (error) {
+      strapi.log.error('❌ anniversaryAnnouncementCron failed:', error);
+    }
+  },
+  options: {
+    rule: '0 7 * * *',
+    tz: 'Asia/Kolkata',
+  },
+},
 
     /* ===================================================================
         🗑 DELETE ALL ANNOUNCEMENTS OLDER THAN 2 DAYS
@@ -414,9 +296,15 @@ module.exports = {
                 const hour = now.getHours();
 
                 // ⏸ Only between 1:00 PM and 1:59 PM
-                if (hour < 13 || hour >= 14) return;
+                if (hour < 15 || hour >= 16) return;
 
-                const today = now.toISOString().slice(0, 10);
+                /* ================================
+                   ✅ FIX 1: SAFE IST DATE (NO UTC)
+                ================================= */
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, "0");
+                const dd = String(now.getDate()).padStart(2, "0");
+                const today = `${yyyy}-${mm}-${dd}`; // <-- FIXED
 
                 // 🔵 START LOG
                 strapi.log.info(
@@ -428,7 +316,7 @@ module.exports = {
                 /* =====================================================
                    🧩 PAUSE TASK TIMERS
                 ===================================================== */
-                const workLogs = await strapi.entityService.findMany(
+              const workLogs = await strapi.entityService.findMany(
                     "api::work-log.work-log",
                     {
                         filters: { work_date: today },
@@ -471,8 +359,8 @@ module.exports = {
                 }
 
                 /* =====================================================
-             🆕 PAUSE CHECK-IN TIMER (FIXED)
-          ===================================================== */
+                   ⏸ PAUSE CHECK-IN TIMER
+                ===================================================== */
                 const runningAttendances = await strapi.entityService.findMany(
                     "api::daily-attendance.daily-attendance",
                     {
@@ -481,7 +369,6 @@ module.exports = {
                             is_checked_in: true,
                             checkin_started_at: { $notNull: true },
                             last_paused_at: { $null: true }, // 🛡 only pause once
-
                         },
                         limit: -1,
                     }
@@ -505,10 +392,10 @@ module.exports = {
                         attendance.id,
                         {
                             data: {
-                                attendance_seconds: totalSeconds,   // ✅ SAVE TOTAL TIME
-                                checkin_started_at: null,            // ⏸ pause
+                                attendance_seconds: totalSeconds,
+                                checkin_started_at: null,
                                 is_checked_in: false,
-                                last_paused_at: now.toISOString(),
+                                last_paused_at: new Date().toISOString(),
                             },
                         }
                     );
@@ -538,23 +425,36 @@ module.exports = {
     checkoutReminder: {
         task: async ({ strapi }) => {
             try {
+                /* =====================================================
+                   🕒 IST NOW (SAFE)
+                ===================================================== */
                 const istNow = new Date(
                     new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
                 );
 
                 const hours = istNow.getHours();
                 const minutes = istNow.getMinutes();
-                const today = istNow.toISOString().slice(0, 10);
+
+                /* =====================================================
+                   📅 SAFE IST DATE (NO toISOString BUG)
+                ===================================================== */
+                const yyyy = istNow.getFullYear();
+                const mm = String(istNow.getMonth() + 1).padStart(2, "0");
+                const dd = String(istNow.getDate()).padStart(2, "0");
+                const today = `${yyyy}-${mm}-${dd}`;
 
                 strapi.log.info(
                     `[CheckoutReminder] Cron running at ${istNow.toLocaleTimeString("en-IN")}`
                 );
 
-                /* ================= TIME GATE ================= */
-
+                /* =====================================================
+                   ⏱ TIME GATE — AFTER 6:15 PM IST ONLY
+                ===================================================== */
                 if (hours < 18 || (hours === 18 && minutes < 15)) return;
 
-                /* ================= ACTIVE ATTENDANCE ================= */
+                /* =====================================================
+                   👤 ACTIVE ATTENDANCE (NOT CHECKED OUT)
+                ===================================================== */
                 const attendances = await strapi.entityService.findMany(
                     "api::daily-attendance.daily-attendance",
                     {
@@ -569,7 +469,9 @@ module.exports = {
 
                 if (!attendances.length) return;
 
-                /* ================= HR USERS ================= */
+                /* =====================================================
+                   👥 HR USERS (CC)
+                ===================================================== */
                 const hrUsers = await strapi.entityService.findMany(
                     "plugin::users-permissions.user",
                     {
@@ -582,7 +484,9 @@ module.exports = {
 
                 const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
 
-                /* ================= SEND REMINDERS ================= */
+                /* =====================================================
+                   ✉️ SEND REMINDERS
+                ===================================================== */
                 for (const attendance of attendances) {
                     const lastReminder = attendance.last_checkout_reminder
                         ? new Date(attendance.last_checkout_reminder)
@@ -600,23 +504,89 @@ module.exports = {
                     if (!userEmail) continue;
 
                     await strapi.plugin("email").service("email").send({
-                        to: userEmail,   // employee
-                        cc: hrEmails,    // HR
+                        to: userEmail,        // employee
+                        cc: hrEmails,         // HR
                         subject: "Checkout Reminder – Working After Office Hours",
-                        html: `<p>Dear <b>${attendance.user.username}</b></p>
 
-<p>This is to inform you that your checkout has not been completed in the employee portal. <br/>
-Please complete the checkout at your convenience. </p>
+                        /* =====================================================
+                           📧 HTML EMAIL (INLINE, FIXED)
+                        ===================================================== */
+                        html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+</head>
 
+<body style="margin:0;padding:0;background-color:#f7f7f7;">
+
+<table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
+<tr>
+<td align="center">
+
+<table border="0" cellpadding="0" cellspacing="0" width="600"
+       style="max-width:600px;background-color:#ffffff;">
+
+<tr>
+<td style="padding:10px 40px;background-color:#181818;" align="center">
+<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+     alt="Logo" width="150" style="display:block;height:auto;">
+</td>
+</tr>
+
+<tr>
+<td align="center" style="padding:40px 40px 20px 40px;">
+
+<h2 style="
+  font-family:Arial,sans-serif;
+  font-size:22px;
+  color:#000000;
+  margin:0 0 20px 0;
+  line-height:32px;
+  text-transform:uppercase;
+  font-weight:900;
+">
+Checkout Reminder
+</h2>
+
+<p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+Hello <strong>${attendance.user.username}</strong>,
+</p>
+
+<p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+This is to inform you that your checkout has not been completed in the employee portal.<br/>
+Please complete the checkout at your convenience.
+</p>
+
+</td>
+</tr>
+
+<tr>
+<td align="center" style="padding:30px 40px;background-color:#181818;">
+<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+     width="200" style="display:block;margin:0 auto;height:auto;">
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
 `,
                     });
 
+                    /* =====================================================
+                       🕓 SAVE REMINDER TIME (UTC)
+                    ===================================================== */
                     await strapi.entityService.update(
                         "api::daily-attendance.daily-attendance",
                         attendance.id,
                         {
                             data: {
-                                last_checkout_reminder: istNow,
+                                last_checkout_reminder: new Date().toISOString(),
                             },
                         }
                     );
@@ -630,12 +600,15 @@ Please complete the checkout at your convenience. </p>
                 strapi.log.error(error);
             }
         },
+
+        /* =====================================================
+           ⏱ CRON SCHEDULE
+        ===================================================== */
         options: {
-            rule: "*/15 * * * *",
+            rule: "*/15 * * * *", // every 15 minutes
             tz: "Asia/Kolkata",
         },
     },
-
 
 }
 

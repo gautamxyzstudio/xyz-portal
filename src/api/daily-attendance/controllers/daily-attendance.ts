@@ -2,19 +2,23 @@
    🕒 IST HELPERS
 ===================================================== */
 
-const getISTDate = () =>
-  new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-  )
-    .toISOString()
-    .slice(0, 10);
-
 const getISTNow = () =>
   new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
   );
 
-const isLunchBreak = (date = getISTNow()) => date.getHours() === 13;
+const getISTDate = () => {
+  const ist = getISTNow();
+  const yyyy = ist.getFullYear();
+  const mm = String(ist.getMonth() + 1).padStart(2, "0");
+  const dd = String(ist.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const isLunchTime = (date = getISTNow()) => {
+  const hour = date.getHours();
+  return hour >= 15 && hour < 16;
+};
 
 export default {
 
@@ -194,129 +198,91 @@ export default {
      -----------------------------------------------------
       Attendance is created ONLY when user checks in
   ===================================================== */
-async checkIn(ctx) {
-  try {
-    const userId = ctx.state.user?.id;
-    if (!userId) return ctx.unauthorized("Login required");
+ async checkIn(ctx) {
+    try {
+      const userId = ctx.state.user?.id;
+      if (!userId) return ctx.unauthorized("Login required");
 
-    const body = ctx.request.body?.data || ctx.request.body || {};
-    const { date, in: inTimeRaw } = body;
+      const body = ctx.request.body?.data || ctx.request.body || {};
+      const { date, in: inTimeRaw } = body;
 
-    const today = date || getISTDate();
+      const today = date || getISTDate();
 
-    /* ================= EXISTING ATTENDANCE FIRST ================= */
-    const existing = await strapi.entityService.findMany(
-      "api::daily-attendance.daily-attendance",
-      {
-        filters: { user: userId, Date: today },
-        limit: 1,
-      }
-    );
+      const existing = await strapi.entityService.findMany(
+        "api::daily-attendance.daily-attendance",
+        {
+          filters: { user: userId, Date: today },
+          limit: 1,
+        }
+      );
 
-    /* =====================================================
-       🔁 RESUME AFTER LUNCH / PAUSE (DO NOT REQUIRE `in`)
-    ===================================================== */
-    if (existing.length) {
-      const record = existing[0];
+      if (existing.length) {
+        const record = existing[0];
 
-      if (record.out) {
-        return ctx.badRequest("You have already checked out for today");
-      }
+        if (record.out)
+          return ctx.badRequest("You have already checked out");
 
-      if (!record.is_checked_in) {
-        const istNow = getISTNow();
-        if (isLunchBreak(istNow)) {
-          return ctx.badRequest(
-            "Lunch break (1:00–2:00 PM). You can join after 2:00 PM."
+        if (!record.is_checked_in) {
+          const istNow = getISTNow();
+          if (isLunchTime(istNow)) {
+            return ctx.badRequest(
+              "Lunch break (1:00–2:00 PM). You can join after 2:00 PM."
+            );
+          }
+
+          const resumed = await strapi.entityService.update(
+            "api::daily-attendance.daily-attendance",
+            record.id,
+            {
+              data: {
+                checkin_started_at: new Date().toISOString(),
+                is_checked_in: true,
+              },
+            }
           );
+
+          ctx.body = resumed;
+          return;
         }
 
-        const resumed = await strapi.entityService.update(
-          "api::daily-attendance.daily-attendance",
-          record.id,
-          {
-            data: {
-              checkin_started_at: new Date().toISOString(),
-              is_checked_in: true,
-            },
-          }
-        );
-
-        ctx.body = resumed;
-        return;
+        return ctx.badRequest("Already checked in");
       }
 
-      return ctx.badRequest("You are already checked in");
-    }
+      if (!inTimeRaw)
+        return ctx.badRequest("Check-in time is required");
 
-    /* ================= FIRST CHECK-IN ONLY ================= */
+      const inTime =
+        typeof inTimeRaw === "string" && inTimeRaw.length === 5
+          ? `${inTimeRaw}:00`
+          : inTimeRaw;
 
-    if (!inTimeRaw) {
-      return ctx.badRequest("Check-in time is required");
-    }
+      const [hours, minutes] = inTime.split(":").map(Number);
+      if (hours * 60 + minutes < 8 * 60 + 40)
+        return ctx.badRequest("Check-in allowed only after 8:40 AM");
 
-    const inTime =
-      typeof inTimeRaw === "string" && inTimeRaw.length === 5
-        ? `${inTimeRaw}:00`
-        : inTimeRaw;
-
-    const [hours, minutes] = inTime.split(":").map(Number);
-    if (hours * 60 + minutes < 8 * 60 + 40) {
-      return ctx.badRequest("Check-in allowed only after 8:40 AM");
-    }
-
-    const user = await strapi.entityService.findOne(
-      "plugin::users-permissions.user",
-      userId
-    );
-
-    if (["Admin", "Hr"].includes(user.user_type)) {
-      return ctx.badRequest("Attendance not required for Admin/HR");
-    }
-
-    /* ================= LEAVE CHECK (ONLY FOR FIRST CHECK-IN) ================= */
-    const approvedLeave = await strapi.entityService.findMany(
-      "api::leave-status.leave-status",
-      {
-        filters: {
-          user: userId,
-          status: "approved",
-          start_date: { $lte: today },
-          end_date: { $gte: today },
-        },
-        limit: 1,
-      }
-    );
-
-    if (approvedLeave.length > 0) {
-      return ctx.badRequest(
-        "You are on approved leave today and cannot check in"
+      const attendance = await strapi.entityService.create(
+        "api::daily-attendance.daily-attendance",
+        {
+          data: {
+            user: userId,
+            Date: today,
+            in: inTime,
+            out: null,
+            status: "present",
+            attendance_seconds: 0,
+            checkin_started_at: new Date().toISOString(),
+            is_checked_in: true,
+            publishedAt: new Date(),
+          },
+        }
       );
+
+      ctx.body = attendance;
+    } catch (err) {
+      strapi.log.error("Check-in failed", err);
+      ctx.throw(500, "Check-in failed");
     }
-
-    const attendance = await strapi.entityService.create(
-      "api::daily-attendance.daily-attendance",
-      {
-        data: {
-          user: userId,
-          Date: today,
-          in: inTime,
-          out: null,
-          status: "present",
-          attendance_seconds: 0,
-          checkin_started_at: new Date().toISOString(),
-          is_checked_in: true,
-          publishedAt: new Date(),
-        },
-      }
-    );
-
-    ctx.body = attendance;
-  } catch (error) {
-    strapi.log.error("Check-in failed:", error);
-    ctx.throw(500, "Check-in failed");
-  }
-},
+  },
 
   /* =====================================================
      ⏹ CHECK-OUT  
@@ -332,18 +298,28 @@ async checkOut(ctx) {
 
     if (!outTimeRaw) return ctx.badRequest("Checkout time required");
 
-    // HH:mm:ss 
+    // HH:mm:ss
     const outTime =
       typeof outTimeRaw === "string" && outTimeRaw.length === 5
         ? `${outTimeRaw}:00`
         : outTimeRaw;
 
     /* ================= IST DATE & TIME ================= */
-    const istNow = new Date(
-      new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-    );
+    const getISTNow = () =>
+      new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+      );
 
-    const today = istNow.toISOString().slice(0, 10);
+    const getISTDate = () => {
+      const d = getISTNow();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    };
+
+    const istNow = getISTNow();
+    const today = getISTDate(); // ✅ FIXED
 
     /* ================= ATTENDANCE ================= */
     const records = await strapi.entityService.findMany(
@@ -379,8 +355,6 @@ async checkOut(ctx) {
 
     if (workLogs.length) {
       const workLog = workLogs[0];
-
-      
       const tasks = (workLog.tasks || []) as any[];
 
       let totalTimeTaken = 0;

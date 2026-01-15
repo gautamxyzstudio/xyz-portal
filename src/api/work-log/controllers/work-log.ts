@@ -3,20 +3,40 @@ import { Context } from "koa";
 
 /* ================= CONSTANTS ================= */
 const THIRTY_MIN = 30 * 60 * 1000;
-const LUNCH_START = 13;
-const LUNCH_END = 14;
+const LUNCH_START = 15;
+const LUNCH_END = 16
 
-/* ================= HELPERS ================= */
+/* ================= TIME HELPERS (IST SAFE) ================= */
 const getISTNow = () =>
   new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
   );
 
+const getISTDate = () => {
+  const d = getISTNow();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 const isLunchTime = (d: Date) =>
   d.getHours() >= LUNCH_START && d.getHours() < LUNCH_END;
 
+/* ================= TASK HELPERS ================= */
+type WorkTask = {
+  task_id: number;
+  task_title: string;
+  task_description: string;
+  status: string;
+  createdAt: string;
+  time_spent: number;
+  is_running: boolean;
+  last_started_at: string | null;
+};
+
 /* ▶️ Pause a task */
-const pauseTask = (task: any, now: Date) => {
+const pauseTask = (task: WorkTask, now: Date) => {
   if (!task.is_running || !task.last_started_at) return;
 
   const elapsed = Math.floor(
@@ -29,15 +49,15 @@ const pauseTask = (task: any, now: Date) => {
 };
 
 /* ▶️ Start / Resume a task */
-const startTask = (task: any, now: Date) => {
+const startTask = (task: WorkTask, now: Date) => {
   if (task.is_running) return;
 
   task.is_running = true;
-  task.last_started_at = now.toISOString();
+  task.last_started_at = now.toISOString(); // UTC storage
 };
 
 /* ⏱ Calculate total time (including running task) */
-const calcTotalTime = (tasks: any[], now: Date) => {
+const calcTotalTime = (tasks: WorkTask[], now: Date) => {
   let total = 0;
 
   for (const task of tasks) {
@@ -64,8 +84,9 @@ export default factories.createCoreController(
       const userId = ctx.state.user?.id;
       if (!userId) return ctx.unauthorized("Login required");
 
-      const today = getISTNow().toISOString().slice(0, 10);
+      const today = getISTDate();
 
+      /* ===== DAILY TASK ===== */
       let dailyTask;
       const dailyTasks = await strapi.entityService.findMany(
         "api::daily-task.daily-task",
@@ -81,6 +102,7 @@ export default factories.createCoreController(
         );
       }
 
+      /* ===== WORK LOG ===== */
       const existing = await strapi.entityService.findMany(
         "api::work-log.work-log",
         {
@@ -96,7 +118,7 @@ export default factories.createCoreController(
       const body = ctx.request.body?.data || {};
       const incomingTasks = Array.isArray(body.tasks) ? body.tasks : [];
 
-      const tasks = incomingTasks.map((t, i) => ({
+      const tasks: WorkTask[] = incomingTasks.map((t: any, i: number) => ({
         task_id: i + 1,
         task_title: t.task_title || "",
         task_description: t.task_description || "",
@@ -148,7 +170,7 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      const tasks = workLog.tasks || [];
+      const tasks = (workLog.tasks || []) as WorkTask[];
       const nextId =
         tasks.length > 0 ? Math.max(...tasks.map(t => t.task_id)) + 1 : 1;
 
@@ -194,7 +216,7 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      const task = workLog.tasks.find(t => t.task_id === task_id);
+      const task = workLog.tasks.find((t: WorkTask) => t.task_id === task_id);
       if (!task) return ctx.badRequest("Task not found");
 
       if (
@@ -217,7 +239,7 @@ export default factories.createCoreController(
     },
 
     /* =====================================================
-       START / SWITCH TIMER (PAUSE / RESUME)
+       START / SWITCH TIMER
     ===================================================== */
     async startTaskTimer(ctx: Context) {
       const userId = ctx.state.user?.id;
@@ -225,10 +247,9 @@ export default factories.createCoreController(
 
       const { workLogId, task_id } = ctx.request.body;
       const now = getISTNow();
+      const today = getISTDate();
 
-      /* ================= CHECK CHECKOUT ================= */
-      const today = now.toISOString().slice(0, 10);
-
+      /* ===== CHECK ATTENDANCE ===== */
       const attendance = await strapi.entityService.findMany(
         "api::daily-attendance.daily-attendance",
         {
@@ -242,10 +263,9 @@ export default factories.createCoreController(
       }
 
       if (attendance[0].out && attendance[0].out !== "00:00:00") {
-        return ctx.badRequest("You have already checked out. Tasks cannot be started.");
+        return ctx.badRequest("You have already checked out");
       }
 
-      /* ================= LUNCH CHECK ================= */
       if (isLunchTime(now)) {
         return ctx.badRequest("Timers paused between 1–2 PM");
       }
@@ -260,25 +280,25 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      /* ================= PAUSE ALL TASKS ================= */
-      for (const t of workLog.tasks) {
+      const tasks = (workLog.tasks || []) as WorkTask[];
+
+      for (const t of tasks) {
         pauseTask(t, now);
       }
 
-      /* ================= START SELECTED TASK ================= */
-      const task = workLog.tasks.find(t => t.task_id === task_id);
+      const task = tasks.find(t => t.task_id === task_id);
       if (!task) return ctx.badRequest("Task not found");
 
       startTask(task, now);
 
-      const totalTime = calcTotalTime(workLog.tasks, now);
+      const totalTime = calcTotalTime(tasks, now);
 
       return await strapi.entityService.update(
         "api::work-log.work-log",
         workLogId,
         {
           data: {
-            tasks: workLog.tasks,
+            tasks,
             active_task_id: task_id,
             total_time_taken: totalTime,
           },
@@ -287,7 +307,7 @@ export default factories.createCoreController(
     },
 
     /* =====================================================
-       STOP ALL TIMERS (MANUAL / CHECKOUT)
+       STOP ALL TIMERS
     ===================================================== */
     async stopTaskTimer(ctx: Context) {
       const userId = ctx.state.user?.id;
@@ -304,18 +324,20 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      for (const t of workLog.tasks) {
+      const tasks = (workLog.tasks || []) as WorkTask[];
+
+      for (const t of tasks) {
         pauseTask(t, now);
       }
 
-      const totalTime = calcTotalTime(workLog.tasks, now);
+      const totalTime = calcTotalTime(tasks, now);
 
       return await strapi.entityService.update(
         "api::work-log.work-log",
         workLogId,
         {
           data: {
-            tasks: workLog.tasks,
+            tasks,
             active_task_id: null,
             total_time_taken: totalTime,
           },
@@ -324,14 +346,13 @@ export default factories.createCoreController(
     },
 
     /* =====================================================
-       SINGLE USER / HR WORK LOGS
+       USER / HR WORK LOGS
     ===================================================== */
     async userWorkLogs(ctx: Context) {
       const authUser = ctx.state.user;
       if (!authUser) return ctx.unauthorized("Login required");
 
       let { userId, startDate, endDate } = ctx.query as any;
-
       if (!userId) userId = authUser.id;
 
       if (authUser.user_type !== "Hr" && Number(userId) !== authUser.id) {

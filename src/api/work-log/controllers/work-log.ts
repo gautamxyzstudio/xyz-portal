@@ -3,8 +3,8 @@ import { Context } from "koa";
 
 /* ================= CONSTANTS ================= */
 const THIRTY_MIN = 30 * 60 * 1000;
-const LUNCH_START = 15;
-const LUNCH_END = 16
+const LUNCH_START = 13;
+const LUNCH_END = 14
 
 /* ================= TIME HELPERS (IST SAFE) ================= */
 const getISTNow = () =>

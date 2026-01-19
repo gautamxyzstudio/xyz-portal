@@ -17,7 +17,7 @@ const getISTDate = () => {
 
 const isLunchTime = (date = getISTNow()) => {
   const hour = date.getHours();
-  return hour >= 15 && hour < 16;
+  return hour >= 13 && hour < 14;
 };
 
 export default {

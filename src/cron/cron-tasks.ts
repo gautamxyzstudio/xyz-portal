@@ -296,7 +296,7 @@ module.exports = {
                 const hour = now.getHours();
 
                 // ⏸ Only between 1:00 PM and 1:59 PM
-                if (hour < 15 || hour >= 16) return;
+                if (hour < 13 || hour >= 14) return;
 
                 /* ================================
                    ✅ FIX 1: SAFE IST DATE (NO UTC)

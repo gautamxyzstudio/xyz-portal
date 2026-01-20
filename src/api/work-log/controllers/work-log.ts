@@ -27,13 +27,18 @@ const isLunchTime = (d: Date) =>
 type WorkTask = {
   task_id: number;
   task_title: string;
-  task_description: string;
-  status: string;
+  task_description?: string; // OPTIONAL
+  status: "in-progress" | "hold" | "completed";
+  project: {
+    id: number;
+    title: string;
+  } | null;
   createdAt: string;
   time_spent: number;
   is_running: boolean;
   last_started_at: string | null;
 };
+
 
 /* ▶️ Pause a task */
 const pauseTask = (task: WorkTask, now: Date) => {
@@ -50,11 +55,15 @@ const pauseTask = (task: WorkTask, now: Date) => {
 
 /* ▶️ Start / Resume a task */
 const startTask = (task: WorkTask, now: Date) => {
+  /* 🔒 NEVER start completed task */
+  if (task.status === "completed") return;
+
   if (task.is_running) return;
 
   task.is_running = true;
-  task.last_started_at = now.toISOString(); // UTC storage
+  task.last_started_at = now.toISOString();
 };
+
 
 /* ⏱ Calculate total time (including running task) */
 const calcTotalTime = (tasks: WorkTask[], now: Date) => {
@@ -85,50 +94,121 @@ export default factories.createCoreController(
       if (!userId) return ctx.unauthorized("Login required");
 
       const today = getISTDate();
+      const body = ctx.request.body?.data || {};
+      const incomingTasks = Array.isArray(body.tasks) ? body.tasks : [];
 
-      /* ===== DAILY TASK ===== */
-      let dailyTask;
-      const dailyTasks = await strapi.entityService.findMany(
-        "api::daily-task.daily-task",
-        { filters: { date: today }, limit: 1 }
+      /* =====================================================
+         1️⃣ CHECK IF WORK LOG ALREADY EXISTS
+         (DO NOT create DailyTask if it exists)
+      ===================================================== */
+      let existingWorkLog = await strapi.db
+        .query("api::work-log.work-log")
+        .findOne({
+          where: {
+            user: userId,
+            work_date: today,
+          },
+        });
+
+      if (existingWorkLog) {
+        const dailyTask = existingWorkLog.daily_task
+          ? await strapi.entityService.findOne(
+            "api::daily-task.daily-task",
+            existingWorkLog.daily_task
+          )
+          : null;
+
+        return {
+          work_log: existingWorkLog,
+          daily_task: dailyTask,
+        };
+      }
+
+      /* =====================================================
+         2️⃣ FETCH USER-ASSIGNED PROJECTS
+      ===================================================== */
+      const userProjects = await strapi.entityService.findMany(
+        "api::project.project",
+        {
+          filters: {
+            users_permissions_users: userId,
+          },
+          fields: ["id", "title"],
+        }
       );
 
-      if (dailyTasks.length) {
-        dailyTask = dailyTasks[0];
-      } else {
+      const allowedProjectMap = new Map(
+        userProjects.map((p: any) => [p.id, p])
+      );
+
+      /* =====================================================
+         3️⃣ BUILD TASKS (VALIDATION + DEFAULTS)
+      ===================================================== */
+      const allowedStatus = ["in-progress", "hold", "completed"];
+
+      let tasks: WorkTask[] = [];
+
+      try {
+        tasks = incomingTasks.map((t: any, i: number) => {
+          if (!t.task_title || !String(t.task_title).trim()) {
+            throw new Error("Task title is required");
+          }
+
+          const projectId = t.project;
+
+          if (
+            projectId !== undefined &&
+            !allowedProjectMap.has(projectId)
+          ) {
+            throw new Error(
+              `Project ${projectId} is not assigned to this user`
+            );
+          }
+
+          const project = projectId
+            ? {
+              id: projectId,
+              title: allowedProjectMap.get(projectId).title,
+            }
+            : null;
+
+          return {
+            task_id: i + 1,
+            task_title: String(t.task_title).trim(),
+            status: allowedStatus.includes(t.status)
+              ? t.status
+              : "in-progress", // ✅ default
+            project,
+            createdAt: new Date().toISOString(),
+            time_spent: 0,
+            is_running: false,
+            last_started_at: null,
+          };
+        });
+      } catch (err: any) {
+        return ctx.badRequest(err.message);
+      }
+
+      /* =====================================================
+         4️⃣ GET OR CREATE DAILY TASK (LAZY)
+         (ONLY NOW — because WorkLog does not exist)
+      ===================================================== */
+      let dailyTask = await strapi.db
+        .query("api::daily-task.daily-task")
+        .findOne({
+          where: { date: today },
+        });
+
+      if (!dailyTask) {
         dailyTask = await strapi.entityService.create(
           "api::daily-task.daily-task",
           { data: { date: today } }
         );
       }
 
-      /* ===== WORK LOG ===== */
-      const existing = await strapi.entityService.findMany(
-        "api::work-log.work-log",
-        {
-          filters: { user: userId, work_date: today },
-          limit: 1,
-        }
-      );
-
-      if (existing.length) {
-        return { work_log: existing[0], daily_task: dailyTask };
-      }
-
-      const body = ctx.request.body?.data || {};
-      const incomingTasks = Array.isArray(body.tasks) ? body.tasks : [];
-
-      const tasks: WorkTask[] = incomingTasks.map((t: any, i: number) => ({
-        task_id: i + 1,
-        task_title: t.task_title || "",
-        task_description: t.task_description || "",
-        status: t.status || "hold",
-        createdAt: new Date().toISOString(),
-        time_spent: 0,
-        is_running: false,
-        last_started_at: null,
-      }));
-
+      /* =====================================================
+         5️⃣ CREATE WORK LOG
+      ===================================================== */
       const workLog = await strapi.entityService.create(
         "api::work-log.work-log",
         {
@@ -136,30 +216,40 @@ export default factories.createCoreController(
             user: userId,
             work_date: today,
             daily_task: dailyTask.id,
-            tasks,
+            tasks: tasks as any,
             active_task_id: null,
             total_time_taken: 0,
           },
         }
       );
 
-      return { work_log: workLog, daily_task: dailyTask };
+      return {
+        work_log: workLog,
+        daily_task: dailyTask,
+      };
     },
 
     /* =====================================================
        ADD TASK
     ===================================================== */
+
     async addTask(ctx: Context) {
       const userId = ctx.state.user?.id;
-      const { id } = ctx.params;
-      const { task_title, task_description, status } =
-        ctx.request.body?.data || {};
+      if (!userId) return ctx.unauthorized("Login required");
 
-      const allowedStatus = ["in-progress", "hold", "completed"];
-      if (!allowedStatus.includes(status)) {
-        return ctx.badRequest("Invalid status");
+      const { id } = ctx.params; // workLogId
+      const { task_title, status, project } = ctx.request.body?.data || {};
+
+      if (!task_title || !String(task_title).trim()) {
+        return ctx.badRequest("Task title is required");
       }
 
+      const allowedStatus = ["in-progress", "hold", "completed"];
+      const finalStatus = allowedStatus.includes(status)
+        ? status
+        : "in-progress";
+
+      /* ===== FETCH WORK LOG ===== */
       const workLog: any = await strapi.entityService.findOne(
         "api::work-log.work-log",
         id,
@@ -170,27 +260,61 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      const tasks = (workLog.tasks || []) as WorkTask[];
-      const nextId =
-        tasks.length > 0 ? Math.max(...tasks.map(t => t.task_id)) + 1 : 1;
+      /* ===== VALIDATE PROJECT ===== */
+      let projectData: { id: number; title: string } | null = null;
 
-      tasks.push({
+      if (project !== undefined && project !== null) {
+        const assignedProject = await strapi.db
+          .query("api::project.project")
+          .findOne({
+            where: {
+              id: project,
+              users_permissions_users: { id: userId },
+            },
+            select: ["id", "title"],
+          });
+
+        if (!assignedProject) {
+          return ctx.badRequest("Project is not assigned to this user");
+        }
+
+        projectData = {
+          id: assignedProject.id,
+          title: assignedProject.title,
+        };
+      }
+
+      /* ===== LOAD TASKS SAFELY ===== */
+      const tasks: WorkTask[] = Array.isArray(workLog.tasks)
+        ? (workLog.tasks as WorkTask[])
+        : [];
+
+      const nextId =
+        tasks.length > 0
+          ? Math.max(...tasks.map(t => t.task_id)) + 1
+          : 1;
+
+      /* ===== CREATE TASK (FINAL, CORRECT) ===== */
+      const newTask = {
         task_id: nextId,
-        task_title,
-        task_description,
-        status,
+        task_title: String(task_title).trim(),
+        status: finalStatus,
+        project: projectData,
         createdAt: new Date().toISOString(),
         time_spent: 0,
         is_running: false,
         last_started_at: null,
-      });
+      } as WorkTask;
+
+      tasks.push(newTask);
 
       return await strapi.entityService.update(
         "api::work-log.work-log",
         id,
-        { data: { tasks } }
+        { data: { tasks: tasks as any } }
       );
     },
+
 
     /* =====================================================
        UPDATE TASK (30 MIN RULE)
@@ -198,8 +322,7 @@ export default factories.createCoreController(
     async updateTask(ctx: Context) {
       const userId = ctx.state.user?.id;
       const { id } = ctx.params;
-      const { task_id, task_title, task_description, status } =
-        ctx.request.body?.data || {};
+      const { task_id, task_title, status } = ctx.request.body?.data || {};
 
       const allowedStatus = ["in-progress", "hold", "completed"];
       if (status && !allowedStatus.includes(status)) {
@@ -216,25 +339,42 @@ export default factories.createCoreController(
         return ctx.forbidden();
       }
 
-      const task = workLog.tasks.find((t: WorkTask) => t.task_id === task_id);
-      if (!task) return ctx.badRequest("Task not found");
+      const tasks = (workLog.tasks || []) as WorkTask[];
+      const task = tasks.find(t => t.task_id === task_id);
 
-      if (
-        Date.now() - new Date(task.createdAt).getTime() > THIRTY_MIN &&
-        (task_title !== undefined || task_description !== undefined)
-      ) {
-        return ctx.forbidden("Editable only within 30 minutes");
+      if (!task) {
+        return ctx.badRequest("Task not found");
       }
 
-      if (task_title !== undefined) task.task_title = task_title;
-      if (task_description !== undefined)
-        task.task_description = task_description;
-      if (status !== undefined) task.status = status;
+      /* 🔒 Title editable only within 30 minutes */
+      const isEditingTitle = task_title !== undefined;
+
+      if (
+        isEditingTitle &&
+        Date.now() - new Date(task.createdAt).getTime() > THIRTY_MIN
+      ) {
+        return ctx.forbidden("Task title editable only within 30 minutes");
+      }
+
+      /* ✅ Apply updates */
+      if (task_title !== undefined) {
+        task.task_title = task_title;
+      }
+
+      if (status !== undefined) {
+        task.status = status; // ✅ allowed anytime
+      }
+
+      // 🛑 Auto-stop when completed
+      if (status === "completed") {
+        task.is_running = false;
+        task.last_started_at = null;
+      }
 
       return await strapi.entityService.update(
         "api::work-log.work-log",
         id,
-        { data: { tasks: workLog.tasks } }
+        { data: { tasks: tasks as any } }
       );
     },
 
@@ -289,6 +429,11 @@ export default factories.createCoreController(
       const task = tasks.find(t => t.task_id === task_id);
       if (!task) return ctx.badRequest("Task not found");
 
+      /* 🔒 BLOCK COMPLETED TASKS */
+      if (task.status === "completed") {
+        return ctx.badRequest("Completed tasks cannot be started again");
+      }
+
       startTask(task, now);
 
       const totalTime = calcTotalTime(tasks, now);
@@ -298,7 +443,7 @@ export default factories.createCoreController(
         workLogId,
         {
           data: {
-            tasks,
+            tasks: tasks as any,
             active_task_id: task_id,
             total_time_taken: totalTime,
           },
@@ -337,7 +482,7 @@ export default factories.createCoreController(
         workLogId,
         {
           data: {
-            tasks,
+            tasks: tasks as any,
             active_task_id: null,
             total_time_taken: totalTime,
           },

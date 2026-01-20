@@ -45,7 +45,7 @@
     "last_checkout_reminder": {
       "type": "datetime"
     },
-     "checkin_started_at": {
+    "checkin_started_at": {
       "type": "datetime"
     },
     "is_checked_in": {
@@ -56,9 +56,8 @@
       "type": "datetime"
     },
     "attendance_seconds": {
-  "type": "integer",
-  "default": 0
-}
-
+      "type": "integer",
+      "default": 0
+    }
   }
 }

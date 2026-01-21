@@ -7,21 +7,28 @@ const LUNCH_START = 13;
 const LUNCH_END = 14
 
 /* ================= TIME HELPERS (IST SAFE) ================= */
-const getISTNow = () =>
-  new Date(
+const getNow = () => new Date();
+
+const getWorkDateIST = () => {
+  const d = new Date(
     new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
   );
-
-const getISTDate = () => {
-  const d = getISTNow();
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 };
 
-const isLunchTime = (d: Date) =>
-  d.getHours() >= LUNCH_START && d.getHours() < LUNCH_END;
+
+
+const isLunchTime = (d: Date) => {
+  const istHour = new Date(
+    d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  ).getHours();
+
+  return istHour >= 13 && istHour < 14;
+};
+
 
 /* ================= TASK HELPERS ================= */
 type WorkTask = {
@@ -37,11 +44,19 @@ type WorkTask = {
   time_spent: number;
   is_running: boolean;
   last_started_at: string | null;
+  work_sessions: {
+    start: string;
+    end: string | null;
+  }[];
 };
 
 
 /* ▶️ Pause a task */
 const pauseTask = (task: WorkTask, now: Date) => {
+  if (!Array.isArray(task.work_sessions)) {
+    task.work_sessions = [];
+  }
+
   if (!task.is_running || !task.last_started_at) return;
 
   const elapsed = Math.floor(
@@ -51,6 +66,16 @@ const pauseTask = (task: WorkTask, now: Date) => {
   task.time_spent = (task.time_spent || 0) + elapsed;
   task.is_running = false;
   task.last_started_at = null;
+
+  const sessions = task.work_sessions;
+  const lastSession =
+    sessions && sessions.length > 0
+      ? sessions[sessions.length - 1]
+      : null;
+
+  if (lastSession && !lastSession.end) {
+    lastSession.end = now.toISOString();
+  }
 };
 
 /* ▶️ Start / Resume a task */
@@ -62,6 +87,15 @@ const startTask = (task: WorkTask, now: Date) => {
 
   task.is_running = true;
   task.last_started_at = now.toISOString();
+
+  if (!Array.isArray(task.work_sessions)) {
+    task.work_sessions = [];
+  }
+
+  task.work_sessions.push({
+    start: now.toISOString(),
+    end: null,
+  });
 };
 
 
@@ -93,7 +127,7 @@ export default factories.createCoreController(
       const userId = ctx.state.user?.id;
       if (!userId) return ctx.unauthorized("Login required");
 
-      const today = getISTDate();
+      const today = getWorkDateIST();
       const body = ctx.request.body?.data || {};
       const incomingTasks = Array.isArray(body.tasks) ? body.tasks : [];
 
@@ -105,9 +139,10 @@ export default factories.createCoreController(
         .query("api::work-log.work-log")
         .findOne({
           where: {
+            work_date: today, // ✅ FIX
             user: userId,
-            work_date: today,
           },
+
         });
 
       if (existingWorkLog) {
@@ -183,16 +218,15 @@ export default factories.createCoreController(
             time_spent: 0,
             is_running: false,
             last_started_at: null,
+            work_sessions: [],
+
           };
         });
       } catch (err: any) {
         return ctx.badRequest(err.message);
       }
 
-      /* =====================================================
-         4️⃣ GET OR CREATE DAILY TASK (LAZY)
-         (ONLY NOW — because WorkLog does not exist)
-      ===================================================== */
+      // 🔒 DAILY TASK: one per date (shared by all users)
       let dailyTask = await strapi.db
         .query("api::daily-task.daily-task")
         .findOne({
@@ -200,11 +234,21 @@ export default factories.createCoreController(
         });
 
       if (!dailyTask) {
-        dailyTask = await strapi.entityService.create(
-          "api::daily-task.daily-task",
-          { data: { date: today } }
-        );
+        try {
+          dailyTask = await strapi.entityService.create(
+            "api::daily-task.daily-task",
+            { data: { date: today } }
+          );
+        } catch (err: any) {
+          // 🔁 Another request created it at the same time
+          dailyTask = await strapi.db
+            .query("api::daily-task.daily-task")
+            .findOne({
+              where: { date: today },
+            });
+        }
       }
+
 
       /* =====================================================
          5️⃣ CREATE WORK LOG
@@ -304,6 +348,8 @@ export default factories.createCoreController(
         time_spent: 0,
         is_running: false,
         last_started_at: null,
+        work_sessions: [],
+
       } as WorkTask;
 
       tasks.push(newTask);
@@ -367,8 +413,8 @@ export default factories.createCoreController(
 
       // 🛑 Auto-stop when completed
       if (status === "completed") {
-        task.is_running = false;
-        task.last_started_at = null;
+        pauseTask(task, getNow());
+
       }
 
       return await strapi.entityService.update(
@@ -386,8 +432,9 @@ export default factories.createCoreController(
       if (!userId) return ctx.unauthorized("Login required");
 
       const { workLogId, task_id } = ctx.request.body;
-      const now = getISTNow();
-      const today = getISTDate();
+      const now = getNow();
+      const today = getWorkDateIST();
+
 
       /* ===== CHECK ATTENDANCE ===== */
       const attendance = await strapi.entityService.findMany(
@@ -457,7 +504,7 @@ export default factories.createCoreController(
     async stopTaskTimer(ctx: Context) {
       const userId = ctx.state.user?.id;
       const { workLogId } = ctx.request.body;
-      const now = getISTNow();
+      const now = getNow();
 
       const workLog: any = await strapi.entityService.findOne(
         "api::work-log.work-log",
@@ -497,17 +544,23 @@ export default factories.createCoreController(
       const authUser = ctx.state.user;
       if (!authUser) return ctx.unauthorized("Login required");
 
-      let { userId, startDate, endDate } = ctx.query as any;
-      if (!userId) userId = authUser.id;
+      const { userId, startDate, endDate } = ctx.query as any;
 
-      if (authUser.user_type !== "Hr" && Number(userId) !== authUser.id) {
-        return ctx.forbidden("You can only view your own work logs");
+      const filters: any = {};
+
+      // 🔐 Normal user → only self
+      if (authUser.user_type !== "Hr") {
+        filters.user = authUser.id;
       }
 
-      const filters: any = { user: userId };
+      // 👩‍💼 HR → optional user filter
+      if (authUser.user_type === "Hr" && userId) {
+        filters.user = userId;
+      }
 
-      if (startDate && endDate) {
-        filters.work_date = { $gte: startDate, $lte: endDate };
+      // 📅 Date filter (safe, IST-friendly)
+      if (startDate) {
+        filters.work_date = startDate;
       }
 
       const workLogs = await strapi.entityService.findMany(
@@ -515,18 +568,21 @@ export default factories.createCoreController(
         {
           filters,
           sort: { work_date: "asc" },
-          populate: { daily_task: { fields: ["date"] } },
+          populate: {
+            user: {
+              fields: ["id", "username", "email", "user_type"],
+            },
+          },
         }
       );
 
       return {
-        userId,
-        startDate: startDate || null,
-        endDate: endDate || null,
+        date: startDate,
+        userId: userId || "ALL",
         count: workLogs.length,
         work_logs: workLogs,
       };
-    },
+    }
 
   })
 );

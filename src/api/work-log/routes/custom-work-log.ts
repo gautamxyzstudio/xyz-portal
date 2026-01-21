@@ -32,7 +32,7 @@ export default {
     },
     {
   method: "GET",
-  path: "/work-logs/user",
+  path: "/work-logs/userWorkLogs",
   handler: "work-log.userWorkLogs",
   config: {
     auth: {},   

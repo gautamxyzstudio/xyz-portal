@@ -31,14 +31,28 @@ export default {
       config: { auth: {} }
     },
     {
-  method: "GET",
-  path: "/work-logs/userWorkLogs",
-  handler: "work-log.userWorkLogs",
-  config: {
-    auth: {},   
-  },
-}
-
-
+      method: "GET",
+      path: "/work-logs/userWorkLogs",
+      handler: "work-log.userWorkLogs",
+      config: {
+        auth: {},
+      },
+    },
+     {
+      method: "GET",
+      path: "/work-logs/completed",
+      handler: "work-log.completedTasks",
+      config: {
+        auth: {},
+      },
+    },
+    {
+      method: "GET",
+      path: "/work-logs/task-summary",
+      handler: "work-log.taskSummary",
+      config: {
+        auth: {}
+      },
+    },
   ]
 };

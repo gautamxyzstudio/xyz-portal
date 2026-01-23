@@ -806,6 +806,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToMany',
       'api::project.project'
     >;
+    devices: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::device.device'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -970,6 +975,58 @@ export interface ApiDailyTaskDailyTask extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::daily-task.daily-task',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiDeviceDevice extends Schema.CollectionType {
+  collectionName: 'devices';
+  info: {
+    singularName: 'device';
+    pluralName: 'devices';
+    displayName: 'Devices';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    asset_name: Attribute.String & Attribute.Required;
+    asset_id: Attribute.String & Attribute.Required & Attribute.Unique;
+    category: Attribute.Enumeration<
+      ['laptop', 'mouse', 'keyboard', 'charger', 'other']
+    > &
+      Attribute.Required;
+    brand: Attribute.String;
+    model: Attribute.String;
+    serial_number: Attribute.String;
+    condition: Attribute.Enumeration<['new', 'good', 'damaged']> &
+      Attribute.DefaultTo<'new'>;
+    status: Attribute.Enumeration<
+      ['available', 'assigned', 'returned', 'damaged']
+    > &
+      Attribute.DefaultTo<'available'>;
+    description: Attribute.Text;
+    assigned_date: Attribute.Date;
+    assigned_to: Attribute.Relation<
+      'api::device.device',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::device.device',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::device.device',
       'oneToOne',
       'admin::user'
     > &
@@ -1285,6 +1342,7 @@ declare module '@strapi/types' {
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::daily-task.daily-task': ApiDailyTaskDailyTask;
+      'api::device.device': ApiDeviceDevice;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;

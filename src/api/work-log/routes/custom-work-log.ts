@@ -7,6 +7,12 @@ export default {
       config: { auth: {} }
     },
     {
+      method: "GET",
+      path: "/work-logs/today",
+      handler: "work-log.getToday",
+      config: { auth: {} }
+    },
+    {
       method: "POST",
       path: "/work-logs/:id/add-task",
       handler: "work-log.addTask",
@@ -38,7 +44,7 @@ export default {
         auth: {},
       },
     },
-     {
+    {
       method: "GET",
       path: "/work-logs/completed",
       handler: "work-log.completedTasks",

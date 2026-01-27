@@ -136,7 +136,7 @@ export default factories.createCoreController(
   ({ strapi }) => ({
 
     /* =====================================================
-       CREATE / GET TODAY WORK LOG + DAILY TASK
+       CREATE TODAY WORK LOG + DAILY TASK
     ===================================================== */
     async createToday(ctx: Context) {
       const userId = ctx.state.user?.id;
@@ -294,42 +294,42 @@ export default factories.createCoreController(
         }
       }
 
-     /* ================= CARRY FORWARD (FINAL FIX) ================= */
+      /* ================= CARRY FORWARD (FINAL FIX) ================= */
 
-// 🔥 Get LAST worklog BEFORE today
-const lastWorkLog = await strapi.db
-  .query("api::work-log.work-log")
-  .findOne({
-    where: {
-      user: userId,
-      work_date: { $ne: today }, // ✅ exclude today
-    },
-    orderBy: { work_date: "desc" },
-  });
+      // 🔥 Get LAST worklog BEFORE today
+      const lastWorkLog = await strapi.db
+        .query("api::work-log.work-log")
+        .findOne({
+          where: {
+            user: userId,
+            work_date: { $ne: today }, // ✅ exclude today
+          },
+          orderBy: { work_date: "desc" },
+        });
 
-/* 1️⃣ Always add today's Daily Meeting */
-let finalTasks: WorkTask[] = [DAILY_MEETING_TASK()];
+      /* 1️⃣ Always add today's Daily Meeting */
+      let finalTasks: WorkTask[] = [DAILY_MEETING_TASK()];
 
-/* 2️⃣ Carry forward ALL unfinished tasks (NOT completed, NOT meeting) */
-if (lastWorkLog?.tasks && Array.isArray(lastWorkLog.tasks)) {
-  const carried = (lastWorkLog.tasks as WorkTask[])
-    .filter(
-      (t) =>
-        t.task_key !== "DAILY_MEETING" && // 🚫 never carry meeting
-        t.status !== "completed"          // ✅ carry paused + in-progress
-    )
-    .map((t, idx) => ({
-      ...t,
-      task_id: idx + 2,
-      createdAt: new Date().toISOString(),
-      time_spent: 0,          // ⬅ reset daily counter
-      is_running: false,
-      last_started_at: null,
-      work_sessions: [],
-    }));
+      /* 2️⃣ Carry forward ALL unfinished tasks (NOT completed, NOT meeting) */
+      if (lastWorkLog?.tasks && Array.isArray(lastWorkLog.tasks)) {
+        const carried = (lastWorkLog.tasks as WorkTask[])
+          .filter(
+            (t) =>
+              t.task_key !== "DAILY_MEETING" && // 🚫 never carry meeting
+              t.status !== "completed"          // ✅ carry paused + in-progress
+          )
+          .map((t, idx) => ({
+            ...t,
+            task_id: idx + 2,
+            createdAt: new Date().toISOString(),
+            time_spent: 0,          // ⬅ reset daily counter
+            is_running: false,
+            last_started_at: null,
+            work_sessions: [],
+          }));
 
-  finalTasks.push(...carried);
-}
+        finalTasks.push(...carried);
+      }
 
       /* =====================================================
          5️⃣ CREATE WORK LOG
@@ -353,6 +353,70 @@ if (lastWorkLog?.tasks && Array.isArray(lastWorkLog.tasks)) {
         daily_task: dailyTask,
       };
     },
+
+
+    /* =====================================================
+     GET TODAY WORK LOG + DAILY TASK
+  ===================================================== */
+
+  async getToday(ctx: Context) {
+  const userId = ctx.state.user?.id;
+  if (!userId) return ctx.unauthorized("Login required");
+
+  const today = getWorkDateIST();
+
+  // 🔍 Check attendance
+  const attendance = await strapi.entityService.findMany(
+    "api::daily-attendance.daily-attendance",
+    {
+      filters: {
+        user: userId,
+        Date: today,
+        in: { $notNull: true },
+      },
+      limit: 1,
+    }
+  );
+
+  // ❌ Not checked in
+  if (!attendance.length) {
+    return {
+      work_log: {
+        id: null,
+        tasks: [],
+        work_date: today,
+        has_attendance: false,
+      },
+    };
+  }
+
+  // 🔍 Fetch today's work log
+  const workLog = await strapi.db
+    .query("api::work-log.work-log")
+    .findOne({
+      where: { user: userId, work_date: today },
+    });
+
+  // 🔥 IMPORTANT FIX: attendance exists but workLog not yet created
+  if (!workLog) {
+    return {
+      work_log: {
+        id: null,
+        tasks: [],
+        work_date: today,
+        has_attendance: true,
+      },
+    };
+  }
+
+  // ✅ Safe return
+  return {
+    work_log: {
+      ...workLog,
+      has_attendance: true,
+    },
+  };
+},
 
     /* =====================================================
        ADD TASK
@@ -708,46 +772,46 @@ if (lastWorkLog?.tasks && Array.isArray(lastWorkLog.tasks)) {
 
 
     async taskSummary(ctx) {
-  const userId = ctx.state.user?.id;
-  if (!userId) return ctx.unauthorized("Login required");
+      const userId = ctx.state.user?.id;
+      if (!userId) return ctx.unauthorized("Login required");
 
-  const workLogs = await strapi.entityService.findMany(
-    "api::work-log.work-log",
-    {
-      filters: { user: userId },
-      sort: { work_date: "asc" },
-    }
-  );
+      const workLogs = await strapi.entityService.findMany(
+        "api::work-log.work-log",
+        {
+          filters: { user: userId },
+          sort: { work_date: "asc" },
+        }
+      );
 
-  const summaryMap = new Map();
+      const summaryMap = new Map();
 
-  for (const wl of workLogs as any[]) {
-    const date = wl.work_date;
+      for (const wl of workLogs as any[]) {
+        const date = wl.work_date;
 
-    for (const task of wl.tasks || []) {
-      if (!summaryMap.has(task.task_key)) {
-        summaryMap.set(task.task_key, {
-          task_key: task.task_key,
-          task_title: task.task_title,
-          project: task.project,
-          total_time: 0,
-          days: [],
-        });
+        for (const task of wl.tasks || []) {
+          if (!summaryMap.has(task.task_key)) {
+            summaryMap.set(task.task_key, {
+              task_key: task.task_key,
+              task_title: task.task_title,
+              project: task.project,
+              total_time: 0,
+              days: [],
+            });
+          }
+
+          const entry = summaryMap.get(task.task_key);
+
+          entry.total_time += task.time_spent || 0;
+
+          entry.days.push({
+            date,
+            time_spent: task.time_spent || 0,
+          });
+        }
       }
 
-      const entry = summaryMap.get(task.task_key);
-
-      entry.total_time += task.time_spent || 0;
-
-      entry.days.push({
-        date,
-        time_spent: task.time_spent || 0,
-      });
+      return Array.from(summaryMap.values());
     }
-  }
-
-  return Array.from(summaryMap.values());
-}
 
 
   })

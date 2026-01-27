@@ -11,7 +11,7 @@ import { factories } from "@strapi/strapi";
 /* ================= IST HELPERS ================= */
 const getISTDate = () => {
   const d = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
   );
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -22,7 +22,6 @@ const getISTDate = () => {
 export default factories.createCoreService(
   "api::work-log.work-log",
   ({ strapi }) => ({
-
     /* =====================================================
        ✅ CREATE TODAY WORKLOG (SAFE, IDPOTENT)
        Called ONLY from check-in

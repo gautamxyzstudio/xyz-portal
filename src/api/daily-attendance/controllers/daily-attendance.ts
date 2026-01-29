@@ -278,6 +278,10 @@ export default {
         }
       );
 
+      await strapi
+  .service("api::work-log.work-log")
+  .createTodayForUser(userId);
+
       ctx.body = attendance;
     } catch (err) {
       strapi.log.error("Check-in failed", err);

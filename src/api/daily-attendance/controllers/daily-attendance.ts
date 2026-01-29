@@ -278,7 +278,6 @@ export default {
         }
       );
 
-
       ctx.body = attendance;
     } catch (err) {
       strapi.log.error("Check-in failed", err);

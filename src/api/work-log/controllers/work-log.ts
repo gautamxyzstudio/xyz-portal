@@ -359,13 +359,87 @@ export default factories.createCoreController(
      GET TODAY WORK LOG + DAILY TASK
   ===================================================== */
 
+    // async getToday(ctx: Context) {
+    //   const userId = ctx.state.user?.id;
+    //   if (!userId) return ctx.unauthorized("Login required");
+
+    //   const today = getWorkDateIST();
+
+    //   // 🔍 Check attendance
+    //   const attendance = await strapi.entityService.findMany(
+    //     "api::daily-attendance.daily-attendance",
+    //     {
+    //       filters: {
+    //         user: userId,
+    //         Date: today,
+    //         in: { $notNull: true },
+    //       },
+    //       limit: 1,
+    //     }
+    //   );
+
+    //   // ❌ Not checked in
+    //   if (!attendance.length) {
+    //     return {
+    //       work_log: {
+    //         id: null,
+    //         tasks: [],
+    //         work_date: today,
+    //         has_attendance: false,
+    //       },
+    //     };
+    //   }
+
+    //   // 🔍 Fetch today's work log
+    //   const workLogs = await strapi.entityService.findMany(
+    //     "api::work-log.work-log",
+    //     {
+    //       filters: { user: userId, work_date: today },
+    //       limit: 1,
+    //       populate: {
+    //         user: {
+    //           fields: ["id", "username", "email"],
+    //           populate: {
+    //             user_detial: {          // ⚠️ typo must match schema
+    //               populate: ["Photo"],
+    //             },
+    //           },
+    //         },
+    //       },
+    //     }
+    //   );
+
+    //   const workLog = workLogs[0] || null;
+
+
+    //   // 🔥 IMPORTANT FIX: attendance exists but workLog not yet created
+    //   if (!workLog) {
+    //     return {
+    //       work_log: {
+    //         id: null,
+    //         tasks: [],
+    //         work_date: today, 
+    //         has_attendance: true,
+    //       },
+    //     };
+    //   }
+
+    //   // ✅ Safe return
+    //   return {
+    //     work_log: {
+    //       ...workLog,
+    //       has_attendance: true,
+    //     },
+    //   };
+    // },
+
   async getToday(ctx: Context) {
   const userId = ctx.state.user?.id;
   if (!userId) return ctx.unauthorized("Login required");
 
   const today = getWorkDateIST();
 
-  // 🔍 Check attendance
+  /* ================= CHECK ATTENDANCE ================= */
   const attendance = await strapi.entityService.findMany(
     "api::daily-attendance.daily-attendance",
     {
@@ -378,7 +452,6 @@ export default factories.createCoreController(
     }
   );
 
-  // ❌ Not checked in
   if (!attendance.length) {
     return {
       work_log: {
@@ -390,26 +463,46 @@ export default factories.createCoreController(
     };
   }
 
-  // 🔍 Fetch today's work log
-  const workLog = await strapi.db
-    .query("api::work-log.work-log")
-    .findOne({
-      where: { user: userId, work_date: today },
-    });
+  /* ================= FETCH WORKLOG ================= */
+  const workLogs = await strapi.entityService.findMany(
+    "api::work-log.work-log",
+    {
+      filters: {
+        user: userId,
+        work_date: today,
+      },
+      limit: 1,
+      populate: {
+        user: {
+          fields: ["id", "username", "email"],
+          populate: {
+            user_detial: {
+              populate: ["Photo"],
+            },
+          },
+        },
+      },
+    }
+  );
 
-  // 🔥 IMPORTANT FIX: attendance exists but workLog not yet created
+  const workLog = workLogs?.[0];
+
+  /* ================= ATTENDANCE EXISTS, WORKLOG NOT YET CREATED ================= */
   if (!workLog) {
     return {
       work_log: {
         id: null,
         tasks: [],
         work_date: today,
+        user: {
+          id: userId, // 👈 minimal safe user object
+        },
         has_attendance: true,
       },
     };
   }
 
-  // ✅ Safe return
+  /* ================= NORMAL RETURN ================= */
   return {
     work_log: {
       ...workLog,

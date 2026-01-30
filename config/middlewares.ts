@@ -1,20 +1,25 @@
 export default [
   'strapi::logger',
   'strapi::errors',
-  'strapi::security',
+
   {
     name: 'strapi::cors',
     config: {
       origin: [
         'http://localhost:5173',
-        'https://portal.xyz.studio',         
-        'https://xyzportal.thexyzstudio.com', 
+        'http://localhost:3000',
+        'https://portal.xyz.studio',
+        'https://xyzportal.thexyzstudio.com',
+        'https://www.xyz.studio',
+        'https://xyz.studio',
       ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true,
     },
   },
+
+  'strapi::security',
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
@@ -22,3 +27,4 @@ export default [
   'strapi::favicon',
   'strapi::public',
 ];
+

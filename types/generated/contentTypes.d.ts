@@ -770,7 +770,9 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    user_type: Attribute.Enumeration<['Admin', 'Employee', 'Hr', 'Public']>;
+    user_type: Attribute.Enumeration<
+      ['Admin', 'Employee', 'Hr', 'Public', 'Management']
+    >;
     user_detial: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToOne',
@@ -811,6 +813,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::device.device'
     >;
+    checkout_email_enabled: Attribute.Boolean & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

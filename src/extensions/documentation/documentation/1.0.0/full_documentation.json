@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-30T09:38:42.531Z"
+    "x-generation-date": "2026-02-02T12:41:39.696Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -1864,7 +1864,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -3507,6 +3508,9 @@
                           }
                         }
                       },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -4218,7 +4222,8 @@
                                         "Admin",
                                         "Employee",
                                         "Hr",
-                                        "Public"
+                                        "Public",
+                                        "Management"
                                       ]
                                     },
                                     "user_detial": {
@@ -5706,6 +5711,9 @@
                                         }
                                       }
                                     },
+                                    "checkout_email_enabled": {
+                                      "type": "boolean"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -6602,7 +6610,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -8245,6 +8254,9 @@
                           }
                         }
                       },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -9339,7 +9351,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -10750,6 +10763,9 @@
                             }
                           }
                         }
+                      },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
                       },
                       "createdAt": {
                         "type": "string",
@@ -12017,7 +12033,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -13659,6 +13676,9 @@
                             }
                           }
                         }
+                      },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
                       },
                       "createdAt": {
                         "type": "string",
@@ -14431,7 +14451,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -16074,6 +16095,9 @@
                           }
                         }
                       },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -16771,7 +16795,8 @@
                             "Admin",
                             "Employee",
                             "Hr",
-                            "Public"
+                            "Public",
+                            "Management"
                           ]
                         },
                         "user_detial": {
@@ -18414,6 +18439,9 @@
                             }
                           }
                         },
+                        "checkout_email_enabled": {
+                          "type": "boolean"
+                        },
                         "createdAt": {
                           "type": "string",
                           "format": "date-time"
@@ -19457,7 +19485,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -20869,6 +20898,9 @@
                           }
                         }
                       },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -21563,7 +21595,8 @@
                           "Admin",
                           "Employee",
                           "Hr",
-                          "Public"
+                          "Public",
+                          "Management"
                         ]
                       },
                       "user_detial": {
@@ -23205,6 +23238,9 @@
                             }
                           }
                         }
+                      },
+                      "checkout_email_enabled": {
+                        "type": "boolean"
                       },
                       "createdAt": {
                         "type": "string",

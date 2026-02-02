@@ -71,7 +71,8 @@
         "Admin",
         "Employee",
         "Hr",
-        "Public"
+        "Public",
+        "Management"
       ]
     },
     "user_detial": {
@@ -121,6 +122,10 @@
       "relation": "oneToMany",
       "target": "api::device.device",
       "mappedBy": "assigned_to"
+    },
+    "checkout_email_enabled": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

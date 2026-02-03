@@ -1214,6 +1214,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
     singularName: 'project';
     pluralName: 'projects';
     displayName: 'Projects';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1226,6 +1227,7 @@ export interface ApiProjectProject extends Schema.CollectionType {
       'manyToMany',
       'plugin::users-permissions.user'
     >;
+    logo: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

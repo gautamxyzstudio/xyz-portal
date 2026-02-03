@@ -359,83 +359,87 @@ export default factories.createCoreController(
      GET TODAY WORK LOG + DAILY TASK
   ===================================================== */
 
-  async getToday(ctx: Context) {
-  const userId = ctx.state.user?.id;
-  if (!userId) return ctx.unauthorized("Login required");
+    async getToday(ctx: Context) {
+      const userId = ctx.state.user?.id;
+      if (!userId) return ctx.unauthorized("Login required");
 
-  const today = getWorkDateIST();
+      const today = getWorkDateIST();
 
-  /* ================= CHECK ATTENDANCE ================= */
-  const attendance = await strapi.entityService.findMany(
-    "api::daily-attendance.daily-attendance",
-    {
-      filters: {
-        user: userId,
-        Date: today,
-        in: { $notNull: true },
-      },
-      limit: 1,
-    }
-  );
+      /* ================= CHECK ATTENDANCE ================= */
+      const attendance = await strapi.entityService.findMany(
+        "api::daily-attendance.daily-attendance",
+        {
+          filters: {
+            user: userId,
+            Date: today,
+            in: { $notNull: true },
+          },
+          limit: 1,
+        }
+      );
 
-  if (!attendance.length) {
-    return {
-      work_log: {
-        id: null,
-        tasks: [],
-        work_date: today,
-        has_attendance: false,
-      },
-    };
-  }
+      const attendanceOut = attendance[0]?.out || null;
 
-  /* ================= FETCH WORKLOG ================= */
-  const workLogs = await strapi.entityService.findMany(
-    "api::work-log.work-log",
-    {
-      filters: {
-        user: userId,
-        work_date: today,
-      },
-      limit: 1,
-      populate: {
-        user: {
-          fields: ["id", "username", "email"],
+      if (!attendance.length) {
+        return {
+          work_log: {
+            id: null,
+            tasks: [],
+            work_date: today,
+            has_attendance: false,
+          },
+        };
+      }
+
+      /* ================= FETCH WORKLOG ================= */
+      const workLogs = await strapi.entityService.findMany(
+        "api::work-log.work-log",
+        {
+          filters: {
+            user: userId,
+            work_date: today,
+          },
+          limit: 1,
           populate: {
-            user_detial: {
-              populate: ["Photo"],
+            user: {
+              fields: ["id", "username", "email"],
+              populate: {
+                user_detial: {
+                  populate: ["Photo"],
+                },
+              },
             },
           },
+        }
+      );
+
+      const workLog = workLogs?.[0];
+
+      /* ================= ATTENDANCE EXISTS, WORKLOG NOT YET CREATED ================= */
+      if (!workLog) {
+        return {
+          work_log: {
+            id: null,
+            tasks: [],
+            work_date: today,
+            user: {
+              id: userId, // 👈 minimal safe user object
+            },
+            has_attendance: true,
+            out: attendanceOut,
+          },
+        };
+      }
+
+      /* ================= NORMAL RETURN ================= */
+      return {
+        work_log: {
+          ...workLog,
+          has_attendance: true,
+          out: attendanceOut,
         },
-      },
-    }
-  );
-
-  const workLog = workLogs?.[0];
-
-  /* ================= ATTENDANCE EXISTS, WORKLOG NOT YET CREATED ================= */
-  if (!workLog) {
-    return {
-      work_log: {
-        id: null,
-        tasks: [],
-        work_date: today,
-        user: {
-          id: userId, // 👈 minimal safe user object
-        },
-        has_attendance: true,
-      },
-    };
-  }
-
-  /* ================= NORMAL RETURN ================= */
-  return {
-    work_log: {
-      ...workLog,
-      has_attendance: true,
+      };
     },
-  };
-},
 
     /* =====================================================
        ADD TASK
@@ -705,50 +709,76 @@ export default factories.createCoreController(
     /* =====================================================
        USER / HR WORK LOGS
     ===================================================== */
-    async userWorkLogs(ctx: Context) {
-      const authUser = ctx.state.user;
-      if (!authUser) return ctx.unauthorized("Login required");
+async userWorkLogs(ctx: Context) {
+  const authUser = ctx.state.user;
+  if (!authUser) return ctx.unauthorized("Login required");
 
-      const { userId, startDate, endDate } = ctx.query as any;
+  const { userId, username, startDate, endDate } = ctx.query as any;
 
-      const filters: any = {};
+  const filters: any = {};
+  let resolvedUserId = userId;
 
-      // 🔐 Normal user → only self
-      if (authUser.user_type !== "Hr") {
-        filters.user = authUser.id;
+  // 🔍 HR: resolve username → userId
+  if (authUser.user_type === "Hr" && username && !userId) {
+    const users = (await strapi.entityService.findMany(
+      "plugin::users-permissions.user",
+      {
+        filters: { username },
+        fields: ["id"],
+        limit: 1,
       }
+    )) as { id: number }[];
 
-      // 👩‍💼 HR → optional user filter
-      if (authUser.user_type === "Hr" && userId) {
-        filters.user = userId;
-      }
+    if (!users.length) {
+      return ctx.badRequest("User not found with this username");
+    }
 
-      // 📅 Date filter (safe, IST-friendly)
-      if (startDate) {
-        filters.work_date = startDate;
-      }
+    resolvedUserId = users[0].id; // ✅ NO RED LINE
+  }
 
-      const workLogs = await strapi.entityService.findMany(
-        "api::work-log.work-log",
-        {
-          filters,
-          sort: { work_date: "asc" },
+  // 🔐 Normal user → only self
+  if (authUser.user_type !== "Hr") {
+    filters.user = authUser.id;
+  }
+
+  // 👩‍💼 HR → resolved user
+  if (authUser.user_type === "Hr" && resolvedUserId) {
+    filters.user = resolvedUserId;
+  }
+
+  // 📅 Date filter
+  if (startDate && endDate) {
+    filters.work_date = { $between: [startDate, endDate] };
+  } else if (startDate) {
+    filters.work_date = startDate;
+  }
+
+  const workLogs = await strapi.entityService.findMany(
+    "api::work-log.work-log",
+    {
+      filters,
+      sort: { work_date: "asc" },
+      populate: {
+        user: {
+          fields: ["id", "username", "email", "user_type"],
           populate: {
-            user: {
-              fields: ["id", "username", "email", "user_type"],
+            user_detial: {
+              populate: { Photo: true },
             },
           },
-        }
-      );
+        },
+      },
+    }
+  );
 
-      return {
-        date: startDate,
-        userId: userId || "ALL",
-        count: workLogs.length,
-        work_logs: workLogs,
-      };
-    },
-
+  return {
+    user: username || resolvedUserId || "ALL",
+    startDate,
+    endDate,
+    count: workLogs.length,
+    work_logs: workLogs,
+  };
+},
 
     /* =====================================================
    GET ALL COMPLETED TASKS (ALL WORKLOGS)

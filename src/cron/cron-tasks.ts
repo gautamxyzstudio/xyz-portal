@@ -435,354 +435,216 @@ module.exports = {
      CHECKOUT REMINDER 
      ========================================= */
 
-//   checkoutReminder: {
-//     task: async ({ strapi }) => {
-//       try {
-//         /* =====================================================
-//            🕒 IST NOW (SAFE)
-//         ===================================================== */
-//         const istNow = new Date(
-//           new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-//         );
+  checkoutReminder: {
+    task: async ({ strapi }) => {
+      try {
+        /* =====================================================
+           🕒 IST NOW (SAFE)
+        ===================================================== */
+        const istNow = new Date(
+          new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        );
 
-//         const hours = istNow.getHours();
-//         const minutes = istNow.getMinutes();
+        const hours = istNow.getHours();
+        const minutes = istNow.getMinutes();
 
-//         /* =====================================================
-//            📅 SAFE IST DATE (NO toISOString BUG)
-//         ===================================================== */
-//         const yyyy = istNow.getFullYear();
-//         const mm = String(istNow.getMonth() + 1).padStart(2, "0");
-//         const dd = String(istNow.getDate()).padStart(2, "0");
-//         const today = `${yyyy}-${mm}-${dd}`;
+        /* =====================================================
+           📅 SAFE IST DATE (NO toISOString BUG)
+        ===================================================== */
+        const yyyy = istNow.getFullYear();
+        const mm = String(istNow.getMonth() + 1).padStart(2, "0");
+        const dd = String(istNow.getDate()).padStart(2, "0");
+        const today = `${yyyy}-${mm}-${dd}`;
 
-//         strapi.log.info(
-//           `[CheckoutReminder] Cron running at ${istNow.toLocaleTimeString("en-IN")}`
-//         );
+        strapi.log.info(
+          `[CheckoutReminder] Cron running at ${istNow.toLocaleTimeString("en-IN")}`
+        );
 
-//         /* =====================================================
-//            ⏱ TIME GATE — AFTER 6:15 PM IST ONLY
-//         ===================================================== */
-//         if (hours < 18 || (hours === 18 && minutes < 15)) return;
+        /* =====================================================
+           ⏱ TIME GATE — AFTER 6:15 PM IST ONLY
+        ===================================================== */
+        if (hours < 18 || (hours === 18 && minutes < 15)) return;
 
-//         /* =====================================================
-//            👤 ACTIVE ATTENDANCE (NOT CHECKED OUT)
-//         ===================================================== */
-//         const attendances = await strapi.entityService.findMany(
-//           "api::daily-attendance.daily-attendance",
-//           {
-//             filters: {
-//               Date: today,
-//               in: { $notNull: true },
-//               out: { $null: true },
-//             },
-//             populate: { user: true },
-//           }
-//         );
-
-//         if (!attendances.length) return;
-
-//         /* =====================================================
-//            👥 HR USERS (CC)
-//         ===================================================== */
-//         const hrUsers = await strapi.entityService.findMany(
-//           "plugin::users-permissions.user",
-//           {
-//             filters: {
-//               role: { name: "Hr" },
-//               user_type: "Hr",
-//             },
-//           }
-//         );
-
-//         const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
-
-
-//         /* =====================================================
-//            ✉️ SEND REMINDERS
-//         ===================================================== */
-//         for (const attendance of attendances) {
-//           const lastReminder = attendance.last_checkout_reminder
-//             ? new Date(attendance.last_checkout_reminder)
-//             : null;
-
-//           // ⏱ 30-minute rule
-//           if (
-//             lastReminder &&
-//             istNow.getTime() - lastReminder.getTime() < 30 * 60 * 1000
-//           ) {
-//             continue;
-//           }
-
-//           const userEmail = attendance.user?.email;
-//           if (!userEmail) continue;
-
-
-//           await strapi.plugin("email").service("email").send({
-//             to: userEmail,        // employee
-//             cc: hrEmails,
-//             subject: "Checkout Reminder – Working After Office Hours",
-
-//             /* =====================================================
-//                📧 HTML EMAIL (INLINE, FIXED)
-//             ===================================================== */
-//             html: `
-// <!DOCTYPE html>
-// <html lang="en">
-// <head>
-// <meta charset="utf-8" />
-// </head>
-
-// <body style="margin:0;padding:0;background-color:#f7f7f7;">
-
-// <table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
-// <tr>
-// <td align="center">
-
-// <table border="0" cellpadding="0" cellspacing="0" width="600"
-//        style="max-width:600px;background-color:#ffffff;">
-
-// <tr>
-// <td style="padding:10px 40px;background-color:#181818;" align="center">
-// <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-//      alt="Logo" width="150" style="display:block;height:auto;">
-// </td>
-// </tr>
-
-// <tr>
-// <td align="center" style="padding:40px 40px 20px 40px;">
-
-// <h2 style="
-//   font-family:Arial,sans-serif;
-//   font-size:22px;
-//   color:#000000;
-//   margin:0 0 20px 0;
-//   line-height:32px;
-//   text-transform:uppercase;
-//   font-weight:900;
-// ">
-// Checkout Reminder
-// </h2>
-
-// <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
-// Hello <strong>${attendance.user.username}</strong>,
-// </p>
-
-// <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
-// This is to inform you that your checkout has not been completed in the employee portal.<br/>
-// Please complete the checkout at your convenience.
-// </p>
-
-// </td>
-// </tr>
-
-// <tr>
-// <td align="center" style="padding:30px 40px;background-color:#181818;">
-// <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-//      width="200" style="display:block;margin:0 auto;height:auto;">
-// </td>
-// </tr>
-
-// </table>
-// </td>
-// </tr>
-// </table>
-
-// </body>
-// </html>
-// `,
-//           });
-
-//           /* =====================================================
-//              🕓 SAVE REMINDER TIME (UTC)
-//           ===================================================== */
-//           await strapi.entityService.update(
-//             "api::daily-attendance.daily-attendance",
-//             attendance.id,
-//             {
-//               data: {
-//                 last_checkout_reminder: new Date().toISOString(),
-//               },
-//             }
-//           );
-
-//           strapi.log.info(
-//             `[CheckoutReminder] Reminder sent to ${attendance.user.username}`
-//           );
-//         }
-//       } catch (error) {
-//         strapi.log.error("[CheckoutReminder] FAILED");
-//         strapi.log.error(error);
-//       }
-//     },
-
-//     /* =====================================================
-//        ⏱ CRON SCHEDULE
-//     ===================================================== */
-//     options: {
-//       rule: "*/15 * * * *", // every 15 minutes
-//       tz: "Asia/Kolkata",
-//     },
-//   },
-
-checkoutReminder: {
-  task: async ({ strapi }) => {
-    try {
-      /* ================= IST TIME ================= */
-      const istNow = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-      );
-
-      if (
-        istNow.getHours() < 18 ||
-        (istNow.getHours() === 18 && istNow.getMinutes() < 15)
-      ) return;
-
-      const today = istNow.toISOString().slice(0, 10);
-
-      /* ================= ATTENDANCE ================= */
-      const attendances = await strapi.entityService.findMany(
-        "api::daily-attendance.daily-attendance",
-        {
-          filters: {
-            Date: today,
-            in: { $notNull: true },
-            out: { $null: true },
-          },
-          populate: { user: true },
-        }
-      );
-
-      if (!attendances.length) return;
-
-      /* ================= HR ================= */
-      const hrUsers = await strapi.entityService.findMany(
-        "plugin::users-permissions.user",
-        {
-          filters: {
-            role: { name: "Hr" },
-            user_type: "Hr",
-          },
-        }
-      );
-      const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
-
-      /* ================= MANAGEMENT ================= */
-      const managementUsers = await strapi.entityService.findMany(
-        "plugin::users-permissions.user",
-        {
-          filters: {
-            role: { name: "Management" },
-            user_type: "Management",
-            checkout_email_enabled: true,
-          },
-        }
-      );
-      const managementEmails = managementUsers.map(u => u.email).filter(Boolean);
-
-      for (const attendance of attendances) {
-        const userEmail = attendance.user?.email;
-        if (!userEmail) continue;
-
-        /* ================= BASE HTML (USED BY ALL) ================= */
-        const baseHtml = `
-<!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#f7f7f7;">
-<table width="100%" style="background:#f7f7f7;">
-<tr><td align="center">
-<table width="600" style="background:#ffffff;">
-
-<tr>
-<td style="padding:10px 40px;background:#181818;" align="center">
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png" width="150">
-</td>
-</tr>
-
-<tr>
-<td style="padding:40px;">
-<h2 style="font-family:Arial;font-size:22px;">Checkout Reminder</h2>
-<p>Hello <strong>${attendance.user.username}</strong>,</p>
-<p>
-This is to inform you that your checkout has not been completed in the employee portal.<br/>
-Please complete the checkout at your convenience.
-</p>
-</td>
-</tr>
-
-<tr>
-<td style="padding:30px;background:#181818;" align="center">
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png" width="200">
-</td>
-</tr>
-
-{{FOOTER}}
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>
-`;
-
-        /* ================= SEND EMPLOYEE + HR ================= */
-        await strapi.plugin("email").service("email").send({
-          to: userEmail,
-          cc: hrEmails,
-          subject: "Checkout Reminder – Working After Office Hours",
-          html: baseHtml.replace("{{FOOTER}}", ""),
-        });
-
-        /* ================= SEND MANAGEMENT (SAME HTML + FOOTER) ================= */
-        for (const manager of managementUsers) {
-          const token = require("crypto")
-            .createHmac("sha256", process.env.APP_KEYS)
-            .update(`checkout:${manager.id}:${manager.email}`)
-            .digest("hex");
-
-          const footer = `
-<tr>
-<td align="center" style="padding:16px 40px;">
-<p style="font-size:11px;color:#777;">
-This email includes Management recipients.<br/><br/>
-<a href="https://portal.xyz.studio/email/management/unsubscribe?userId=${manager.id}&token=${token}">
-Stop receiving these emails
-</a>
-&nbsp;|&nbsp;
-<a href="https://portal.xyz.studio/email/management/subscribe?userId=${manager.id}&token=${token}">
-Re-enable emails
-</a>
-</p>
-</td>
-</tr>`;
-
-          await strapi.plugin("email").service("email").send({
-            to: manager.email,
-            subject: "Checkout Reminder – Working After Office Hours",
-            html: baseHtml.replace("{{FOOTER}}", footer),
-          });
-        }
-
-        await strapi.entityService.update(
+        /* =====================================================
+           👤 ACTIVE ATTENDANCE (NOT CHECKED OUT)
+        ===================================================== */
+        const attendances = await strapi.entityService.findMany(
           "api::daily-attendance.daily-attendance",
-          attendance.id,
           {
-            data: {
-              last_checkout_reminder: new Date().toISOString(),
+            filters: {
+              Date: today,
+              in: { $notNull: true },
+              out: { $null: true },
+            },
+            populate: { user: true },
+          }
+        );
+
+        if (!attendances.length) return;
+
+        /* =====================================================
+           👥 HR USERS (CC)
+        ===================================================== */
+        const hrUsers = await strapi.entityService.findMany(
+          "plugin::users-permissions.user",
+          {
+            filters: {
+              role: { name: "Hr" },
+              user_type: "Hr",
             },
           }
         );
+
+        const hrEmails = hrUsers.map(u => u.email).filter(Boolean);
+
+        /* =====================================================
+ 👔 MANAGEMENT USERS (CC ONLY IF ENABLED)
+===================================================== */
+        const managementUsers = await strapi.entityService.findMany(
+          "plugin::users-permissions.user",
+          {
+            filters: {
+              role: { name: "Management" },
+              user_type: "Management",
+            },
+          }
+        );
+
+        const managementEmails = managementUsers
+          .filter(u => u.checkout_email_enabled === true)
+          .map(u => u.email)
+          .filter(Boolean);
+
+
+
+        /* =====================================================
+           ✉️ SEND REMINDERS
+        ===================================================== */
+        for (const attendance of attendances) {
+          const lastReminder = attendance.last_checkout_reminder
+            ? new Date(attendance.last_checkout_reminder)
+            : null;
+
+          // ⏱ 30-minute rule
+          if (
+            lastReminder &&
+            istNow.getTime() - lastReminder.getTime() < 30 * 60 * 1000
+          ) {
+            continue;
+          }
+
+          const userEmail = attendance.user?.email;
+          if (!userEmail) continue;
+
+
+          await strapi.plugin("email").service("email").send({
+            to: userEmail,        // employee
+            cc: [...hrEmails, ...managementEmails],
+            subject: "Checkout Reminder – Working After Office Hours",
+
+            /* =====================================================
+               📧 HTML EMAIL (INLINE, FIXED)
+            ===================================================== */
+            html: `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  </head>
+
+  <body style="margin:0;padding:0;background-color:#f7f7f7;">
+
+  <table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
+  <tr>
+  <td align="center">
+
+  <table border="0" cellpadding="0" cellspacing="0" width="600"
+         style="max-width:600px;background-color:#ffffff;">
+
+  <tr>
+  <td style="padding:10px 40px;background-color:#181818;" align="center">
+  <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+       alt="Logo" width="150" style="display:block;height:auto;">
+  </td>
+  </tr>
+
+  <tr>
+  <td align="center" style="padding:40px 40px 20px 40px;">
+
+  <h2 style="
+    font-family:Arial,sans-serif;
+    font-size:22px;
+    color:#000000;
+    margin:0 0 20px 0;
+    line-height:32px;
+    text-transform:uppercase;
+    font-weight:900;
+  ">
+  Checkout Reminder
+  </h2>
+
+  <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+  Hello <strong>${attendance.user.username}</strong>,
+  </p>
+
+  <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+  This is to inform you that your checkout has not been completed in the employee portal.<br/>
+  Please complete the checkout at your convenience.
+  </p>
+
+  </td>
+  </tr>
+
+  <tr>
+  <td align="center" style="padding:30px 40px;background-color:#181818;">
+  <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+       width="200" style="display:block;margin:0 auto;height:auto;">
+  </td>
+  </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  </body>
+  </html>
+  `,
+          });
+
+          /* =====================================================
+             🕓 SAVE REMINDER TIME (UTC)
+          ===================================================== */
+          await strapi.entityService.update(
+            "api::daily-attendance.daily-attendance",
+            attendance.id,
+            {
+              data: {
+                last_checkout_reminder: new Date().toISOString(),
+              },
+            }
+          );
+
+          strapi.log.info(
+            `[CheckoutReminder] Reminder sent to ${attendance.user.username}`
+          );
+        }
+      } catch (error) {
+        strapi.log.error("[CheckoutReminder] FAILED");
+        strapi.log.error(error);
       }
-    } catch (err) {
-      strapi.log.error("[CheckoutReminder] FAILED", err);
-    }
+    },
+
+    /* =====================================================
+       ⏱ CRON SCHEDULE
+    ===================================================== */
+    options: {
+      rule: "*/15 * * * *", // every 15 minutes
+      tz: "Asia/Kolkata",
+    },
   },
 
-  options: {
-    rule: "*/15 * * * *",
-    tz: "Asia/Kolkata",
-  },
-},
+
 
 
 }

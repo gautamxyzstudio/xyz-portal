@@ -8,7 +8,7 @@ export default {
     },
     {
       method: "GET",
-      path: "/projects/user/:userId",
+      path: "/projects",
       handler: "project.userProjects",
       config: { auth: {} },
     },

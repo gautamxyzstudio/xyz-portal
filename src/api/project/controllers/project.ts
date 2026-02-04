@@ -15,12 +15,16 @@ export default factories.createCoreController(
     /* =====================================================
        EMPLOYEE → OWN PROJECTS
     ===================================================== */
-    async myProjects(ctx) {
+    async myProjects(ctx: any) {
       const user = ctx.state.user;
 
       if (!user) {
         return ctx.unauthorized("Login required");
       }
+
+      /* =====================
+         Fetch user's projects
+      ====================== */
 
       const projects = await strapi.entityService.findMany(
         "api::project.project",
@@ -31,18 +35,52 @@ export default factories.createCoreController(
             },
           },
           fields: ["id", "title"],
+          populate: {
+            logo: true, // ✅ project logo
+          },
         }
       );
 
-      return projects;
+      /* =====================
+         Fetch user info + photo
+      ====================== */
+
+      const users = await strapi.entityService.findMany(
+        "plugin::users-permissions.user",
+        {
+          filters: { id: user.id },
+          fields: ["id", "username"],
+          populate: {
+            user_detial: {
+              populate: {
+                Photo: true, // ✅ user photo
+              },
+            },
+          },
+          limit: 1,
+        }
+      );
+
+      const me = users[0] as any;
+
+      return {
+        user: {
+          id: me.id,
+          username: me.username,
+          photo: me.user_detial?.Photo || [],
+        },
+        projects,
+      };
     },
 
+
     /* =====================================================
-       HR → SINGLE USER PROJECTS
+       HR → SINGLE USER PROJECTS AND ALL PROJECTS
     ===================================================== */
-    async userProjects(ctx) {
+
+    async userProjects(ctx: any) {
       const authUser = ctx.state.user;
-      const { userId } = ctx.params;
+      const { username } = ctx.query as { username?: string };
 
       if (!authUser) {
         return ctx.unauthorized("Login required");
@@ -53,20 +91,84 @@ export default factories.createCoreController(
         return ctx.forbidden("Only HR can access this");
       }
 
+      /* ==================================================
+         CASE 1: HR passes username → that user's projects
+      =================================================== */
+
+      if (username) {
+        const users = await strapi.entityService.findMany(
+          "plugin::users-permissions.user",
+          {
+            filters: { username },
+            fields: ["id", "username"],
+            populate: {
+              user_detial: {
+                populate: { Photo: true },
+              },
+            },
+            limit: 1,
+          }
+        );
+
+        if (!users.length) {
+          return ctx.notFound("User not found");
+        }
+
+        const user = users[0] as any;
+
+        const projects = await strapi.entityService.findMany(
+          "api::project.project",
+          {
+            filters: {
+              users_permissions_users: {
+                id: user.id,
+              },
+            },
+            fields: ["id", "title"],
+            populate: {
+              logo: true,
+            },
+          }
+        );
+
+        return {
+          user: {
+            username: user.username,
+            photo: user.user_detial?.Photo || [],
+          },
+          projects,
+        };
+      }
+
+      /* ==================================================
+         CASE 2: No username → ALL projects
+         + assigned users + user photo
+      =================================================== */
+
       const projects = await strapi.entityService.findMany(
         "api::project.project",
         {
-          filters: {
+          fields: ["id", "title"],
+          populate: {
+            logo: true, // ✅ project logo
             users_permissions_users: {
-              id: Number(userId),
+              fields: ["id", "username"],
+              populate: {
+                user_detial: {
+                  populate: {
+                    Photo: true, // ✅ user photo
+                  },
+                },
+              },
             },
           },
-          fields: ["id", "title"],
         }
       );
 
-      return projects;
-    },
+      return {
+        projects,
+      };
+    }
 
   })
 );

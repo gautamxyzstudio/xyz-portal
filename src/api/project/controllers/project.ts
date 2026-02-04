@@ -34,7 +34,7 @@ export default factories.createCoreController(
               id: user.id,
             },
           },
-          fields: ["id", "title"],
+          fields: ["id", "title", "description"],
           populate: {
             logo: true, // ✅ project logo
           },
@@ -124,12 +124,12 @@ export default factories.createCoreController(
                 id: user.id,
               },
             },
-            fields: ["id", "title"],
             populate: {
               logo: true,
             },
           }
         );
+
 
         return {
           user: {
@@ -148,15 +148,14 @@ export default factories.createCoreController(
       const projects = await strapi.entityService.findMany(
         "api::project.project",
         {
-          fields: ["id", "title"],
           populate: {
-            logo: true, // ✅ project logo
+            logo: true,
             users_permissions_users: {
               fields: ["id", "username"],
               populate: {
                 user_detial: {
                   populate: {
-                    Photo: true, // ✅ user photo
+                    Photo: true,
                   },
                 },
               },

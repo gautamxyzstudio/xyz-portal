@@ -709,76 +709,77 @@ export default factories.createCoreController(
     /* =====================================================
        USER / HR WORK LOGS
     ===================================================== */
-async userWorkLogs(ctx: Context) {
-  const authUser = ctx.state.user;
-  if (!authUser) return ctx.unauthorized("Login required");
+    async userWorkLogs(ctx: Context) {
+      const authUser = ctx.state.user;
+      if (!authUser) return ctx.unauthorized("Login required");
 
-  const { userId, username, startDate, endDate } = ctx.query as any;
+      const { userId, username, startDate, endDate } = ctx.query as any;
 
-  const filters: any = {};
-  let resolvedUserId = userId;
+      const filters: any = {};
+      let resolvedUserId = userId;
 
-  // 🔍 HR: resolve username → userId
-  if (authUser.user_type === "Hr" && username && !userId) {
-    const users = (await strapi.entityService.findMany(
-      "plugin::users-permissions.user",
-      {
-        filters: { username },
-        fields: ["id"],
-        limit: 1,
+      // 🔍 HR: resolve username → userId
+      if (["Hr", "Management"].includes(authUser.user_type) && username && !userId) {
+        const users = (await strapi.entityService.findMany(
+          "plugin::users-permissions.user",
+          {
+            filters: { username },
+            fields: ["id"],
+            limit: 1,
+          }
+        )) as { id: number }[];
+
+        if (!users.length) {
+          return ctx.badRequest("User not found with this username");
+        }
+
+        resolvedUserId = users[0].id; // ✅ NO RED LINE
       }
-    )) as { id: number }[];
 
-    if (!users.length) {
-      return ctx.badRequest("User not found with this username");
-    }
+      // 🔐 Normal user → only self
+      if (!["Hr", "Management"].includes(authUser.user_type)) {
+        filters.user = authUser.id;
+      }
 
-    resolvedUserId = users[0].id; // ✅ NO RED LINE
-  }
 
-  // 🔐 Normal user → only self
-  if (authUser.user_type !== "Hr") {
-    filters.user = authUser.id;
-  }
+      // 👩‍💼 HR → resolved user
+      if (["Hr", "Management"].includes(authUser.user_type) && resolvedUserId) {
+        filters.user = resolvedUserId;
+      }
 
-  // 👩‍💼 HR → resolved user
-  if (authUser.user_type === "Hr" && resolvedUserId) {
-    filters.user = resolvedUserId;
-  }
+      // 📅 Date filter
+      if (startDate && endDate) {
+        filters.work_date = { $between: [startDate, endDate] };
+      } else if (startDate) {
+        filters.work_date = startDate;
+      }
 
-  // 📅 Date filter
-  if (startDate && endDate) {
-    filters.work_date = { $between: [startDate, endDate] };
-  } else if (startDate) {
-    filters.work_date = startDate;
-  }
-
-  const workLogs = await strapi.entityService.findMany(
-    "api::work-log.work-log",
-    {
-      filters,
-      sort: { work_date: "asc" },
-      populate: {
-        user: {
-          fields: ["id", "username", "email", "user_type"],
+      const workLogs = await strapi.entityService.findMany(
+        "api::work-log.work-log",
+        {
+          filters,
+          sort: { work_date: "asc" },
           populate: {
-            user_detial: {
-              populate: { Photo: true },
+            user: {
+              fields: ["id", "username", "email", "user_type"],
+              populate: {
+                user_detial: {
+                  populate: { Photo: true },
+                },
+              },
             },
           },
-        },
-      },
-    }
-  );
+        }
+      );
 
-  return {
-    user: username || resolvedUserId || "ALL",
-    startDate,
-    endDate,
-    count: workLogs.length,
-    work_logs: workLogs,
-  };
-},
+      return {
+        user: username || resolvedUserId || "ALL",
+        startDate,
+        endDate,
+        count: workLogs.length,
+        work_logs: workLogs,
+      };
+    },
 
     /* =====================================================
    GET ALL COMPLETED TASKS (ALL WORKLOGS)

@@ -60,34 +60,34 @@ export default factories.createCoreController(
     // =====================================
     // 👨‍💼 Admin / HR → all users balances
     // =====================================
-    
+
     async allBalances(ctx) {
-  const year =
-    ctx.query.year ? Number(ctx.query.year) : new Date().getFullYear();
+      const year =
+        ctx.query.year ? Number(ctx.query.year) : new Date().getFullYear();
 
-  const balances = await strapi.entityService.findMany(
-    'api::leave-balance.leave-balance',
-    {
-      filters: { year },
-      populate: ['user'],
-      publicationState: 'live',
-      sort: { createdAt: 'asc' },
-    } as any
-  );
+      const balances = await strapi.entityService.findMany(
+        'api::leave-balance.leave-balance',
+        {
+          filters: { year },
+          populate: ['user'],
+          publicationState: 'live',
+          sort: { createdAt: 'asc' },
+        } as any
+      );
 
-  return (balances as any[]).map((balance) => ({
-    user: {
-      id: balance.user?.id,
-      username: balance.user?.username,
-      email: balance.user?.email,
-    },
-    year: balance.year,
-    el_balance: balance.el_balance,
-    cl_balance: balance.cl_balance,
-    sl_balance: balance.sl_balance,
-    unpaid_balance: balance.unpaid_balance,
-  }));
-}
+      return (balances as any[]).map((balance) => ({
+        user: {
+          id: balance.user?.id,
+          username: balance.user?.username,
+          email: balance.user?.email,
+        },
+        year: balance.year,
+        el_balance: balance.el_balance,
+        cl_balance: balance.cl_balance,
+        sl_balance: balance.sl_balance,
+        unpaid_balance: balance.unpaid_balance,
+      }));
+    }
 
 
   })

@@ -117,15 +117,15 @@
       "target": "api::project.project",
       "mappedBy": "users_permissions_users"
     },
-    "devices": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::device.device",
-      "mappedBy": "assigned_to"
-    },
     "checkout_email_enabled": {
       "type": "boolean",
       "default": true
+    },
+    "assets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::asset.asset",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

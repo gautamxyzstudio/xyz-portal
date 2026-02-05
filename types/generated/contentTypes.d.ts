@@ -808,12 +808,12 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToMany',
       'api::project.project'
     >;
-    devices: Attribute.Relation<
+    checkout_email_enabled: Attribute.Boolean & Attribute.DefaultTo<true>;
+    assets: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
-      'api::device.device'
+      'api::asset.asset'
     >;
-    checkout_email_enabled: Attribute.Boolean & Attribute.DefaultTo<true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -901,6 +901,50 @@ export interface ApiAnnouncementAnnouncement extends Schema.CollectionType {
   };
 }
 
+export interface ApiAssetAsset extends Schema.CollectionType {
+  collectionName: 'assets';
+  info: {
+    singularName: 'asset';
+    pluralName: 'assets';
+    displayName: 'Assets';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    AssetName: Attribute.String;
+    AssetId: Attribute.String;
+    Category: Attribute.Enumeration<
+      ['Laptop', 'Mouse', 'Charger', 'Accessaries', 'Others']
+    >;
+    Model: Attribute.String;
+    Brand: Attribute.Enumeration<['Apple', 'Lenovo', 'Acer', 'Hp']>;
+    Condition: Attribute.Enumeration<['New', 'Old']>;
+    Available: Attribute.Boolean;
+    SerialNumber: Attribute.String;
+    AssignedTo: Attribute.Relation<
+      'api::asset.asset',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::asset.asset',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::asset.asset',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiDailyAttendanceDailyAttendance
   extends Schema.CollectionType {
   collectionName: 'daily_attendances';
@@ -978,58 +1022,6 @@ export interface ApiDailyTaskDailyTask extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::daily-task.daily-task',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiDeviceDevice extends Schema.CollectionType {
-  collectionName: 'devices';
-  info: {
-    singularName: 'device';
-    pluralName: 'devices';
-    displayName: 'Devices';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    asset_name: Attribute.String & Attribute.Required;
-    asset_id: Attribute.String & Attribute.Required & Attribute.Unique;
-    category: Attribute.Enumeration<
-      ['laptop', 'mouse', 'keyboard', 'charger', 'other']
-    > &
-      Attribute.Required;
-    brand: Attribute.String;
-    model: Attribute.String;
-    serial_number: Attribute.String;
-    condition: Attribute.Enumeration<['new', 'good', 'damaged']> &
-      Attribute.DefaultTo<'new'>;
-    status: Attribute.Enumeration<
-      ['available', 'assigned', 'returned', 'damaged']
-    > &
-      Attribute.DefaultTo<'available'>;
-    description: Attribute.Text;
-    assigned_date: Attribute.Date;
-    assigned_to: Attribute.Relation<
-      'api::device.device',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::device.device',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::device.device',
       'oneToOne',
       'admin::user'
     > &
@@ -1345,9 +1337,9 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'api::add-blog.add-blog': ApiAddBlogAddBlog;
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
+      'api::asset.asset': ApiAssetAsset;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::daily-task.daily-task': ApiDailyTaskDailyTask;
-      'api::device.device': ApiDeviceDevice;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;
       'api::holiday-list.holiday-list': ApiHolidayListHolidayList;
       'api::leave-balance.leave-balance': ApiLeaveBalanceLeaveBalance;

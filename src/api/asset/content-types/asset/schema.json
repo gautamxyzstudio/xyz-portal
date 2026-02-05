@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "assets",
+  "info": {
+    "singularName": "asset",
+    "pluralName": "assets",
+    "displayName": "Assets"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "AssetName": {
+      "type": "string"
+    },
+    "AssetId": {
+      "type": "string"
+    },
+    "Category": {
+      "type": "enumeration",
+      "enum": [
+        "Laptop",
+        "Mouse",
+        "Charger",
+        "Accessaries",
+        "Others"
+      ]
+    },
+    "Model": {
+      "type": "string"
+    },
+    "Brand": {
+      "type": "enumeration",
+      "enum": [
+        "Apple",
+        "Lenovo",
+        "Acer",
+        "Hp"
+      ]
+    },
+    "Condition": {
+      "type": "enumeration",
+      "enum": [
+        "New",
+        "Old"
+      ]
+    },
+    "Available": {
+      "type": "boolean"
+    },
+    "SerialNumber": {
+      "type": "string"
+    },
+    "AssignedTo": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "assets"
+    }
+  }
+}

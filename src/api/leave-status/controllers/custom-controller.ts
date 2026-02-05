@@ -729,14 +729,14 @@ STAY CONNECTED
       /* ===============================
        👤 EMPLOYEE: ONLY OWN LEAVES
     =============================== */
-      if (loggedInUser.user_type !== "Hr") {
+      if (!["Hr", "Management"].includes(loggedInUser.user_type)) {
         filters.$and.push({ user: loggedInUser.id });
       }
 
       /* ===============================
    🚫 HR SHOULD NOT SEE PENDING
 =============================== */
-      if (loggedInUser.user_type === "Hr") {
+      if (["Hr", "Management"].includes(loggedInUser.user_type)) {
         filters.$and.push({
           status: { $ne: "pending" },
         });
@@ -759,7 +759,7 @@ STAY CONNECTED
       /* ===============================
        👩‍💼 HR: SEARCH USER
     =============================== */
-      if (username && loggedInUser.user_type === "Hr") {
+      if (username && ["Hr", "Management"].includes(loggedInUser.user_type)) {
         filters.$and.push({
           $or: [
             {

@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "asset_brands",
+  "info": {
+    "singularName": "asset-brand",
+    "pluralName": "asset-brands",
+    "displayName": "Asset-Brand"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "AssetBrand": {
+      "type": "string",
+      "required" : true,
+      "unique": true
+    }
+  }
+}

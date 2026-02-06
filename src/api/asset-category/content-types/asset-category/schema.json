@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "asset_categories",
+  "info": {
+    "singularName": "asset-category",
+    "pluralName": "asset-categories",
+    "displayName": "Asset-Category"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "CategoryName": {
+      "type": "string",
+      "required" : true,
+      "unique": true
+    }
+  }
+}

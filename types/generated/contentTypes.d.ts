@@ -914,8 +914,10 @@ export interface ApiAssetAsset extends Schema.CollectionType {
   attributes: {
     AssetName: Attribute.String;
     AssetId: Attribute.String;
-    Category: Attribute.Enumeration<
-      ['Laptop', 'Mouse', 'Charger', 'Accessaries', 'Others']
+    Category: Attribute.Relation<
+      'api::asset.asset',
+      'manyToOne',
+      'api::asset-category.asset-category'
     >;
     Model: Attribute.String;
     Brand: Attribute.Enumeration<['Apple', 'Lenovo', 'Acer', 'Hp']>;
@@ -938,6 +940,36 @@ export interface ApiAssetAsset extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::asset.asset',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiAssetCategoryAssetCategory extends Schema.CollectionType {
+  collectionName: 'asset_categories';
+  info: {
+    singularName: 'asset-category';
+    pluralName: 'asset-categories';
+    displayName: 'Asset-Category';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    CateogyName: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::asset-category.asset-category',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::asset-category.asset-category',
       'oneToOne',
       'admin::user'
     > &
@@ -1338,6 +1370,7 @@ declare module '@strapi/types' {
       'api::add-blog.add-blog': ApiAddBlogAddBlog;
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::asset.asset': ApiAssetAsset;
+      'api::asset-category.asset-category': ApiAssetCategoryAssetCategory;
       'api::daily-attendance.daily-attendance': ApiDailyAttendanceDailyAttendance;
       'api::daily-task.daily-task': ApiDailyTaskDailyTask;
       'api::emp-detail.emp-detail': ApiEmpDetailEmpDetail;

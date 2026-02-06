@@ -17,27 +17,18 @@
     "AssetId": {
       "type": "string"
     },
-    "Category": {
-      "type": "enumeration",
-      "enum": [
-        "Laptop",
-        "Mouse",
-        "Charger",
-        "Accessaries",
-        "Others"
-      ]
+    "Asset-Category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::asset-category.asset-category"
     },
     "Model": {
       "type": "string"
     },
     "Brand": {
-      "type": "enumeration",
-      "enum": [
-        "Apple",
-        "Lenovo",
-        "Acer",
-        "Hp"
-      ]
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::asset-brand.asset-brand"
     },
     "Condition": {
       "type": "enumeration",
@@ -47,7 +38,8 @@
       ]
     },
     "Available": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     },
     "SerialNumber": {
       "type": "string"

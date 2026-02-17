@@ -12,6 +12,20 @@ const getISTDate = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
+/* GET TODAY RANGE IN IST (FIXES STRAPI DATE BUG) */
+const getTodayISTRange = () => {
+  const now = getISTNow();
+
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+
 /* SESSION */
 const getSession = (now) => {
   const t = now.getHours() + now.getMinutes() / 60;
@@ -59,34 +73,64 @@ export default {
       let pending = 0;
       let absent = 0;
 
-      /* EMPLOYEES */
-      const employees = await strapi.db
-        .query("plugin::users-permissions.user")
+      /* ACTIVE EMPLOYEES */
+      const empDetails = await strapi.db
+        .query("api::emp-detail.emp-detail")
         .findMany({
-          where: { blocked: false, user_type: "Employee" },
-          select: ["id"],
+          where: { status: true },
+          populate: {
+            user_detail: {
+              select: ["id", "blocked", "user_type"],
+            },
+          },
         });
 
+      /* Extract valid employee users */
+      const employees = empDetails
+        .filter(
+          (e) =>
+            e.user_detail &&
+            e.user_detail.blocked === false &&
+            e.user_detail.user_type === "Employee"
+        )
+        .map((e) => ({ id: e.user_detail.id }));
+
+
       /* ATTENDANCE (use createdAt as real checkin) */
+      const { start, end } = getTodayISTRange();
+
       const attendance = await strapi.db
         .query("api::daily-attendance.daily-attendance")
         .findMany({
-          where: { Date: today },
+          where: {
+            Date: {
+              $between: [start, end],
+            },
+          },
           populate: ["user"],
+          select: ["id", "in", "out", "Date"],
         });
 
+
+      /* ===== CORRECT ATTENDANCE STATE ===== */
       const checkinMap = {};
+      const checkoutMap = {};
+
       attendance.forEach((a) => {
-        if (a.user?.id && a.createdAt) {
-          const istDate = new Date(
-            new Date(a.createdAt).toLocaleString("en-US", {
-              timeZone: "Asia/Kolkata",
-            })
-          );
-          checkinMap[a.user.id] =
-            istDate.getHours() + istDate.getMinutes() / 60;
+        if (!a.user?.id) return;
+
+        // user has checked-in today
+        if (a.in) {
+          checkinMap[a.user.id] = true;
+        }
+
+        // user has checked-out
+        if (a.out) {
+          checkoutMap[a.user.id] = true;
         }
       });
+
+
 
       /* LEAVES (DATE FIX — VERY IMPORTANT) */
       const leaves = await strapi.db
@@ -109,8 +153,9 @@ export default {
       for (const emp of employees) {
         const id = emp.id;
         const leaveRecord = leaveMap[id];
-        const checkinTime = checkinMap[id];
-        const checkedIn = checkinTime !== undefined;
+        const checkedIn = checkinMap[id] === true;
+        const checkedOut = checkoutMap[id] === true;
+
 
         /* FULL DAY */
         if (leaveRecord?.leave_category === "full_day") {
@@ -153,11 +198,20 @@ export default {
           }
         }
 
-        /* PRESENT */
-        if (checkedIn && checkinTime <= currentTime) {
+        /* PRESENT (ONLY IF NOT CHECKED OUT) */
+        if (checkedIn && !checkedOut) {
           present++;
           continue;
         }
+
+        /* CHECKED OUT (WORKED TODAY) */
+        if (checkedIn && checkedOut) {
+          // employee reported today but already left office
+          // do not mark absent or pending
+          continue;
+        }
+
+
 
         /* BREAK FREEZE */
         if (session === "FIRST_BREAK") {

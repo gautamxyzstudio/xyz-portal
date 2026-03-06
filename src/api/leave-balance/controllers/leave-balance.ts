@@ -76,6 +76,7 @@ export default factories.createCoreController(
       );
 
       return (balances as any[]).map((balance) => ({
+        id: balance.id, 
         user: {
           id: balance.user?.id,
           username: balance.user?.username,

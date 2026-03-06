@@ -243,4 +243,231 @@ export default {
       ctx.throw(500, "Unable to fetch dashboard stats");
     }
   },
-};
+
+  // // =====================================
+  // // present, absent, leave endpoints for today (for employee listing in dashboard)
+  // // =====================================
+
+  async present(ctx) {
+    try {
+      const now = getISTNow();
+      const today = getISTDate();
+      const session = getSession(now);
+      const currentTime = now.getHours() + now.getMinutes() / 60;
+
+      const presentUsers = [];
+
+      const empDetails = await strapi.db
+        .query("api::emp-detail.emp-detail")
+        .findMany({
+          where: { status: true },
+          populate: {
+            user_detail: {
+              select: ["id", "blocked", "user_type"],
+            },
+          },
+        });
+
+      const employeeMap = {};
+      empDetails.forEach((e) => {
+        if (!e.user_detail?.id) return;
+
+        employeeMap[e.user_detail.id] = {
+          empCode: e.empCode,
+          name: e.name,
+          phoneNumber: e.phoneNumber,
+        };
+      });
+
+      const employees = empDetails
+        .filter(
+          (e) =>
+            e.user_detail &&
+            e.user_detail.blocked === false &&
+            e.user_detail.user_type === "Employee"
+        )
+        .map((e) => ({ id: e.user_detail.id }));
+
+      const { start, end } = getTodayISTRange();
+
+      const attendance = await strapi.db
+        .query("api::daily-attendance.daily-attendance")
+        .findMany({
+          where: {
+            Date: { $between: [start, end] },
+          },
+          populate: ["user"],
+        });
+
+      const checkinMap = {};
+      const checkoutMap = {};
+
+      attendance.forEach((a) => {
+        if (!a.user?.id) return;
+        if (a.in) checkinMap[a.user.id] = true;
+        if (a.out) checkoutMap[a.user.id] = true;
+      });
+
+      for (const emp of employees) {
+        const id = emp.id;
+        const checkedIn = checkinMap[id] === true;
+        const checkedOut = checkoutMap[id] === true;
+
+        if (checkedIn && !checkedOut) {
+          presentUsers.push(employeeMap[id]);
+        }
+      }
+
+      ctx.body = presentUsers;
+    } catch (error) {
+      strapi.log.error("Present Employees Error", error);
+      ctx.throw(500, "Unable to fetch present employees");
+    }
+  },
+
+  async absent(ctx) {
+    try {
+      const now = getISTNow();
+      const today = getISTDate();
+      const session = getSession(now);
+      const currentTime = now.getHours() + now.getMinutes() / 60;
+
+      const absentUsers = [];
+
+      const empDetails = await strapi.db
+        .query("api::emp-detail.emp-detail")
+        .findMany({
+          where: { status: true },
+          populate: {
+            user_detail: {
+              select: ["id", "blocked", "user_type"],
+            },
+          },
+        });
+
+      const employeeMap = {};
+      empDetails.forEach((e) => {
+        if (!e.user_detail?.id) return;
+
+        employeeMap[e.user_detail.id] = {
+          empCode: e.empCode,
+          name: e.name,
+          phoneNumber: e.phoneNumber,
+        };
+      });
+
+      const employees = empDetails
+        .filter(
+          (e) =>
+            e.user_detail &&
+            e.user_detail.blocked === false &&
+            e.user_detail.user_type === "Employee"
+        )
+        .map((e) => ({ id: e.user_detail.id }));
+
+      const { start, end } = getTodayISTRange();
+
+      const attendance = await strapi.db
+        .query("api::daily-attendance.daily-attendance")
+        .findMany({
+          where: {
+            Date: { $between: [start, end] },
+          },
+          populate: ["user"],
+        });
+
+      const checkinMap = {};
+      attendance.forEach((a) => {
+        if (!a.user?.id) return;
+        if (a.in) checkinMap[a.user.id] = true;
+      });
+
+      const leaves = await strapi.db
+        .query("api::leave-status.leave-status")
+        .findMany({
+          where: {
+            status: "approved",
+            start_date: { $lte: today },
+            end_date: { $gte: today },
+          },
+          populate: ["user"],
+        });
+
+      const leaveMap = {};
+      leaves.forEach((l) => {
+        if (l.user?.id) leaveMap[l.user.id] = l;
+      });
+
+      for (const emp of employees) {
+        const id = emp.id;
+
+        if (leaveMap[id]) continue;
+        if (checkinMap[id]) continue;
+
+        absentUsers.push(employeeMap[id]);
+      }
+
+      ctx.body = absentUsers;
+    } catch (error) {
+      strapi.log.error("Absent Employees Error", error);
+      ctx.throw(500, "Unable to fetch absent employees");
+    }
+  },
+
+  async leave(ctx) {
+    try {
+      const today = getISTDate();
+      const leaveUsers = [];
+
+      const empDetails = await strapi.db
+        .query("api::emp-detail.emp-detail")
+        .findMany({
+          where: { status: true },
+          populate: {
+            user_detail: {
+              select: ["id", "blocked", "user_type"],
+            },
+          },
+        });
+
+      const employeeMap = {};
+      empDetails.forEach((e) => {
+        if (!e.user_detail?.id) return;
+
+        employeeMap[e.user_detail.id] = {
+          empCode: e.empCode,
+          name: e.name,
+          phoneNumber: e.phoneNumber,
+        };
+      });
+
+      const leaves = await strapi.db
+        .query("api::leave-status.leave-status")
+        .findMany({
+          where: {
+            status: "approved",
+            start_date: { $lte: today },
+            end_date: { $gte: today },
+          },
+          populate: ["user"],
+        });
+
+      leaves.forEach((l) => {
+        if (l.user?.id && employeeMap[l.user.id]) {
+          leaveUsers.push(employeeMap[l.user.id]);
+        }
+      });
+
+      ctx.body = leaveUsers;
+    } catch (error) {
+      strapi.log.error("Leave Employees Error", error);
+      ctx.throw(500, "Unable to fetch employees on leave");
+    }
+  },
+
+}
+
+
+
+
+

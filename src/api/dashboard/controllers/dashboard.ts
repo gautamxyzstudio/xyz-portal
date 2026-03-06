@@ -85,7 +85,7 @@ export default {
           },
         });
 
-      /* Extract valid employee users */
+      /* Extract valid employee users from status */
       const employees = empDetails
         .filter(
           (e) =>

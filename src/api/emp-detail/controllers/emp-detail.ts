@@ -29,5 +29,7 @@ export default factories.createCoreController(
       const { data, meta } = await super.findOne(ctx);
       return { data, meta };
     },
+
+    
   })
 );

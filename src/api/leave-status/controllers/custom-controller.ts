@@ -172,26 +172,21 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
 
       /* ================= EMAIL TO HR ================= */
 
-      const hrUsers = await strapi.db
-
+      const users = await strapi.db
         .query("plugin::users-permissions.user")
-
         .findMany({
-
-          where: { user_type: { $eqi: "Hr" } },
-
-          select: ["email", "username"],
-
+          select: ["email", "username", "user_type"],
         });
 
-      for (const hr of hrUsers) {
+      const hrUsers = users.filter((u) => u.user_type === "Hr");
 
+      console.log("HR USERS:", hrUsers);
+
+      for (const hr of hrUsers) {
         if (!hr.email) continue;
 
         await strapi.plugin("email").service("email").send({
-
           to: hr.email,
-
           subject: `Leave Application – ${leave.user.username}`,
 
           html: `
@@ -199,6 +194,36 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<style>
+@media only screen and (max-width: 600px){
+
+  .container{
+    width:100% !important;
+  }
+
+  .padding{
+    padding:20px !important;
+  }
+
+  .title{
+    font-size:20px !important;
+    line-height:28px !important;
+  }
+
+  .stack td{
+    display:block;
+    width:100% !important;
+  }
+
+  .logo{
+    width:120px !important;
+  }
+
+}
+</style>
+
 </head>
  
 <body style="margin:0;padding:0;background-color:#f7f7f7;">
@@ -208,35 +233,32 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
 <td align="center">
  
 <table border="0" cellpadding="0" cellspacing="0" width="600"
-
-       style="max-width:600px;background-color:#ffffff;">
+       class="container"
+       style="max-width:600px;width:100%;background-color:#ffffff;">
  
 <!-- HEADER -->
 <tr>
-<td style="padding:10px 40px;background-color:#181818;" align="center">
+<td class="padding" style="padding:10px 40px;background-color:#181818;" align="center">
 <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-
-     alt="Logo" width="150" style="display:block;height:auto;">
+     alt="Logo"
+     class="logo"
+     width="150"
+     style="display:block;height:auto;max-width:100%;">
 </td>
 </tr>
  
 <!-- MAIN CONTENT -->
 <tr>
-<td align="center" style="padding:40px 40px 20px 40px;">
+<td align="center" class="padding" style="padding:40px 40px 20px 40px;">
  
-<h2 style="font-family:Arial,sans-serif;
-
-           font-size:22px;
-
-           color:#000000;
-
-           margin:0 0 20px 0;
-
-           line-height:32px;
-
-           text-transform:uppercase;
-
-           font-weight:900;">
+<h2 class="title"
+style="font-family:Arial,sans-serif;
+font-size:22px;
+color:#000000;
+margin:0 0 20px 0;
+line-height:32px;
+text-transform:uppercase;
+font-weight:900;">
 
 Leave Application Notification
 </h2>
@@ -253,7 +275,7 @@ Please review the details below:
 </p>
  
 <table width="100%" cellpadding="6" cellspacing="0"
-
+       class="stack"
        style="border-collapse:collapse;font-family:Arial;font-size:14px;">
 <tr>
 <td width="40%"><strong>Title</strong></td>
@@ -282,23 +304,18 @@ Please review the details below:
  
 <!-- FOOTER -->
 <tr>
-<td align="center" style="padding:30px 40px;background-color:#181818;">
+<td align="center" class="padding" style="padding:30px 40px;background-color:#181818;">
  
 <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-
-     width="200" style="display:block;margin:0 auto;height:auto;">
+     width="200"
+     style="display:block;margin:0 auto;height:auto;max-width:100%;">
  
 <p style="font-family:Arial;
-
-          font-size:20px;
-
-          color:#ffffff;
-
-          margin:10px 0 5px;
-
-          font-weight:bold;
-
-          text-transform:uppercase;">
+font-size:20px;
+color:#ffffff;
+margin:10px 0 5px;
+font-weight:bold;
+text-transform:uppercase;">
 
 STAY CONNECTED
 </p>
@@ -308,15 +325,15 @@ STAY CONNECTED
 <td style="padding:0 5px;">
 <a href="#" target="_blank">
 <img src="https://astroshahriar.com/wp-content/uploads/2026/01/fb-1.png"
-
-     width="24" height="24" alt="Facebook">
+     width="24" height="24" alt="Facebook"
+     style="display:block;">
 </a>
 </td>
 <td style="padding:0 5px;">
 <a href="#" target="_blank">
 <img src="https://astroshahriar.com/wp-content/uploads/2026/01/insta-1.png"
-
-     width="24" height="24" alt="Instagram">
+     width="24" height="24" alt="Instagram"
+     style="display:block;">
 </a>
 </td>
 </tr>
@@ -332,7 +349,6 @@ STAY CONNECTED
  
 </body>
 </html>
-
 `,
 
         });
@@ -594,96 +610,136 @@ STAY CONNECTED
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+@media only screen and (max-width: 600px) {
+
+  .container {
+    width: 100% !important;
+  }
+
+  .content-padding {
+    padding: 20px !important;
+  }
+
+  .footer-padding {
+    padding: 25px 20px !important;
+  }
+
+  .logo {
+    width: 120px !important;
+  }
+
+  .footer-logo {
+    width: 160px !important;
+  }
+
+  .text {
+    font-size: 14px !important;
+    line-height: 22px !important;
+  }
+
+}
+</style>
+
 </head>
 
 <body style="margin:0;padding:0;background-color:#f7f7f7;">
 
 <table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
-  <tr>
-    <td align="center">
+<tr>
+<td align="center">
 
-      <table border="0" cellpadding="0" cellspacing="0" width="600"
-             style="max-width:600px;background-color:#ffffff;">
+<table border="0" cellpadding="0" cellspacing="0" width="600"
+       class="container"
+       style="max-width:600px;width:100%;background-color:#ffffff;">
 
-        <!-- HEADER -->
-        <tr>
-          <td style="padding:10px 40px;background-color:#181818;" align="center">
-            <img
-              src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-              alt="Logo"
-              width="150"
-              style="display:block;border:0;outline:none;text-decoration:none;height:auto;"
-            />
-          </td>
-        </tr>
+<!-- HEADER -->
+<tr>
+<td class="content-padding" style="padding:10px 40px;background-color:#181818;" align="center">
+<img
+  src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+  alt="Logo"
+  width="150"
+  class="logo"
+  style="display:block;border:0;outline:none;text-decoration:none;height:auto;max-width:100%;"
+/>
+</td>
+</tr>
 
-        <!-- MAIN CONTENT -->
-        <tr>
-          <td style="padding:40px;font-family:Arial,sans-serif;font-size:15px;line-height:24px;color:#000;">
-            ${bodyContent}
+<!-- MAIN CONTENT -->
+<tr>
+<td class="content-padding text"
+    style="padding:40px;font-family:Arial,sans-serif;font-size:15px;line-height:24px;color:#000;">
+${bodyContent}
 
-            <p style="margin-top:30px;">
-              Regards,<br/>
-              <strong>Human Resources Department</strong><br/>
-              XYZ Studio
-            </p>
-          </td>
-        </tr>
+<p style="margin-top:30px;">
+Regards,<br/>
+<strong>Human Resources Department</strong><br/>
+XYZ Studio
+</p>
+</td>
+</tr>
 
-        <!-- FOOTER -->
-        <tr>
-          <td align="center" style="padding:30px 40px;background-color:#181818;">
+<!-- FOOTER -->
+<tr>
+<td align="center"
+    class="footer-padding"
+    style="padding:30px 40px;background-color:#181818;">
 
-            <img
-              src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-              width="200"
-              style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;height:auto;"
-            />
+<img
+  src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+  width="200"
+  class="footer-logo"
+  style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;height:auto;max-width:100%;"
+/>
 
-            <p style="font-family:Arial;
-                      font-size:20px;
-                      color:#ffffff;
-                      margin:10px 0 5px;
-                      font-weight:bold;
-                      text-transform:uppercase;">
-              Stay Connected
-            </p>
+<p style="font-family:Arial;
+          font-size:20px;
+          color:#ffffff;
+          margin:10px 0 5px;
+          font-weight:bold;
+          text-transform:uppercase;">
+Stay Connected
+</p>
 
-            <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 20px;">
-              <tr>
-                <td style="padding:0 5px;">
-                  <a href="#" target="_blank">
-                    <img
-                      src="https://astroshahriar.com/wp-content/uploads/2026/01/fb-1.png"
-                      width="24"
-                      height="24"
-                      alt="Facebook"
-                      style="display:block;border:0;"
-                    />
-                  </a>
-                </td>
-                <td style="padding:0 5px;">
-                  <a href="#" target="_blank">
-                    <img
-                      src="https://astroshahriar.com/wp-content/uploads/2026/01/insta-1.png"
-                      width="24"
-                      height="24"
-                      alt="Instagram"
-                      style="display:block;border:0;"
-                    />
-                  </a>
-                </td>
-              </tr>
-            </table>
+<table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 20px;">
+<tr>
+<td style="padding:0 5px;">
+<a href="#" target="_blank">
+<img
+  src="https://astroshahriar.com/wp-content/uploads/2026/01/fb-1.png"
+  width="24"
+  height="24"
+  alt="Facebook"
+  style="display:block;border:0;"
+/>
+</a>
+</td>
 
-          </td>
-        </tr>
+<td style="padding:0 5px;">
+<a href="#" target="_blank">
+<img
+  src="https://astroshahriar.com/wp-content/uploads/2026/01/insta-1.png"
+  width="24"
+  height="24"
+  alt="Instagram"
+  style="display:block;border:0;"
+/>
+</a>
+</td>
+</tr>
+</table>
 
-      </table>
+</td>
+</tr>
 
-    </td>
-  </tr>
+</table>
+
+</td>
+</tr>
 </table>
 
 </body>

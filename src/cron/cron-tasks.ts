@@ -546,70 +546,114 @@ module.exports = {
                📧 HTML EMAIL (INLINE, FIXED)
             ===================================================== */
             html: `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-  <meta charset="utf-8" />
-  </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <body style="margin:0;padding:0;background-color:#f7f7f7;">
+<style>
+@media only screen and (max-width:600px){
 
-  <table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
-  <tr>
-  <td align="center">
+  .container{
+    width:100% !important;
+  }
 
-  <table border="0" cellpadding="0" cellspacing="0" width="600"
-         style="max-width:600px;background-color:#ffffff;">
+  .content-padding{
+    padding:20px !important;
+  }
 
-  <tr>
-  <td style="padding:10px 40px;background-color:#181818;" align="center">
-  <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-       alt="Logo" width="150" style="display:block;height:auto;">
-  </td>
-  </tr>
+  .logo{
+    width:120px !important;
+  }
 
-  <tr>
-  <td align="center" style="padding:40px 40px 20px 40px;">
+  .footer-logo{
+    width:160px !important;
+  }
 
-  <h2 style="
-    font-family:Arial,sans-serif;
-    font-size:22px;
-    color:#000000;
-    margin:0 0 20px 0;
-    line-height:32px;
-    text-transform:uppercase;
-    font-weight:900;
-  ">
-  Checkout Reminder
-  </h2>
+  .title{
+    font-size:20px !important;
+    line-height:28px !important;
+  }
 
-  <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
-  Hello <strong>${attendance.user.username}</strong>,
-  </p>
+}
+</style>
 
-  <p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
-  This is to inform you that your checkout has not been completed in the employee portal.<br/>
-  Please complete the checkout at your convenience.
-  </p>
+</head>
 
-  </td>
-  </tr>
+<body style="margin:0;padding:0;background-color:#f7f7f7;">
 
-  <tr>
-  <td align="center" style="padding:30px 40px;background-color:#181818;">
-  <img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-       width="200" style="display:block;margin:0 auto;height:auto;">
-  </td>
-  </tr>
+<table border="0" width="100%" style="table-layout:fixed;background-color:#f7f7f7;">
+<tr>
+<td align="center">
 
-  </table>
-  </td>
-  </tr>
-  </table>
+<table border="0" cellpadding="0" cellspacing="0" width="600"
+       class="container"
+       style="max-width:600px;width:100%;background-color:#ffffff;">
 
-  </body>
-  </html>
-  `,
+<tr>
+<td class="content-padding"
+    style="padding:10px 40px;background-color:#181818;"
+    align="center">
+
+<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+     alt="Logo"
+     width="150"
+     class="logo"
+     style="display:block;height:auto;max-width:100%;border:0;">
+</td>
+</tr>
+
+<tr>
+<td align="center"
+    class="content-padding"
+    style="padding:40px 40px 20px 40px;">
+
+<h2 class="title"
+style="
+font-family:Arial,sans-serif;
+font-size:22px;
+color:#000000;
+margin:0 0 20px 0;
+line-height:32px;
+text-transform:uppercase;
+font-weight:900;
+">
+Checkout Reminder
+</h2>
+
+<p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+Hello <strong>${attendance.user.username}</strong>,
+</p>
+
+<p style="font-family:Arial;font-size:14px;color:#000000;text-align:left;">
+This is to inform you that your checkout has not been completed in the employee portal.<br/>
+Please complete the checkout at your convenience.
+</p>
+
+</td>
+</tr>
+
+<tr>
+<td align="center"
+    class="content-padding"
+    style="padding:30px 40px;background-color:#181818;">
+
+<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+     width="200"
+     class="footer-logo"
+     style="display:block;margin:0 auto;height:auto;max-width:100%;border:0;">
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+`,
           });
 
           /* =====================================================

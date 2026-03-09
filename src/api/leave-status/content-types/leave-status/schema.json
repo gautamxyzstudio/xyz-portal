@@ -19,7 +19,7 @@
       "type": "date"
     },
     "description": {
-      "type": "string"
+      "type": "text"
     },
     "status": {
       "type": "enumeration",

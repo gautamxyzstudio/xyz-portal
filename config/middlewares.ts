@@ -19,7 +19,30 @@ export default [
     },
   },
 
-  'strapi::security',
+   {
+    name: "strapi::security",
+    config: {
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          "img-src": [
+            "'self'",
+            "data:",
+            "blob:",
+            "https://storage.googleapis.com",
+            "https://mozart-app.s3.ap-southeast-2.amazonaws.com",
+          ],
+          "media-src": [
+            "'self'",
+            "data:",
+            "blob:",
+            "https://storage.googleapis.com",
+            "https://mozart-app.s3.ap-southeast-2.amazonaws.com",
+          ],
+        },
+      },
+    },
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',

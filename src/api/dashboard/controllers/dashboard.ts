@@ -265,6 +265,7 @@ export default {
             user_detail: {
               select: ["id", "blocked", "user_type"],
             },
+            Photo: true,
           },
         });
 
@@ -276,6 +277,7 @@ export default {
           empCode: e.empCode,
           name: e.name,
           phoneNumber: e.phoneNumber,
+          photo: e.Photo?.length ? e.Photo[0].url : null,
         };
       });
 
@@ -342,6 +344,7 @@ export default {
             user_detail: {
               select: ["id", "blocked", "user_type"],
             },
+            Photo: true,
           },
         });
 
@@ -353,6 +356,7 @@ export default {
           empCode: e.empCode,
           name: e.name,
           phoneNumber: e.phoneNumber,
+          photo: e.Photo?.length ? e.Photo[0].url : null,
         };
       });
 
@@ -427,6 +431,7 @@ export default {
             user_detail: {
               select: ["id", "blocked", "user_type"],
             },
+            Photo: true,
           },
         });
 
@@ -438,6 +443,7 @@ export default {
           empCode: e.empCode,
           name: e.name,
           phoneNumber: e.phoneNumber,
+          photo: e.Photo?.length ? e.Photo[0].url : null,
         };
       });
 

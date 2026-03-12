@@ -374,8 +374,8 @@ STAY CONNECTED
     const { days, status, decline_reason } = ctx.request.body;
     const user = ctx.state.user;
 
-    if (!user || user.user_type !== "Hr") {
-      return ctx.unauthorized("Only HR can take action");
+    if (!user || !["Hr", "Management"].includes(user.user_type)) {
+      return ctx.unauthorized("Only HR or Management can take action");
     }
 
     const leave: any = await strapi.entityService.findOne(moduleUid, id, {
@@ -474,14 +474,19 @@ STAY CONNECTED
     }
 
     /* ================= UPDATE LEAVE ================= */
-    const updatedLeave = await strapi.entityService.update(moduleUid, id, {
-      data: {
-        leave_days: finalDays, // ✅ JSON array
-        days: approvedTotalDays, // ✅ decimal
-        status,
-        decline_reason: status === "declined" ? decline_reason : null,
-      },
-    });
+ await strapi.entityService.update(moduleUid, id, {
+  data: {
+    leave_days: finalDays,
+    days: approvedTotalDays,
+    status,
+    decline_reason: status === "declined" ? decline_reason : null,
+    approved_by: user.id,
+  },
+});
+
+const updatedLeave = await strapi.entityService.findOne(moduleUid, id, {
+  populate: ["approved_by"],
+} as any);
 
     /* ================= EMAIL TO EMPLOYEE ================= */
     if (leave.user?.email) {

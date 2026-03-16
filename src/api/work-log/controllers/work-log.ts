@@ -604,7 +604,6 @@ export default factories.createCoreController(
       const now = getNow();
       const today = getWorkDateIST();
 
-
       /* ===== CHECK ATTENDANCE ===== */
       const attendance = await strapi.entityService.findMany(
         "api::daily-attendance.daily-attendance",
@@ -618,8 +617,17 @@ export default factories.createCoreController(
         return ctx.badRequest("You have not checked in today");
       }
 
-      if (attendance[0].out && attendance[0].out !== "00:00:00") {
+      const record = attendance[0];
+
+      if (record.out && record.out !== "00:00:00") {
         return ctx.badRequest("You have already checked out");
+      }
+
+      /* 🚫 Attendance paused (like lunch auto pause) */
+      if (!record.is_checked_in) {
+        return ctx.badRequest(
+          "you can't start a task while your attendance is paused. Please join back attendance to resume timers."
+        );
       }
 
       if (isLunchTime(now)) {

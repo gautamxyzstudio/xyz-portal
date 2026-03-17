@@ -378,8 +378,6 @@ export default factories.createCoreController(
         }
       );
 
-      const attendanceOut = attendance[0]?.out || null;
-
       if (!attendance.length) {
         return {
           work_log: {
@@ -387,9 +385,13 @@ export default factories.createCoreController(
             tasks: [],
             work_date: today,
             has_attendance: false,
+            is_checked_in: false,
           },
         };
       }
+
+      const attendanceOut = attendance[0]?.out || null;
+      const isCheckedIn = attendance[0].is_checked_in ?? false;
 
       /* ================= FETCH WORKLOG ================= */
       const workLogs = await strapi.entityService.findMany(
@@ -427,6 +429,7 @@ export default factories.createCoreController(
             },
             has_attendance: true,
             out: attendanceOut,
+            is_checked_in: isCheckedIn,
           },
         };
       }
@@ -437,6 +440,7 @@ export default factories.createCoreController(
           ...workLog,
           has_attendance: true,
           out: attendanceOut,
+          is_checked_in: isCheckedIn,
         },
       };
     },

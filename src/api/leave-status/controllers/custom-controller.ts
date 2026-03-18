@@ -173,7 +173,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       const users = await strapi.db
         .query("plugin::users-permissions.user")
         .findMany({
-          select: ["email", "username", "user_type"],
+          select: ["id", "email", "username", "user_type"],
         });
 
       const hrUsers = users.filter((u) => u.user_type === "Hr");
@@ -185,11 +185,11 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         try {
           await strapi.entityService.create("api::notification.notification" as any, {
             data: {
-              title: `${leave.user.username} applied for leave (${leave.start_date} to ${leave.end_date})`,
+              title: `${leave.user?.username || "User"} applied for leave (${leave.start_date} to ${leave.end_date})`,
               notificationType: "leave_applied",
-              users_permissions_user: hr.id,
+              users_permissions_user: hr.id, // ✅ SIMPLE & CORRECT
               isRead: false,
-               publishedAt: new Date(),
+              publishedAt: new Date(),
             },
           });
         } catch (err) {
@@ -381,7 +381,6 @@ STAY CONNECTED
 
   },
 
-
   /* ======================================================
      HR UPDATE + APPROVE / REJECT
   ====================================================== */
@@ -506,6 +505,9 @@ STAY CONNECTED
 
     /* ================= NOTIFICATION TO EMPLOYEE ================= */
     try {
+      const userIdForNotification =
+        typeof leave.user === "object" ? leave.user.id : leave.user;
+
       await strapi.entityService.create("api::notification.notification" as any, {
         data: {
           title:
@@ -518,7 +520,7 @@ STAY CONNECTED
               ? "leave_approved"
               : "leave_declined",
 
-          users_permissions_user: leave.user.id,
+          users_permissions_user: userIdForNotification, // ✅ FIXED
           isRead: false,
           publishedAt: new Date(),
         },

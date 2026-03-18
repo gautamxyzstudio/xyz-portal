@@ -170,8 +170,6 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
 
       });
 
-      /* ================= EMAIL TO HR ================= */
-
       const users = await strapi.db
         .query("plugin::users-permissions.user")
         .findMany({
@@ -181,6 +179,24 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       const hrUsers = users.filter((u) => u.user_type === "Hr");
 
       console.log("HR USERS:", hrUsers);
+
+      /* ================= NOTIFICATION TO HR ================= */
+      for (const hr of hrUsers) {
+        try {
+          await strapi.entityService.create("api::notification.notification" as any, {
+            data: {
+              title: `${leave.user.username} applied for leave (${leave.start_date} to ${leave.end_date})`,
+              notificationType: "leave_applied",
+              users_permissions_user: hr.id,
+              isRead: false,
+               publishedAt: new Date(),
+            },
+          });
+        } catch (err) {
+          console.error("Notification error (HR):", err.message);
+        }
+      }
+      /* ================= EMAIL TO HR ================= */
 
       for (const hr of hrUsers) {
         if (!hr.email) continue;
@@ -474,19 +490,42 @@ STAY CONNECTED
     }
 
     /* ================= UPDATE LEAVE ================= */
- await strapi.entityService.update(moduleUid, id, {
-  data: {
-    leave_days: finalDays,
-    days: approvedTotalDays,
-    status,
-    decline_reason: status === "declined" ? decline_reason : null,
-    approved_by: user.id,
-  },
-});
+    await strapi.entityService.update(moduleUid, id, {
+      data: {
+        leave_days: finalDays,
+        days: approvedTotalDays,
+        status,
+        decline_reason: status === "declined" ? decline_reason : null,
+        approved_by: user.id,
+      },
+    });
 
-const updatedLeave = await strapi.entityService.findOne(moduleUid, id, {
-  populate: ["approved_by"],
-} as any);
+    const updatedLeave = await strapi.entityService.findOne(moduleUid, id, {
+      populate: ["approved_by"],
+    } as any);
+
+    /* ================= NOTIFICATION TO EMPLOYEE ================= */
+    try {
+      await strapi.entityService.create("api::notification.notification" as any, {
+        data: {
+          title:
+            status === "approved"
+              ? "Your leave has been approved"
+              : "Your leave has been declined",
+
+          notificationType:
+            status === "approved"
+              ? "leave_approved"
+              : "leave_declined",
+
+          users_permissions_user: leave.user.id,
+          isRead: false,
+          publishedAt: new Date(),
+        },
+      });
+    } catch (err) {
+      console.error("Notification error (Employee):", err.message);
+    }
 
     /* ================= EMAIL TO EMPLOYEE ================= */
     if (leave.user?.email) {

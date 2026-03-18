@@ -126,6 +126,12 @@
       "relation": "oneToMany",
       "target": "api::asset.asset",
       "mappedBy": "users_permissions_user"
+    },
+    "notifications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::notification.notification",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

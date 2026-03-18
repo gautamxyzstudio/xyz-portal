@@ -185,7 +185,8 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         try {
           await strapi.entityService.create("api::notification.notification" as any, {
             data: {
-              title: `${leave.user?.username || "User"} applied for leave (${leave.start_date} to ${leave.end_date})`,
+              title: "New Leave Request",
+              message: `${leave.user?.username || "User"} applied for leave from ${leave.start_date} to ${leave.end_date}`,
               notificationType: "leave_applied",
               users_permissions_user: hr.id, // ✅ SIMPLE & CORRECT
               isRead: false,
@@ -512,14 +513,18 @@ STAY CONNECTED
         data: {
           title:
             status === "approved"
-              ? "Your leave has been approved"
-              : "Your leave has been declined",
+              ? "Leave Approved"
+              : "Leave Declined",
+
+          message:
+            status === "approved"
+              ? `Your leave from ${leave.start_date} to ${leave.end_date} has been approved`
+              : `Your leave from ${leave.start_date} to ${leave.end_date} has been declined`,
 
           notificationType:
             status === "approved"
               ? "leave_approved"
               : "leave_declined",
-
           users_permissions_user: userIdForNotification, // ✅ FIXED
           isRead: false,
           publishedAt: new Date(),

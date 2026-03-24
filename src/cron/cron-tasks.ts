@@ -82,7 +82,9 @@ module.exports = {
         const employees = await strapi.entityService.findMany(
           'api::emp-detail.emp-detail',
           {
-            filters: { date_of_birth: { $notNull: true } },
+            filters: { date_of_birth: { $notNull: true } ,
+           status: true,
+          },
             populate: { user_detail: true },
           }
         );
@@ -165,7 +167,7 @@ module.exports = {
         const employees = await strapi.entityService.findMany(
           'api::emp-detail.emp-detail',
           {
-            filters: { joinig_date: { $notNull: true } },
+            filters: { joinig_date: { $notNull: true }, status: true },
             populate: { user_detail: true },
           }
         );

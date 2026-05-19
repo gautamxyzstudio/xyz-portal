@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+.strapi-updater.json
+.strapi-cloud.json
+.strapi
 
 # Build output
 build/

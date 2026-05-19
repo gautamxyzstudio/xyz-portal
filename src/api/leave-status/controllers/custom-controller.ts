@@ -7,9 +7,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
      CREATE LEAVE
   ====================================================== */
   async create(ctx) {
-
     try {
-
       const data = ctx.request.body?.data || {};
 
       const userId = ctx.state.user?.id;
@@ -25,7 +23,6 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       /* ================= SHORT LEAVE (ONCE PER MONTH) ================= */
 
       if (data.leave_category === "short_leave") {
-
         const [sy, sm, sd] = data.start_date.split("-").map(Number);
         const start = new Date(sy, sm - 1, sd);
 
@@ -34,9 +31,7 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         const monthEnd = new Date(start.getFullYear(), start.getMonth() + 1, 0);
 
         const count = await strapi.entityService.count(moduleUid, {
-
           filters: {
-
             user: userId,
 
             leave_category: "short_leave",
@@ -44,17 +39,12 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
             status: { $ne: "declined" },
 
             start_date: { $between: [monthStart, monthEnd] },
-
           },
-
         });
 
         if (count >= 1) {
-
           return ctx.badRequest("Short leave already used this month");
-
         }
-
       }
 
       /* ================= DAY-WISE GENERATION ================= */
@@ -68,7 +58,6 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       const end = new Date(ey2, em2 - 1, ed2);
 
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-
         const dayIndex = d.getDay();
 
         const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
@@ -81,81 +70,66 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
         // Weekend → Holiday
 
         if (dayIndex === 0 || dayIndex === 6) {
-
           leaveDays.push({
-
             date: dateStr,
-
             day: dayName,
-
             leave_type: "Holiday",
-
             editable: false,
-
             approval_status: "approved",
-
             duration: 0,
-
           });
 
           continue;
-
         }
 
         // Half Day
 
         if (data.leave_category === "half_day") {
-
           leaveDays.push({
-
             date: dateStr,
-
             day: dayName,
-
             leave_type: data.leave_type,
-
             editable: true,
-
             approval_status: "pending",
-
             duration: 0.5,
-
             half_day_type: data.half_day_type,
-
           });
 
           break;
+        }
 
+        // Short Leave
+        if (data.leave_category === "short_leave") {
+          leaveDays.push({
+            date: dateStr,
+            day: dayName,
+            leave_type: "Short Leave",
+            editable: true,
+            approval_status: "pending",
+            duration: 2,
+            start_time: data.start_time,
+          });
+
+          break;
         }
 
         // Full Day
-
         leaveDays.push({
-
           date: dateStr,
-
           day: dayName,
-
           leave_type: data.leave_type,
-
           editable: true,
-
           approval_status: "pending",
-
           duration: 1,
-
         });
-
       }
 
       /* ================= TOTAL DAYS ================= */
 
       const totalDays = leaveDays.reduce(
-
         (sum, d) => sum + Number(d.duration || 0),
 
-        0
-
+        0,
       );
 
       data.leave_days = leaveDays;
@@ -163,11 +137,9 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       data.days = totalDays;
 
       const leave = await strapi.entityService.create(moduleUid, {
-
         data,
 
         populate: ["user"],
-
       });
 
       const users = await strapi.db
@@ -183,16 +155,23 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       /* ================= NOTIFICATION TO HR ================= */
       for (const hr of hrUsers) {
         try {
-          await strapi.entityService.create("api::notification.notification" as any, {
-            data: {
-              title: "New Leave Request",
-              message: `${leave.user?.username || "User"} applied for leave from ${leave.start_date} to ${leave.end_date}`,
-              notificationType: "leave_applied",
-              users_permissions_user: hr.id, // ✅ SIMPLE & CORRECT
-              isRead: false,
-              publishedAt: new Date(),
+          await strapi.entityService.create(
+            "api::notification.notification" as any,
+            {
+              data: {
+                title: "New Leave Request",
+                message: `${
+                  leave.user?.username || "User"
+                } applied for leave from ${leave.start_date} to ${
+                  leave.end_date
+                }`,
+                notificationType: "leave_applied",
+                users_permissions_user: hr.id, // ✅ SIMPLE & CORRECT
+                isRead: false,
+                publishedAt: new Date(),
+              },
             },
-          });
+          );
         } catch (err) {
           console.error("Notification error (HR):", err.message);
         }
@@ -202,11 +181,14 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
       for (const hr of hrUsers) {
         if (!hr.email) continue;
 
-        await strapi.plugin("email").service("email").send({
-          to: hr.email,
-          subject: `Leave Application – ${leave.user.username}`,
+        await strapi
+          .plugin("email")
+          .service("email")
+          .send({
+            to: hr.email,
+            subject: `Leave Application – ${leave.user.username}`,
 
-          html: `
+            html: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -255,8 +237,8 @@ export default factories.createCoreController(moduleUid, ({ strapi }) => ({
  
 <!-- HEADER -->
 <tr>
-<td class="padding" style="padding:10px 40px;background-color:#181818;" align="center">
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
+<td class="padding" style="padding:10px 40px;background-color:#000000;" align="center">
+<img src="https://media.licdn.com/dms/image/v2/D560BAQGhu9Vf19LmeA/company-logo_200_200/B56Zt.lJzRJcAQ-/0/1767355227906/xyzdotstudio_logo?e=1780531200&v=beta&t=Jj30M02fn5nEBR8oncp-LA6c2ITZcewmYQUzupihUAI"
      alt="Logo"
      class="logo"
      width="150"
@@ -300,15 +282,25 @@ Please review the details below:
 </tr>
 <tr>
 <td><strong>Leave Type</strong></td>
-<td>${leave.leave_type}</td>
+<td>${
+              leave.leave_category === "short_leave"
+                ? "Short Leave"
+                : leave.leave_type
+            }</td>
 </tr>
 <tr>
 <td><strong>Duration</strong></td>
-<td>${leave.days} day(s)</td>
+<td>
+  ${leave.leave_category === "short_leave" ? `2hrs` : `${leave.days} day(s)`}
+</td>
 </tr>
 <tr>
 <td><strong>Period</strong></td>
-<td>${leave.start_date} → ${leave.end_date}</td>
+<td>${leave.start_date} ${
+              leave.leave_category === "short_leave"
+                ? ""
+                : "→ " + leave.end_date
+            }</td>
 </tr>
 <tr>
 <td><strong>Description</strong></td>
@@ -321,10 +313,10 @@ Please review the details below:
  
 <!-- FOOTER -->
 <tr>
-<td align="center" class="padding" style="padding:30px 40px;background-color:#181818;">
+<td align="center" class="padding" style="padding:30px 40px;background-color:#000;">
  
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-     width="200"
+<img src="https://media.licdn.com/dms/image/v2/D560BAQGhu9Vf19LmeA/company-logo_200_200/B56Zt.lJzRJcAQ-/0/1767355227906/xyzdotstudio_logo?e=1780531200&v=beta&t=Jj30M02fn5nEBR8oncp-LA6c2ITZcewmYQUzupihUAI"
+     width="100"
      style="display:block;margin:0 auto;height:auto;max-width:100%;">
  
 <p style="font-family:Arial;
@@ -340,15 +332,15 @@ STAY CONNECTED
 <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 20px;">
 <tr>
 <td style="padding:0 5px;">
-<a href="#" target="_blank">
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/fb-1.png"
+<a href="https://www.facebook.com/xyzdotstudio" target="_blank">
+<img src="https://www.xyz.studio/_next/static/media/facebook.03klm9h543n1v.svg"
      width="24" height="24" alt="Facebook"
      style="display:block;">
 </a>
 </td>
 <td style="padding:0 5px;">
-<a href="#" target="_blank">
-<img src="https://astroshahriar.com/wp-content/uploads/2026/01/insta-1.png"
+<a href="https://www.instagram.com/xyzdotstudio" target="_blank">
+<img src="https://www.xyz.studio/_next/static/media/instagram.0s3a5e~ztan.1.svg"
      width="24" height="24" alt="Instagram"
      style="display:block;">
 </a>
@@ -367,19 +359,13 @@ STAY CONNECTED
 </body>
 </html>
 `,
-
-        });
-
+          });
       }
 
       return ctx.send({ message: "Leave request submitted", leave });
-
     } catch (err) {
-
       return ctx.badRequest(err.message);
-
     }
-
   },
 
   /* ======================================================
@@ -429,15 +415,15 @@ STAY CONNECTED
     /* ================= BALANCE DEDUCTION ================= */
     if (status === "approved" && leave.leave_category !== "short_leave") {
       const approvedDays = finalDays.filter(
-        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
+        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday",
       );
 
       const year = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
       ).getFullYear();
       let [balance]: any[] = await strapi.entityService.findMany(
         "api::leave-balance.leave-balance",
-        { filters: { user: leave.user.id, year } }
+        { filters: { user: leave.user.id, year } },
       );
 
       if (!balance) {
@@ -453,7 +439,7 @@ STAY CONNECTED
               unpaid_balance: 0,
               publishedAt: new Date(),
             },
-          }
+          },
         );
       }
 
@@ -485,7 +471,7 @@ STAY CONNECTED
       await strapi.entityService.update(
         "api::leave-balance.leave-balance",
         balance.id,
-        { data: balance }
+        { data: balance },
       );
     }
 
@@ -509,27 +495,25 @@ STAY CONNECTED
       const userIdForNotification =
         typeof leave.user === "object" ? leave.user.id : leave.user;
 
-      await strapi.entityService.create("api::notification.notification" as any, {
-        data: {
-          title:
-            status === "approved"
-              ? "Leave Approved"
-              : "Leave Declined",
+      await strapi.entityService.create(
+        "api::notification.notification" as any,
+        {
+          data: {
+            title: status === "approved" ? "Leave Approved" : "Leave Declined",
 
-          message:
-            status === "approved"
-              ? `Your leave from ${leave.start_date} to ${leave.end_date} has been approved`
-              : `Your leave from ${leave.start_date} to ${leave.end_date} has been declined`,
+            message:
+              status === "approved"
+                ? `Your leave from ${leave.start_date} to ${leave.end_date} has been approved`
+                : `Your leave from ${leave.start_date} to ${leave.end_date} has been declined`,
 
-          notificationType:
-            status === "approved"
-              ? "leave_approved"
-              : "leave_declined",
-          users_permissions_user: userIdForNotification, // ✅ FIXED
-          isRead: false,
-          publishedAt: new Date(),
+            notificationType:
+              status === "approved" ? "leave_approved" : "leave_declined",
+            users_permissions_user: userIdForNotification, // ✅ FIXED
+            isRead: false,
+            publishedAt: new Date(),
+          },
         },
-      });
+      );
     } catch (err) {
       console.error("Notification error (Employee):", err.message);
     }
@@ -537,11 +521,11 @@ STAY CONNECTED
     /* ================= EMAIL TO EMPLOYEE ================= */
     if (leave.user?.email) {
       const approvedDays = finalDays.filter(
-        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday"
+        (d) => d.approval_status === "approved" && d.leave_type !== "Holiday",
       );
 
       const declinedDays = finalDays.filter(
-        (d) => d.approval_status === "declined"
+        (d) => d.approval_status === "declined",
       );
 
       const isPartial = approvedDays.length && declinedDays.length;
@@ -575,13 +559,17 @@ STAY CONNECTED
       <p><strong>Approved Leave Details</strong></p>
       <p>The following leave days have been approved:</p>
       <ul>
-        ${approvedDays.map(d => `<li>${d.date} – ${d.leave_type}</li>`).join("")}
+        ${approvedDays
+          .map((d) => `<li>${d.date} – ${d.leave_type}</li>`)
+          .join("")}
       </ul>
 
       <p><strong>Declined Leave Details</strong></p>
       <p>The following leave days have been declined:</p>
       <ul>
-        ${declinedDays.map(d => `<li>${d.date} – ${d.leave_type}</li>`).join("")}
+        ${declinedDays
+          .map((d) => `<li>${d.date} – ${d.leave_type}</li>`)
+          .join("")}
       </ul>
 
       <p><strong>Reason for Partial Decline:</strong></p>
@@ -600,31 +588,64 @@ STAY CONNECTED
       // FULLY APPROVED
       if (isAllApproved) {
         bodyContent = `
-      <p>Hello ${leave.user.username},</p>
+    <p>Hello ${leave.user.username},</p>
 
-      <p>
-        This is to inform you that your leave request has been approved.
-        Please find the details below:
-      </p>
+    <p>
+      This is to inform you that your leave request has been approved.
+      Please find the details below:
+    </p>
 
-      <p>
-        <strong>Leave Duration:</strong><br/>
-        From ${leave.start_date} to ${leave.end_date}<br/>
-        <strong>Total Approved Days:</strong> ${approvedDays.length} Days
-      </p>
+    <p>
+      <strong>Leave Duration:</strong><br/>
+      ${
+        leave.leave_category === "short_leave"
+          ? `${leave.start_date} (${leave.start_time || ""})`
+          : `From ${leave.start_date} to ${leave.end_date}`
+      }<br/>
 
-      <p><strong>Approved Leave Details:</strong></p>
-      <ul>
-        ${approvedDays.map(d => `<li>${d.date} – ${d.leave_type}</li>`).join("")}
-      </ul>
+      <strong>Leave Type:</strong>
+      ${
+        leave.leave_category === "short_leave"
+          ? "Short Leave"
+          : leave.leave_type
+      }<br/>
 
-      <p>
-        If you have any questions or require further assistance,
-        please feel free to contact the HR team.
-      </p>
+      <strong>Total Approved ${
+        leave.leave_category === "short_leave" ? "Hours" : "Days"
+      }:</strong>
+      ${
+        leave.leave_category === "short_leave"
+          ? "2 hrs"
+          : `${approvedDays.length} Days`
+      }
+    </p>
 
-      <p>Wishing you a smooth leave period.</p>
-    `;
+    <p><strong>Approved Leave Details:</strong></p>
+
+    <ul>
+      ${approvedDays
+        .map(
+          (d) => `
+            <li>
+              ${d.date} –
+              ${
+                leave.leave_category === "short_leave"
+                  ? `Short Leave (2 hrs)`
+                  : d.leave_type
+              }
+            </li>
+          `,
+        )
+        .join("")}
+    </ul>
+
+    <p>
+      If you have any questions or require further assistance,
+      please feel free to contact the HR team.
+    </p>
+
+    <p>Wishing you a smooth leave period.</p>
+  `;
       }
 
       // FULLY DECLINED
@@ -644,8 +665,10 @@ STAY CONNECTED
 
       <p><strong>Reason for Decline:</strong></p>
       <p>
-        ${decline_reason ||
-          "Due to operational requirements and ongoing project commitments during the requested period, we are unable to approve the leave at this time."}
+        ${
+          decline_reason ||
+          "Due to operational requirements and ongoing project commitments during the requested period, we are unable to approve the leave at this time."
+        }
       </p>
 
       <p>
@@ -709,14 +732,12 @@ STAY CONNECTED
 
 <!-- HEADER -->
 <tr>
-<td class="content-padding" style="padding:10px 40px;background-color:#181818;" align="center">
-<img
-  src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-  alt="Logo"
-  width="150"
-  class="logo"
-  style="display:block;border:0;outline:none;text-decoration:none;height:auto;max-width:100%;"
-/>
+<td class="padding" style="padding:10px 40px;background-color:#000000;" align="center">
+<img src="https://media.licdn.com/dms/image/v2/D560BAQGhu9Vf19LmeA/company-logo_200_200/B56Zt.lJzRJcAQ-/0/1767355227906/xyzdotstudio_logo?e=1780531200&v=beta&t=Jj30M02fn5nEBR8oncp-LA6c2ITZcewmYQUzupihUAI"
+     alt="Logo"
+     class="logo"
+     width="150"
+     style="display:block;height:auto;max-width:100%;">
 </td>
 </tr>
 
@@ -736,16 +757,11 @@ XYZ Studio
 
 <!-- FOOTER -->
 <tr>
-<td align="center"
-    class="footer-padding"
-    style="padding:30px 40px;background-color:#181818;">
-
-<img
-  src="https://astroshahriar.com/wp-content/uploads/2026/01/logo.png"
-  width="200"
-  class="footer-logo"
-  style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;height:auto;max-width:100%;"
-/>
+<td align="center" class="padding" style="padding:30px 40px;background-color:#000;">
+ 
+<img src="https://media.licdn.com/dms/image/v2/D560BAQGhu9Vf19LmeA/company-logo_200_200/B56Zt.lJzRJcAQ-/0/1767355227906/xyzdotstudio_logo?e=1780531200&v=beta&t=Jj30M02fn5nEBR8oncp-LA6c2ITZcewmYQUzupihUAI"
+     width="100"
+     style="display:block;margin:0 auto;height:auto;max-width:100%;">
 
 <p style="font-family:Arial;
           font-size:20px;
@@ -759,26 +775,17 @@ Stay Connected
 <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 20px;">
 <tr>
 <td style="padding:0 5px;">
-<a href="#" target="_blank">
-<img
-  src="https://astroshahriar.com/wp-content/uploads/2026/01/fb-1.png"
-  width="24"
-  height="24"
-  alt="Facebook"
-  style="display:block;border:0;"
-/>
+<a href="https://www.facebook.com/xyzdotstudio" target="_blank">
+<img src="https://www.xyz.studio/_next/static/media/facebook.03klm9h543n1v.svg"
+     width="24" height="24" alt="Facebook"
+     style="display:block;">
 </a>
 </td>
-
 <td style="padding:0 5px;">
-<a href="#" target="_blank">
-<img
-  src="https://astroshahriar.com/wp-content/uploads/2026/01/insta-1.png"
-  width="24"
-  height="24"
-  alt="Instagram"
-  style="display:block;border:0;"
-/>
+<a href="https://www.instagram.com/xyzdotstudio" target="_blank">
+<img src="https://www.xyz.studio/_next/static/media/instagram.0s3a5e~ztan.1.svg"
+     width="24" height="24" alt="Instagram"
+     style="display:block;">
 </a>
 </td>
 </tr>
@@ -808,9 +815,7 @@ Stay Connected
         message: "Leave updated successfully",
         data: updatedLeave,
       });
-
     }
-
   },
 
   /* ======================================================
@@ -859,7 +864,7 @@ Stay Connected
 
         filters.$and.push(
           { start_date: { $lte: endDate || startDate } },
-          { end_date: { $gte: startDate || endDate } }
+          { end_date: { $gte: startDate || endDate } },
         );
       }
 
@@ -904,7 +909,7 @@ Stay Connected
           sort: { id: "desc" },
           start: (Number(page) - 1) * Number(pageSize),
           limit: Number(pageSize),
-        }
+        },
       );
 
       /* ===============================
@@ -912,7 +917,7 @@ Stay Connected
     =============================== */
       const total = await strapi.entityService.count(
         "api::leave-status.leave-status",
-        { filters }
+        { filters },
       );
 
       ctx.body = {
@@ -930,5 +935,4 @@ Stay Connected
       ctx.throw(500, error);
     }
   },
-
 }));

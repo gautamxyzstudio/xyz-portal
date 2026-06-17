@@ -14,18 +14,15 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-05-19T10:20:58.437Z"
+    "x-generation-date": "2026-06-17T07:19:21.099Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
-    "plugins": [
-      "upload",
-      "users-permissions"
-    ]
+    "plugins": ["upload", "users-permissions"]
   },
   "servers": [
     {
-      "url": "http://localhost:8080/api",
+      "url": "http://localhost:8082/api",
       "description": "Development server"
     }
   ],
@@ -49,9 +46,7 @@
     "schemas": {
       "Error": {
         "type": "object",
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "properties": {
           "data": {
             "nullable": true,
@@ -88,9 +83,7 @@
       },
       "AddBlogRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -897,9 +890,7 @@
       },
       "AnnouncementRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -1301,9 +1292,7 @@
       },
       "AssetRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -1341,10 +1330,7 @@
               },
               "Condition": {
                 "type": "string",
-                "enum": [
-                  "New",
-                  "Old"
-                ]
+                "enum": ["New", "Old"]
               },
               "Available": {
                 "type": "boolean"
@@ -1813,10 +1799,7 @@
           },
           "Condition": {
             "type": "string",
-            "enum": [
-              "New",
-              "Old"
-            ]
+            "enum": ["New", "Old"]
           },
           "Available": {
             "type": "boolean"
@@ -2833,12 +2816,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -2872,10 +2850,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -3765,10 +3740,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -4067,14 +4039,10 @@
       },
       "AssetBrandRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "AssetBrand"
-            ],
+            "required": ["AssetBrand"],
             "type": "object",
             "properties": {
               "AssetBrand": {
@@ -4132,9 +4100,7 @@
       },
       "AssetBrand": {
         "type": "object",
-        "required": [
-          "AssetBrand"
-        ],
+        "required": ["AssetBrand"],
         "properties": {
           "AssetBrand": {
             "type": "string"
@@ -4463,14 +4429,10 @@
       },
       "AssetCategoryRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "CategoryName"
-            ],
+            "required": ["CategoryName"],
             "type": "object",
             "properties": {
               "CategoryName": {
@@ -4528,9 +4490,7 @@
       },
       "AssetCategory": {
         "type": "object",
-        "required": [
-          "CategoryName"
-        ],
+        "required": ["CategoryName"],
         "properties": {
           "CategoryName": {
             "type": "string"
@@ -4859,9 +4819,7 @@
       },
       "DailyAttendanceRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -6219,12 +6177,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -6258,10 +6211,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -7251,10 +7201,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -7571,14 +7518,10 @@
       },
       "DailyTaskRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "date"
-            ],
+            "required": ["date"],
             "type": "object",
             "properties": {
               "work_logs": {
@@ -7651,9 +7594,7 @@
       },
       "DailyTask": {
         "type": "object",
-        "required": [
-          "date"
-        ],
+        "required": ["date"],
         "properties": {
           "work_logs": {
             "type": "object",
@@ -9818,10 +9759,7 @@
                                                   },
                                                   "Condition": {
                                                     "type": "string",
-                                                    "enum": [
-                                                      "New",
-                                                      "Old"
-                                                    ]
+                                                    "enum": ["New", "Old"]
                                                   },
                                                   "Available": {
                                                     "type": "boolean"
@@ -10253,9 +10191,7 @@
       },
       "EmpDetailRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -11793,12 +11729,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -11832,10 +11763,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -12825,10 +12753,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -13283,9 +13208,7 @@
       },
       "FormSubmissionRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -13705,9 +13628,7 @@
       },
       "HolidayListRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -14103,14 +14024,10 @@
       },
       "LeaveBalanceRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "year"
-            ],
+            "required": ["year"],
             "type": "object",
             "properties": {
               "sl_balance": {
@@ -14207,9 +14124,7 @@
       },
       "LeaveBalance": {
         "type": "object",
-        "required": [
-          "year"
-        ],
+        "required": ["year"],
         "properties": {
           "sl_balance": {
             "type": "number",
@@ -15492,12 +15407,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -15531,10 +15441,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -16524,10 +16431,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -16843,14 +16747,10 @@
       },
       "LeaveStatusRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "title"
-            ],
+            "required": ["title"],
             "type": "object",
             "properties": {
               "start_date": {
@@ -16866,11 +16766,7 @@
               },
               "status": {
                 "type": "string",
-                "enum": [
-                  "approved",
-                  "pending",
-                  "declined"
-                ]
+                "enum": ["approved", "pending", "declined"]
               },
               "decline_reason": {
                 "type": "string"
@@ -16880,12 +16776,7 @@
               },
               "leave_type": {
                 "type": "string",
-                "enum": [
-                  "SL",
-                  "CL",
-                  "EL",
-                  "un-paid"
-                ]
+                "enum": ["SL", "CL", "EL", "un-paid"]
               },
               "user": {
                 "oneOf": [
@@ -16905,18 +16796,11 @@
               },
               "leave_category": {
                 "type": "string",
-                "enum": [
-                  "half_day",
-                  "full_day",
-                  "short_leave"
-                ]
+                "enum": ["half_day", "full_day", "short_leave"]
               },
               "half_day_type": {
                 "type": "string",
-                "enum": [
-                  "first_half",
-                  "second_half"
-                ]
+                "enum": ["first_half", "second_half"]
               },
               "days": {
                 "type": "number",
@@ -16986,9 +16870,7 @@
       },
       "LeaveStatus": {
         "type": "object",
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "properties": {
           "start_date": {
             "type": "string",
@@ -17003,11 +16885,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "approved",
-              "pending",
-              "declined"
-            ]
+            "enum": ["approved", "pending", "declined"]
           },
           "decline_reason": {
             "type": "string"
@@ -17017,12 +16895,7 @@
           },
           "leave_type": {
             "type": "string",
-            "enum": [
-              "SL",
-              "CL",
-              "EL",
-              "un-paid"
-            ]
+            "enum": ["SL", "CL", "EL", "un-paid"]
           },
           "user": {
             "type": "object",
@@ -18285,12 +18158,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -18324,10 +18192,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -19317,10 +19182,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -19554,18 +19416,11 @@
           },
           "leave_category": {
             "type": "string",
-            "enum": [
-              "half_day",
-              "full_day",
-              "short_leave"
-            ]
+            "enum": ["half_day", "full_day", "short_leave"]
           },
           "half_day_type": {
             "type": "string",
-            "enum": [
-              "first_half",
-              "second_half"
-            ]
+            "enum": ["first_half", "second_half"]
           },
           "days": {
             "type": "number",
@@ -19661,9 +19516,7 @@
       },
       "NotificationRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -19676,11 +19529,7 @@
               },
               "notificationType": {
                 "type": "string",
-                "enum": [
-                  "leave_declined",
-                  "leave_approved",
-                  "leave_applied"
-                ]
+                "enum": ["leave_declined", "leave_approved", "leave_applied"]
               },
               "users_permissions_user": {
                 "oneOf": [
@@ -19757,11 +19606,7 @@
           },
           "notificationType": {
             "type": "string",
-            "enum": [
-              "leave_declined",
-              "leave_approved",
-              "leave_applied"
-            ]
+            "enum": ["leave_declined", "leave_approved", "leave_applied"]
           },
           "users_permissions_user": {
             "type": "object",
@@ -21024,12 +20869,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -21063,10 +20903,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -22056,10 +21893,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -22361,9 +22195,7 @@
       },
       "ProjectRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -23721,12 +23553,7 @@
                                       },
                                       "leave_type": {
                                         "type": "string",
-                                        "enum": [
-                                          "SL",
-                                          "CL",
-                                          "EL",
-                                          "un-paid"
-                                        ]
+                                        "enum": ["SL", "CL", "EL", "un-paid"]
                                       },
                                       "user": {
                                         "type": "object",
@@ -23760,10 +23587,7 @@
                                       },
                                       "half_day_type": {
                                         "type": "string",
-                                        "enum": [
-                                          "first_half",
-                                          "second_half"
-                                        ]
+                                        "enum": ["first_half", "second_half"]
                                       },
                                       "days": {
                                         "type": "number",
@@ -24753,10 +24577,7 @@
                                       },
                                       "Condition": {
                                         "type": "string",
-                                        "enum": [
-                                          "New",
-                                          "Old"
-                                        ]
+                                        "enum": ["New", "Old"]
                                       },
                                       "Available": {
                                         "type": "boolean"
@@ -25195,9 +25016,7 @@
       },
       "UserDocumentsRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
             "type": "object",
@@ -26683,12 +26502,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -26722,10 +26536,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -27715,10 +27526,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -28017,14 +27825,10 @@
       },
       "WorkLogRequest": {
         "type": "object",
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "properties": {
           "data": {
-            "required": [
-              "work_date"
-            ],
+            "required": ["work_date"],
             "type": "object",
             "properties": {
               "tasks": {},
@@ -28112,9 +27916,7 @@
       },
       "WorkLog": {
         "type": "object",
-        "required": [
-          "work_date"
-        ],
+        "required": ["work_date"],
         "properties": {
           "tasks": {},
           "active_task_id": {
@@ -29388,12 +29190,7 @@
                                     },
                                     "leave_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "SL",
-                                        "CL",
-                                        "EL",
-                                        "un-paid"
-                                      ]
+                                      "enum": ["SL", "CL", "EL", "un-paid"]
                                     },
                                     "user": {
                                       "type": "object",
@@ -29427,10 +29224,7 @@
                                     },
                                     "half_day_type": {
                                       "type": "string",
-                                      "enum": [
-                                        "first_half",
-                                        "second_half"
-                                      ]
+                                      "enum": ["first_half", "second_half"]
                                     },
                                     "days": {
                                       "type": "number",
@@ -30420,10 +30214,7 @@
                                     },
                                     "Condition": {
                                       "type": "string",
-                                      "enum": [
-                                        "New",
-                                        "Old"
-                                      ]
+                                      "enum": ["New", "Old"]
                                     },
                                     "Available": {
                                       "type": "boolean"
@@ -31005,9 +30796,7 @@
             }
           }
         },
-        "tags": [
-          "Add-blog"
-        ],
+        "tags": ["Add-blog"],
         "parameters": [
           {
             "name": "sort",
@@ -31177,9 +30966,7 @@
             }
           }
         },
-        "tags": [
-          "Add-blog"
-        ],
+        "tags": ["Add-blog"],
         "parameters": [],
         "operationId": "post/add-blogs",
         "requestBody": {
@@ -31258,9 +31045,7 @@
             }
           }
         },
-        "tags": [
-          "Add-blog"
-        ],
+        "tags": ["Add-blog"],
         "parameters": [
           {
             "name": "id",
@@ -31338,9 +31123,7 @@
             }
           }
         },
-        "tags": [
-          "Add-blog"
-        ],
+        "tags": ["Add-blog"],
         "parameters": [
           {
             "name": "id",
@@ -31429,9 +31212,7 @@
             }
           }
         },
-        "tags": [
-          "Add-blog"
-        ],
+        "tags": ["Add-blog"],
         "parameters": [
           {
             "name": "id",
@@ -31445,88 +31226,6 @@
           }
         ],
         "operationId": "delete/add-blogs/{id}"
-      }
-    },
-    "/add-blogs/title/{title}": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddBlogResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Add-blog"
-        ],
-        "parameters": [
-          {
-            "name": "title",
-            "in": "path",
-            "description": "",
-            "deprecated": false,
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "operationId": "get/add-blogs/title/{title}"
       }
     },
     "/announcements": {
@@ -31593,9 +31292,7 @@
             }
           }
         },
-        "tags": [
-          "Announcement"
-        ],
+        "tags": ["Announcement"],
         "parameters": [
           {
             "name": "sort",
@@ -31765,9 +31462,7 @@
             }
           }
         },
-        "tags": [
-          "Announcement"
-        ],
+        "tags": ["Announcement"],
         "parameters": [],
         "operationId": "post/announcements",
         "requestBody": {
@@ -31846,9 +31541,7 @@
             }
           }
         },
-        "tags": [
-          "Announcement"
-        ],
+        "tags": ["Announcement"],
         "parameters": [
           {
             "name": "id",
@@ -31926,9 +31619,7 @@
             }
           }
         },
-        "tags": [
-          "Announcement"
-        ],
+        "tags": ["Announcement"],
         "parameters": [
           {
             "name": "id",
@@ -32017,9 +31708,7 @@
             }
           }
         },
-        "tags": [
-          "Announcement"
-        ],
+        "tags": ["Announcement"],
         "parameters": [
           {
             "name": "id",
@@ -32099,9 +31788,7 @@
             }
           }
         },
-        "tags": [
-          "Asset"
-        ],
+        "tags": ["Asset"],
         "parameters": [
           {
             "name": "sort",
@@ -32271,9 +31958,7 @@
             }
           }
         },
-        "tags": [
-          "Asset"
-        ],
+        "tags": ["Asset"],
         "parameters": [],
         "operationId": "post/assets",
         "requestBody": {
@@ -32352,9 +32037,7 @@
             }
           }
         },
-        "tags": [
-          "Asset"
-        ],
+        "tags": ["Asset"],
         "parameters": [
           {
             "name": "id",
@@ -32432,9 +32115,7 @@
             }
           }
         },
-        "tags": [
-          "Asset"
-        ],
+        "tags": ["Asset"],
         "parameters": [
           {
             "name": "id",
@@ -32523,9 +32204,7 @@
             }
           }
         },
-        "tags": [
-          "Asset"
-        ],
+        "tags": ["Asset"],
         "parameters": [
           {
             "name": "id",
@@ -32605,9 +32284,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-brand"
-        ],
+        "tags": ["Asset-brand"],
         "parameters": [
           {
             "name": "sort",
@@ -32777,9 +32454,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-brand"
-        ],
+        "tags": ["Asset-brand"],
         "parameters": [],
         "operationId": "post/asset-brands",
         "requestBody": {
@@ -32858,9 +32533,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-brand"
-        ],
+        "tags": ["Asset-brand"],
         "parameters": [
           {
             "name": "id",
@@ -32938,9 +32611,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-brand"
-        ],
+        "tags": ["Asset-brand"],
         "parameters": [
           {
             "name": "id",
@@ -33029,9 +32700,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-brand"
-        ],
+        "tags": ["Asset-brand"],
         "parameters": [
           {
             "name": "id",
@@ -33111,9 +32780,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-category"
-        ],
+        "tags": ["Asset-category"],
         "parameters": [
           {
             "name": "sort",
@@ -33283,9 +32950,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-category"
-        ],
+        "tags": ["Asset-category"],
         "parameters": [],
         "operationId": "post/asset-categories",
         "requestBody": {
@@ -33364,9 +33029,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-category"
-        ],
+        "tags": ["Asset-category"],
         "parameters": [
           {
             "name": "id",
@@ -33444,9 +33107,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-category"
-        ],
+        "tags": ["Asset-category"],
         "parameters": [
           {
             "name": "id",
@@ -33535,9 +33196,7 @@
             }
           }
         },
-        "tags": [
-          "Asset-category"
-        ],
+        "tags": ["Asset-category"],
         "parameters": [
           {
             "name": "id",
@@ -33617,9 +33276,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [],
         "operationId": "get/daily-attendance/all"
       }
@@ -33688,9 +33345,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [
           {
             "name": "id",
@@ -33770,9 +33425,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [
           {
             "name": "id",
@@ -33852,9 +33505,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [],
         "operationId": "post/daily-attendance/check-in",
         "requestBody": {
@@ -33933,9 +33584,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [],
         "operationId": "post/daily-attendance/check-out",
         "requestBody": {
@@ -34014,9 +33663,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-attendance"
-        ],
+        "tags": ["Daily-attendance"],
         "parameters": [
           {
             "name": "id",
@@ -34106,9 +33753,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-task"
-        ],
+        "tags": ["Daily-task"],
         "parameters": [
           {
             "name": "sort",
@@ -34278,9 +33923,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-task"
-        ],
+        "tags": ["Daily-task"],
         "parameters": [],
         "operationId": "post/daily-tasks",
         "requestBody": {
@@ -34359,9 +34002,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-task"
-        ],
+        "tags": ["Daily-task"],
         "parameters": [
           {
             "name": "id",
@@ -34439,9 +34080,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-task"
-        ],
+        "tags": ["Daily-task"],
         "parameters": [
           {
             "name": "id",
@@ -34530,9 +34169,7 @@
             }
           }
         },
-        "tags": [
-          "Daily-task"
-        ],
+        "tags": ["Daily-task"],
         "parameters": [
           {
             "name": "id",
@@ -34612,9 +34249,7 @@
             }
           }
         },
-        "tags": [
-          "Emp-detail"
-        ],
+        "tags": ["Emp-detail"],
         "parameters": [
           {
             "name": "sort",
@@ -34784,9 +34419,7 @@
             }
           }
         },
-        "tags": [
-          "Emp-detail"
-        ],
+        "tags": ["Emp-detail"],
         "parameters": [],
         "operationId": "post/emp-details",
         "requestBody": {
@@ -34865,9 +34498,7 @@
             }
           }
         },
-        "tags": [
-          "Emp-detail"
-        ],
+        "tags": ["Emp-detail"],
         "parameters": [
           {
             "name": "id",
@@ -34945,9 +34576,7 @@
             }
           }
         },
-        "tags": [
-          "Emp-detail"
-        ],
+        "tags": ["Emp-detail"],
         "parameters": [
           {
             "name": "id",
@@ -35036,9 +34665,7 @@
             }
           }
         },
-        "tags": [
-          "Emp-detail"
-        ],
+        "tags": ["Emp-detail"],
         "parameters": [
           {
             "name": "id",
@@ -35118,9 +34745,7 @@
             }
           }
         },
-        "tags": [
-          "Form-submission"
-        ],
+        "tags": ["Form-submission"],
         "parameters": [
           {
             "name": "sort",
@@ -35290,9 +34915,7 @@
             }
           }
         },
-        "tags": [
-          "Form-submission"
-        ],
+        "tags": ["Form-submission"],
         "parameters": [],
         "operationId": "post/form-submissions",
         "requestBody": {
@@ -35371,9 +34994,7 @@
             }
           }
         },
-        "tags": [
-          "Form-submission"
-        ],
+        "tags": ["Form-submission"],
         "parameters": [
           {
             "name": "id",
@@ -35451,9 +35072,7 @@
             }
           }
         },
-        "tags": [
-          "Form-submission"
-        ],
+        "tags": ["Form-submission"],
         "parameters": [
           {
             "name": "id",
@@ -35542,9 +35161,7 @@
             }
           }
         },
-        "tags": [
-          "Form-submission"
-        ],
+        "tags": ["Form-submission"],
         "parameters": [
           {
             "name": "id",
@@ -35624,9 +35241,7 @@
             }
           }
         },
-        "tags": [
-          "Holiday-list"
-        ],
+        "tags": ["Holiday-list"],
         "parameters": [
           {
             "name": "sort",
@@ -35796,9 +35411,7 @@
             }
           }
         },
-        "tags": [
-          "Holiday-list"
-        ],
+        "tags": ["Holiday-list"],
         "parameters": [],
         "operationId": "post/holiday-lists",
         "requestBody": {
@@ -35877,9 +35490,7 @@
             }
           }
         },
-        "tags": [
-          "Holiday-list"
-        ],
+        "tags": ["Holiday-list"],
         "parameters": [
           {
             "name": "id",
@@ -35957,9 +35568,7 @@
             }
           }
         },
-        "tags": [
-          "Holiday-list"
-        ],
+        "tags": ["Holiday-list"],
         "parameters": [
           {
             "name": "id",
@@ -36048,9 +35657,7 @@
             }
           }
         },
-        "tags": [
-          "Holiday-list"
-        ],
+        "tags": ["Holiday-list"],
         "parameters": [
           {
             "name": "id",
@@ -36130,9 +35737,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-balance"
-        ],
+        "tags": ["Leave-balance"],
         "parameters": [
           {
             "name": "sort",
@@ -36302,9 +35907,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-balance"
-        ],
+        "tags": ["Leave-balance"],
         "parameters": [],
         "operationId": "post/leave-balances",
         "requestBody": {
@@ -36383,9 +35986,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-balance"
-        ],
+        "tags": ["Leave-balance"],
         "parameters": [
           {
             "name": "id",
@@ -36463,9 +36064,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-balance"
-        ],
+        "tags": ["Leave-balance"],
         "parameters": [
           {
             "name": "id",
@@ -36554,9 +36153,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-balance"
-        ],
+        "tags": ["Leave-balance"],
         "parameters": [
           {
             "name": "id",
@@ -36636,9 +36233,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-status"
-        ],
+        "tags": ["Leave-status"],
         "parameters": [
           {
             "name": "sort",
@@ -36808,9 +36403,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-status"
-        ],
+        "tags": ["Leave-status"],
         "parameters": [],
         "operationId": "post/leave-statuses",
         "requestBody": {
@@ -36889,9 +36482,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-status"
-        ],
+        "tags": ["Leave-status"],
         "parameters": [
           {
             "name": "id",
@@ -36969,9 +36560,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-status"
-        ],
+        "tags": ["Leave-status"],
         "parameters": [
           {
             "name": "id",
@@ -37060,9 +36649,7 @@
             }
           }
         },
-        "tags": [
-          "Leave-status"
-        ],
+        "tags": ["Leave-status"],
         "parameters": [
           {
             "name": "id",
@@ -37142,9 +36729,7 @@
             }
           }
         },
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "sort",
@@ -37314,9 +36899,7 @@
             }
           }
         },
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [],
         "operationId": "post/notifications",
         "requestBody": {
@@ -37395,9 +36978,7 @@
             }
           }
         },
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "id",
@@ -37475,9 +37056,7 @@
             }
           }
         },
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "id",
@@ -37566,9 +37145,7 @@
             }
           }
         },
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "id",
@@ -37648,9 +37225,7 @@
             }
           }
         },
-        "tags": [
-          "Project"
-        ],
+        "tags": ["Project"],
         "parameters": [
           {
             "name": "sort",
@@ -37820,9 +37395,7 @@
             }
           }
         },
-        "tags": [
-          "Project"
-        ],
+        "tags": ["Project"],
         "parameters": [],
         "operationId": "post/projects",
         "requestBody": {
@@ -37901,9 +37474,7 @@
             }
           }
         },
-        "tags": [
-          "Project"
-        ],
+        "tags": ["Project"],
         "parameters": [
           {
             "name": "id",
@@ -37981,9 +37552,7 @@
             }
           }
         },
-        "tags": [
-          "Project"
-        ],
+        "tags": ["Project"],
         "parameters": [
           {
             "name": "id",
@@ -38072,9 +37641,7 @@
             }
           }
         },
-        "tags": [
-          "Project"
-        ],
+        "tags": ["Project"],
         "parameters": [
           {
             "name": "id",
@@ -38154,9 +37721,7 @@
             }
           }
         },
-        "tags": [
-          "User-documents"
-        ],
+        "tags": ["User-documents"],
         "parameters": [
           {
             "name": "sort",
@@ -38326,9 +37891,7 @@
             }
           }
         },
-        "tags": [
-          "User-documents"
-        ],
+        "tags": ["User-documents"],
         "parameters": [],
         "operationId": "post/documents",
         "requestBody": {
@@ -38407,9 +37970,7 @@
             }
           }
         },
-        "tags": [
-          "User-documents"
-        ],
+        "tags": ["User-documents"],
         "parameters": [
           {
             "name": "id",
@@ -38487,9 +38048,7 @@
             }
           }
         },
-        "tags": [
-          "User-documents"
-        ],
+        "tags": ["User-documents"],
         "parameters": [
           {
             "name": "id",
@@ -38578,9 +38137,7 @@
             }
           }
         },
-        "tags": [
-          "User-documents"
-        ],
+        "tags": ["User-documents"],
         "parameters": [
           {
             "name": "id",
@@ -38660,9 +38217,7 @@
             }
           }
         },
-        "tags": [
-          "Work-log"
-        ],
+        "tags": ["Work-log"],
         "parameters": [
           {
             "name": "sort",
@@ -38832,9 +38387,7 @@
             }
           }
         },
-        "tags": [
-          "Work-log"
-        ],
+        "tags": ["Work-log"],
         "parameters": [],
         "operationId": "post/work-logs",
         "requestBody": {
@@ -38913,9 +38466,7 @@
             }
           }
         },
-        "tags": [
-          "Work-log"
-        ],
+        "tags": ["Work-log"],
         "parameters": [
           {
             "name": "id",
@@ -38993,9 +38544,7 @@
             }
           }
         },
-        "tags": [
-          "Work-log"
-        ],
+        "tags": ["Work-log"],
         "parameters": [
           {
             "name": "id",
@@ -39084,9 +38633,7 @@
             }
           }
         },
-        "tags": [
-          "Work-log"
-        ],
+        "tags": ["Work-log"],
         "parameters": [
           {
             "name": "id",
@@ -39121,18 +38668,14 @@
           }
         },
         "summary": "",
-        "tags": [
-          "Upload - File"
-        ],
+        "tags": ["Upload - File"],
         "requestBody": {
           "description": "Upload files",
           "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
-                "required": [
-                  "files"
-                ],
+                "required": ["files"],
                 "type": "object",
                 "properties": {
                   "path": {
@@ -39195,9 +38738,7 @@
           }
         },
         "summary": "",
-        "tags": [
-          "Upload - File"
-        ],
+        "tags": ["Upload - File"],
         "requestBody": {
           "description": "Upload files",
           "required": true,
@@ -39233,9 +38774,7 @@
     },
     "/upload/files": {
       "get": {
-        "tags": [
-          "Upload - File"
-        ],
+        "tags": ["Upload - File"],
         "responses": {
           "200": {
             "description": "Get a list of files",
@@ -39267,9 +38806,7 @@
             }
           }
         ],
-        "tags": [
-          "Upload - File"
-        ],
+        "tags": ["Upload - File"],
         "responses": {
           "200": {
             "description": "Get a specific file",
@@ -39296,9 +38833,7 @@
             }
           }
         ],
-        "tags": [
-          "Upload - File"
-        ],
+        "tags": ["Upload - File"],
         "responses": {
           "200": {
             "description": "Delete a file",
@@ -39327,9 +38862,7 @@
             }
           }
         ],
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Login with a provider",
         "description": "Redirects to provider login before being redirect to /auth/{provider}/callback",
         "responses": {
@@ -39351,9 +38884,7 @@
     },
     "/auth/local": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Local login",
         "description": "Returns a jwt token and user info",
         "requestBody": {
@@ -39404,9 +38935,7 @@
     },
     "/auth/local/register": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Register a user",
         "description": "Returns a jwt token and user info",
         "requestBody": {
@@ -39461,9 +38990,7 @@
     },
     "/auth/{provider}/callback": {
       "get": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Default Callback from provider auth",
         "parameters": [
           {
@@ -39502,9 +39029,7 @@
     },
     "/auth/forgot-password": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Send rest password email",
         "requestBody": {
           "required": true,
@@ -39534,9 +39059,7 @@
                   "properties": {
                     "ok": {
                       "type": "string",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     }
                   }
                 }
@@ -39558,9 +39081,7 @@
     },
     "/auth/reset-password": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Rest user password",
         "requestBody": {
           "required": true,
@@ -39614,9 +39135,7 @@
     },
     "/auth/change-password": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Update user's own password",
         "requestBody": {
           "required": true,
@@ -39670,9 +39189,7 @@
     },
     "/auth/email-confirmation": {
       "get": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Confirm user email",
         "parameters": [
           {
@@ -39703,9 +39220,7 @@
     },
     "/auth/send-email-confirmation": {
       "post": {
-        "tags": [
-          "Users-Permissions - Auth"
-        ],
+        "tags": ["Users-Permissions - Auth"],
         "summary": "Send confirmation email",
         "requestBody": {
           "required": true,
@@ -39735,9 +39250,7 @@
                     },
                     "sent": {
                       "type": "string",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     }
                   }
                 }
@@ -39759,9 +39272,7 @@
     },
     "/users-permissions/permissions": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get default generated permissions",
         "responses": {
           "200": {
@@ -39830,9 +39341,7 @@
     },
     "/users-permissions/roles": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "List roles",
         "responses": {
           "200": {
@@ -39891,9 +39400,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Create a role",
         "requestBody": {
           "$ref": "#/components/requestBodies/Users-Permissions-RoleRequest"
@@ -39908,9 +39415,7 @@
                   "properties": {
                     "ok": {
                       "type": "string",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     }
                   }
                 }
@@ -39932,9 +39437,7 @@
     },
     "/users-permissions/roles/{id}": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get a role",
         "parameters": [
           {
@@ -39999,9 +39502,7 @@
     },
     "/users-permissions/roles/{role}": {
       "put": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Update a role",
         "parameters": [
           {
@@ -40027,9 +39528,7 @@
                   "properties": {
                     "ok": {
                       "type": "string",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     }
                   }
                 }
@@ -40049,9 +39548,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Delete a role",
         "parameters": [
           {
@@ -40074,9 +39571,7 @@
                   "properties": {
                     "ok": {
                       "type": "string",
-                      "enum": [
-                        true
-                      ]
+                      "enum": [true]
                     }
                   }
                 }
@@ -40098,9 +39593,7 @@
     },
     "/users": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get list of users",
         "responses": {
           "200": {
@@ -40141,9 +39634,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Create a user",
         "requestBody": {
           "required": true,
@@ -40151,11 +39642,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "username",
-                  "email",
-                  "password"
-                ],
+                "required": ["username", "email", "password"],
                 "properties": {
                   "email": {
                     "type": "string"
@@ -40232,9 +39719,7 @@
     },
     "/users/{id}": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get a user",
         "parameters": [
           {
@@ -40281,9 +39766,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Update a user",
         "parameters": [
           {
@@ -40302,11 +39785,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "username",
-                  "email",
-                  "password"
-                ],
+                "required": ["username", "email", "password"],
                 "properties": {
                   "email": {
                     "type": "string"
@@ -40381,9 +39860,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Delete a user",
         "parameters": [
           {
@@ -40436,9 +39913,7 @@
     },
     "/users/me": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get authenticated user info",
         "responses": {
           "200": {
@@ -40476,9 +39951,7 @@
     },
     "/users/count": {
       "get": {
-        "tags": [
-          "Users-Permissions - Users & Roles"
-        ],
+        "tags": ["Users-Permissions - Users & Roles"],
         "summary": "Get user count",
         "responses": {
           "200": {
